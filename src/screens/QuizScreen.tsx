@@ -52,7 +52,7 @@ export const QuizScreen: React.FC = () => {
   // 7: Pergunta 6 - Compromisso com o método
   // 8: Análise do Algoritmo da IA (Loader)
   // 9: Oferta / Página de Vendas com Diagnóstico Personalizado
-  const [currentStep, setCurrentStep] = useState<number>(0);
+  const [currentStep, setCurrentStep] = useState<number>(1);
 
   // Form State
   const [alreadyTrains, setAlreadyTrains] = useState<string>('stuck');
@@ -126,7 +126,7 @@ export const QuizScreen: React.FC = () => {
   };
 
   const handleBack = () => {
-    if (currentStep > 0 && currentStep !== 8) {
+    if (currentStep > 1 && currentStep !== 8) {
       setCurrentStep(currentStep - 1);
     } else {
       navigate('Welcome');
@@ -752,7 +752,7 @@ export const QuizScreen: React.FC = () => {
            ══════════════════════════════════════════════════════ */}
         {currentStep === 8 && (
           <View style={styles.loadingContainer}>
-            <VertiCamLogo size="medium" variant="image" />
+            <VertiCamLogo size="medium" variant="badge" />
 
             <View style={{ marginTop: 32, alignItems: 'center' }}>
               <ActivityIndicator size="large" color={Colors.primary} />

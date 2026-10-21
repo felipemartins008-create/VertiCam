@@ -20,7 +20,7 @@ export const Header: React.FC<HeaderProps> = ({ title, showBack, onBack, rightAc
             <ArrowLeft color={Colors.textPrimary} size={22} />
           </TouchableOpacity>
         ) : (
-          <VertiCamLogo size="small" variant="image" />
+          <VertiCamLogo size="small" variant="badge" />
         )}
       </View>
 

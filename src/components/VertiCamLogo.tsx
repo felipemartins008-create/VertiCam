@@ -1,61 +1,71 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, ViewStyle } from 'react-native';
+import { Zap } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
 
 interface VertiCamLogoProps {
   size?: 'small' | 'medium' | 'large' | 'hero';
   showSubtitle?: boolean;
   style?: ViewStyle;
-  variant?: 'image' | 'text';
+  variant?: 'image' | 'text' | 'badge';
 }
 
 export const VertiCamLogo: React.FC<VertiCamLogoProps> = ({
   size = 'medium',
   showSubtitle = true,
   style,
-  variant = 'image',
+  variant = 'badge',
 }) => {
-  const getDims = () => {
-    switch (size) {
-      case 'small':
-        return { width: 120, height: 36 };
-      case 'large':
-        return { width: 220, height: 68 };
-      case 'hero':
-        return { width: 280, height: 86 };
-      case 'medium':
-      default:
-        return { width: 160, height: 48 };
-    }
-  };
-
-  const dims = getDims();
-
   if (variant === 'image') {
+    const getDims = () => {
+      switch (size) {
+        case 'small':
+          return { width: 110, height: 32 };
+        case 'large':
+          return { width: 180, height: 54 };
+        case 'hero':
+          return { width: 220, height: 66 };
+        case 'medium':
+        default:
+          return { width: 140, height: 42 };
+      }
+    };
+    const dims = getDims();
+
     return (
-      <View style={[styles.container, style]}>
+      <View style={[styles.imageWrapper, style]}>
         <Image
           source={require('../../assets/logo.png')}
-          style={{ width: dims.width, height: dims.height }}
+          style={{ width: dims.width, height: dims.height, borderRadius: 8 }}
           resizeMode="contain"
         />
       </View>
     );
   }
 
-  // Text variant with high-tech badge
+  // Ultra-clean BetterMe style Vector/Typography Brand Mark
+  const iconSize = size === 'small' ? 14 : size === 'large' ? 20 : size === 'hero' ? 24 : 17;
+
   return (
     <View style={[styles.container, style]}>
-      <View style={styles.textRow}>
-        <Text style={[styles.vertiText, size === 'small' && styles.textSmall, size === 'large' && styles.textLarge, size === 'hero' && styles.textHero]}>
-          verti<Text style={styles.camText}>cam</Text>
-        </Text>
+      <View style={styles.brandRow}>
+        <View style={[styles.iconPill, size === 'small' && styles.iconPillSmall, size === 'large' && styles.iconPillLarge]}>
+          <Zap size={iconSize} color="#080C14" fill="#080C14" />
+        </View>
+
+        <View style={styles.textColumn}>
+          <View style={styles.titleRow}>
+            <Text style={[styles.vertiText, size === 'small' && styles.textSmall, size === 'large' && styles.textLarge, size === 'hero' && styles.textHero]}>
+              verti<Text style={styles.camText}>cam</Text>
+            </Text>
+          </View>
+          {showSubtitle && size !== 'small' && (
+            <Text style={[styles.subtitle, size === 'large' && styles.subLarge]}>
+              VERTICAL JUMP ANALYSIS
+            </Text>
+          )}
+        </View>
       </View>
-      {showSubtitle && (
-        <Text style={[styles.subtitle, size === 'small' && styles.subSmall]}>
-          VERTICAL JUMP ANALYSIS
-        </Text>
-      )}
     </View>
   );
 };
@@ -65,12 +75,50 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  textRow: {
+  imageWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  brandRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  iconPill: {
+    width: 32,
+    height: 32,
+    borderRadius: 9,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  iconPillSmall: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+  },
+  iconPillLarge: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+  },
+  textColumn: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+  },
+  titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   vertiText: {
-    fontSize: 26,
+    fontSize: 22,
     fontWeight: '900',
     color: '#FFFFFF',
     letterSpacing: -0.5,
@@ -78,26 +126,27 @@ const styles = StyleSheet.create({
   },
   camText: {
     color: Colors.primary,
+    fontWeight: '900',
   },
   textSmall: {
-    fontSize: 18,
+    fontSize: 16,
   },
   textLarge: {
-    fontSize: 32,
+    fontSize: 28,
   },
   textHero: {
-    fontSize: 40,
+    fontSize: 34,
   },
   subtitle: {
-    fontSize: 9,
-    fontWeight: '700',
-    letterSpacing: 2.2,
+    fontSize: 8,
+    fontWeight: '800',
+    letterSpacing: 2,
     color: Colors.textSecondary,
-    marginTop: 2,
     textTransform: 'uppercase',
+    marginTop: 1,
   },
-  subSmall: {
-    fontSize: 7.5,
-    letterSpacing: 1.5,
+  subLarge: {
+    fontSize: 9.5,
+    letterSpacing: 2.4,
   },
 });

@@ -38,7 +38,7 @@ export const WorkoutHomeScreen: React.FC = () => {
       >
         {/* ── TOP BAR (VERTICAM BRANDED) ── */}
         <View style={styles.topBarCard}>
-          <VertiCamLogo size="small" variant="image" />
+          <VertiCamLogo size="small" variant="badge" />
 
           {/* Quick Check-in CTA button */}
           <TouchableOpacity

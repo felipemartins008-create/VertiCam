@@ -149,7 +149,7 @@ export const WebSidebar: React.FC = () => {
       <View style={[styles.logoRow, collapsed && styles.logoRowCollapsed]}>
         {!collapsed ? (
           <View style={{ flex: 1, alignItems: 'flex-start' }}>
-            <VertiCamLogo size="small" variant="image" />
+            <VertiCamLogo size="small" variant="badge" />
           </View>
         ) : (
           <View style={styles.logoIcon}>
