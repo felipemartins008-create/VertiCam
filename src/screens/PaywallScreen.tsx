@@ -153,7 +153,7 @@ export const PaywallScreen: React.FC = () => {
           <Text style={styles.paymentsLabel}>{t('paywall.paymentMethods')}</Text>
           <View style={styles.methodsRow}>
             <View style={styles.methodBadge}>
-              <Text style={styles.blikText}>Satispay</Text>
+              <Text style={styles.satispayText}>Satispay</Text>
             </View>
             <View style={styles.methodBadge}>
               <Text style={styles.methodText}> Pay</Text>
@@ -369,11 +369,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.cardBorder,
   },
-  blikText: {
-    color: '#EF4444',
+  satispayText: {
+    color: '#E11D48',
     fontWeight: '900',
     fontSize: 12,
-    letterSpacing: 1,
+    letterSpacing: 0.5,
   },
   methodText: {
     color: Colors.textPrimary,
