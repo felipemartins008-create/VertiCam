@@ -261,13 +261,13 @@ export const QuizScreen: React.FC = () => {
               </View>
             </View>
 
-            {/* ── BOTÃO ESCRITO COMEÇAR ── */}
+            {/* ── BOTÃO ESCRITO INIZIA (COMEÇAR) ── */}
             <TouchableOpacity
               style={styles.startPillButton}
               activeOpacity={0.88}
               onPress={() => setCurrentStep(1)}
             >
-              <Text style={styles.startPillButtonText}>COMEÇAR</Text>
+              <Text style={styles.startPillButtonText}>INIZIA</Text>
               <View style={styles.startArrowCircle}>
                 <ChevronRight size={18} color="#FFFFFF" strokeWidth={3} />
               </View>
@@ -326,28 +326,28 @@ export const QuizScreen: React.FC = () => {
         {currentStep === 2 && (
           <View style={styles.stepContainer}>
             <Text style={styles.mainTitle}>PIANO DI ALLENAMENTO ELEVAZIONE & SALTO</Text>
-            <Text style={styles.mainSubtitle}>ESCOLHA A SUA IDADE / SCEGLI LA TUA ETÀ</Text>
+            <Text style={styles.mainSubtitle}>SCEGLI LA TUA FASCIA D'ETÀ</Text>
 
             {renderBetterMeCards(
               [
                 {
                   id: '18-29',
-                  pillTitle: 'Idade: 18–29',
+                  pillTitle: 'Età: 18–29',
                   imageUri: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=600&q=80',
                 },
                 {
                   id: '30-39',
-                  pillTitle: 'Idade: 30–39',
+                  pillTitle: 'Età: 30–39',
                   imageUri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80',
                 },
                 {
                   id: '40-49',
-                  pillTitle: 'Idade: 40–49',
+                  pillTitle: 'Età: 40–49',
                   imageUri: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80',
                 },
                 {
                   id: '50+',
-                  pillTitle: 'Idade: 50+',
+                  pillTitle: 'Età: 50+',
                   imageUri: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80',
                 },
               ],
@@ -624,18 +624,18 @@ export const QuizScreen: React.FC = () => {
         {/* ── FOOTER BETTERME COM DISCLAIMER & SUPPORTO ── */}
         <View style={styles.betterMeFooter}>
           <Text style={styles.legalDisclaimer}>
-            Ao escolher sua opção e continuar, você concorda com nossos{' '}
-            <Text style={styles.legalLink}>Termos de Serviço</Text> |{' '}
-            <Text style={styles.legalLink}>Política de Privacidade</Text>
+            Selezionando la tua opzione e continuando, accetti i nostri{' '}
+            <Text style={styles.legalLink}>Termini di Servizio</Text> |{' '}
+            <Text style={styles.legalLink}>Informativa sulla Privacy</Text>
           </Text>
-          <Text style={styles.readBeforeNotice}>Leia antes de continuar</Text>
+          <Text style={styles.readBeforeNotice}>Leggi prima di continuare</Text>
         </View>
       </ScrollView>
 
       {/* Floating Help Button (Bottom-Right, exactly like BetterMe screenshot) */}
       <TouchableOpacity style={styles.floatingHelpBtn} activeOpacity={0.8}>
         <HelpCircle size={15} color="#000000" />
-        <Text style={styles.floatingHelpText}>Ajuda</Text>
+        <Text style={styles.floatingHelpText}>Aiuto</Text>
       </TouchableOpacity>
     </View>
   );
