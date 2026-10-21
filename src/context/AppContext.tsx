@@ -58,7 +58,7 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentScreen, setCurrentScreen] = useState<ScreenName>('Welcome');
+  const [currentScreen, setCurrentScreen] = useState<ScreenName>('Quiz');
   const [dashboardTab, setDashboardTab] = useState<'workouts' | 'evaluations' | 'profile'>('workouts');
   const [userProfile, setUserProfile] = useState<UserProfile>(INITIAL_USER_PROFILE);
   const [jumpHistory, setJumpHistory] = useState<JumpTestResult[]>([]);
