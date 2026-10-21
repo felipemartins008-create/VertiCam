@@ -1,0 +1,258 @@
+{
+  "appName": "VolleyJump AI",
+  "tagline": "Aumenta la tua elevazione e schiaccia sopra il muro",
+  "common": {
+    "continue": "Continua",
+    "back": "Indietro",
+    "save": "Salva",
+    "cancel": "Annulla",
+    "close": "Chiudi",
+    "start": "Inizia",
+    "alreadyHaveAccount": "Ho già un account",
+    "loading": "Caricamento in corso...",
+    "error": "Si è verificato un errore",
+    "success": "Operazione riuscita",
+    "confirm": "Conferma",
+    "unitCm": "cm",
+    "unitKg": "kg",
+    "unitYears": "anni",
+    "unitSeconds": "s"
+  },
+  "welcome": {
+    "heroTitle": "AUMENTA LA TUA",
+    "heroTitle2": "ELEVAZIONE",
+    "heroSubtitle": "E SCHIACCIA SOPRA IL MURO",
+    "description": "Piattaforma professionale di preparazione fisica e misurazione dell'elevazione con telecamera per pallavolisti.",
+    "ctaStart": "Inizia — Test Gratuito",
+    "ctaLogin": "Ho già un account",
+    "badgeTech": "Misurazione del tempo di volo • Senza sensori"
+  },
+  "quiz": {
+    "step": "Passo {{current}} di {{total}}",
+    "step1Title": "Qual è il tuo ruolo in campo?",
+    "step1Subtitle": "Adatteremo il profilo dei carichi di salto alla specificità del tuo gioco.",
+    "positions": {
+      "outside": "Schiacciatore (Banda)",
+      "opposite": "Opposto",
+      "middle": "Centrale",
+      "setter": "Palleggiatore",
+      "libero": "Libero",
+      "beach": "Beach Volley"
+    },
+    "step2Title": "Il tuo livello di esperienza",
+    "step2Subtitle": "Seleziona il grado della tua esperienza di allenamento.",
+    "levels": {
+      "beginner": {
+        "title": "Principiante",
+        "desc": "Gioco amatoriale, nessun allenamento regolare con sovraccarichi"
+      },
+      "intermediate": {
+        "title": "Intermedio",
+        "desc": "Campionato regionale (Serie C/D), 2-3 allenamenti a settimana"
+      },
+      "advanced": {
+        "title": "Avanzato",
+        "desc": "Campionato nazionale (Serie A/B, SuperLega, giovanili élite)"
+      }
+    },
+    "step3Title": "Obiettivi principali e disturbi",
+    "step3Subtitle": "Puoi selezionare più opzioni.",
+    "pains": {
+      "jumper_knee": {
+        "title": "Dolori alle ginocchia (Ginocchio del saltatore)",
+        "desc": "Dolore al tendine rotuleo in atterraggio o in flessione profonda"
+      },
+      "higher_jump": {
+        "title": "Voglio saltare più in alto",
+        "desc": "Obiettivo: Aumentare l'altezza di attacco e muro di 6-10 cm"
+      },
+      "dynamism": {
+        "title": "Mancanza di reattività",
+        "desc": "Migliorare esplosività e rapidità nello stacco da terra"
+      }
+    },
+    "step4Title": "I tuoi parametri fisici",
+    "step4Subtitle": "Necessari per calcolare con precisione l'altezza di attacco e la potenza.",
+    "age": "Età",
+    "height": "Altezza (cm)",
+    "weight": "Peso (kg)",
+    "standingReach": "Portata da fermo (opzionale, cm)",
+    "standingReachHelp": "Altezza raggiunta con la mano tesa in alto senza saltare (stimata a circa 1.33 × altezza)"
+  },
+  "cameraIntro": {
+    "badge": "Tecnologia VolleyJump AI",
+    "title": "Misurazione scientifica del salto con la telecamera",
+    "description": "Il nostro algoritmo misura con precisione il tempo di volo (tempo trascorso in aria dallo stacco all'atterraggio) e lo converte nell'altezza reale dell'elevazione:",
+    "formula": "h = (g · t²) / 8",
+    "formulaDesc": "dove g = 9.81 m/s² e t è il tempo di volo in secondi.",
+    "benefit1": "Nessun bisogno di acquistare pedane di salto o sensori costosi",
+    "benefit2": "Precisione pari a una pedana di forza di laboratorio",
+    "cta": "Esegui il primo test gratuito"
+  },
+  "instructions": {
+    "title": "Istruzioni per il test del salto",
+    "subtitle": "Segui questi 3 semplici passaggi per ottenere una misurazione accurata:",
+    "step1Title": "1. Posiziona il telefono",
+    "step1Desc": "Appoggia il telefono saldamente sul pavimento a circa 2 metri dal punto di salto.",
+    "step2Title": "2. Figura intera nell'inquadratura",
+    "step2Desc": "Assicurati che siano visibili i piedi e lo spazio sopra la testa per il salto.",
+    "step3Title": "3. Salta al segnale",
+    "step3Desc": "Dopo il conto alla rovescia 3, 2, 1 salta a piedi uniti con la massima potenza, come in attacco.",
+    "cta": "Apri la fotocamera"
+  },
+  "camera": {
+    "recording": "REGISTRAZIONE IN CORSO...",
+    "alignGuide": "Allinea il corpo con la guida",
+    "countdown": "Preparati!",
+    "galleryOption": "Scegli un video dalla galleria",
+    "flipCamera": "Inverti telecamera",
+    "takeoffDetected": "Stacco rilevato",
+    "landingDetected": "Atterraggio rilevato",
+    "processing": "Analisi traiettoria e tempo di volo...",
+    "frameScrubber": "Regolatore fotogrammi (per la massima precisione)"
+  },
+  "results": {
+    "title": "Risultato del Tuo Salto",
+    "subtitle": "Misurazione registrata con successo",
+    "jumpHeight": "La Tua Elevazione",
+    "flightTime": "Tempo di Volo",
+    "attackReach": "Portata in Attacco",
+    "standingReach": "Portata da Fermo",
+    "benchmark": "Livello Pallavolistico",
+    "benchmarkPro": "SuperLega / Nazionale Italiana 🇮🇹",
+    "benchmarkGood": "Serie A2 / Serie B FIPAV",
+    "benchmarkBeginner": "Base per una crescita esplosiva",
+    "potentialGain": "Potenziale del programma: +6 a +10 cm in 8 settimane",
+    "ctaUnlock": "Sblocca il tuo piano di allenamento"
+  },
+  "paywall": {
+    "title": "Aumenta la tua elevazione di 6-10 cm in 8 settimane",
+    "subtitle": "Unisciti a oltre 1.800 pallavolisti che si allenano con VolleyJump AI.",
+    "benefits": [
+      {
+        "icon": "unlock",
+        "title": "Piano personalizzato di 8 settimane",
+        "desc": "Strutturato sul tuo ruolo in campo e sul tuo livello iniziale."
+      },
+      {
+        "icon": "trending-up",
+        "title": "Test di salto illimitati con telecamera",
+        "desc": "Misura i progressi dopo ogni ciclo pliometrico senza restrizioni."
+      },
+      {
+        "icon": "shield-check",
+        "title": "Programma di protezione ginocchia e spalle",
+        "desc": "Isometria, eccentrica e prevenzione del ginocchio del saltatore (tendine rotuleo)."
+      },
+      {
+        "icon": "video",
+        "title": "Video HD con spiegazione esercizi",
+        "desc": "Indicazioni tecniche in qualità HD da preparatori atletici d'élite."
+      }
+    ],
+    "annual": {
+      "name": "Piano Annuale",
+      "price": "349,00 €",
+      "period": "/ anno",
+      "perMonth": "~29 € / mese",
+      "badge": "RISPARMI IL 40%",
+      "selected": true
+    },
+    "monthly": {
+      "name": "Piano Mensile",
+      "price": "49,00 €",
+      "period": "/ mese",
+      "perMonth": "49 € / mese",
+      "badge": "Standard"
+    },
+    "paymentMethods": "Pagamenti sicuri:",
+    "methods": ["Apple Pay", "Google Pay", "Carta di credito", "Satispay"],
+    "guarantee": "Garanzia di rimborso 14 giorni • Disdici in qualsiasi momento",
+    "cta": "Inizia la prova ora",
+    "terms": "Abbonamento con rinnovo automatico. Conforme alle normative GDPR europee."
+  },
+  "dashboard": {
+    "tabs": {
+      "workouts": "Allenamenti",
+      "evaluations": "Valutazioni",
+      "profile": "Profilo"
+    }
+  },
+  "workoutHome": {
+    "todayTitle": "Allenamento del Giorno",
+    "todayWorkout": "Allenamento A: Potenza ed Elevazione",
+    "duration": "45 min",
+    "intensity": "Alta intensità",
+    "startToday": "Inizia l'allenamento di oggi",
+    "completedToday": "Allenamento completato per oggi! Ottimo lavoro!",
+    "modulesTitle": "Programmi Specifici di Pallavolo",
+    "modules": {
+      "main8Weeks": {
+        "title": "Programma Principale: Elevazione 8 Settimane",
+        "desc": "Fase pliometrica, adattamento tendineo e massima potenza esplosiva.",
+        "badge": "Programma Principale"
+      },
+      "healthyKnees": {
+        "title": "Ginocchia Sane (Prevenzione)",
+        "desc": "Protocollo di protezione del tendine rotuleo — elimina il 'ginocchio del saltatore'.",
+        "badge": "Prevenzione & Recupero"
+      },
+      "homeWorkout": {
+        "title": "Allenamento a Casa (Senza attrezzi)",
+        "desc": "Pliometria rapida e stabilità in spazi ridotti senza bilanciere.",
+        "badge": "Senza Attrezzi"
+      },
+      "matchWarmup": {
+        "title": "Riscaldamento Pre-Partita",
+        "desc": "Attivazione neurale e delle caviglie prima di entrare in campo.",
+        "badge": "15 min"
+      }
+    }
+  },
+  "workoutPlayer": {
+    "exerciseOf": "Esercizio {{current}} di {{total}}",
+    "setsAndReps": "{{sets}} serie × {{reps}} ripetizioni",
+    "suggestedWeight": "Carico: {{weight}}",
+    "targetMuscle": "Focus principale: {{focus}}",
+    "restTimer": "Tempo di recupero",
+    "restRemaining": "Rimanente: {{seconds}}s",
+    "skipRest": "Salta recupero",
+    "completeSet": "Serie completata",
+    "completeExercise": "Termina esercizio",
+    "workoutComplete": "Allenamento Completato!",
+    "workoutCompleteSub": "Fantastico lavoro! I tuoi tendini e le fibre a contrazione rapida hanno assorbito lo stimolo.",
+    "saveAndExit": "Salva ed esci"
+  },
+  "evaluations": {
+    "title": "Storico e Test di Elevazione",
+    "latestTest": "Ultima Misurazione Registrata",
+    "newTestCta": "Esegui Nuovo Test con Telecamera",
+    "historyTitle": "Progresso Elevazione (Crescita nel tempo)",
+    "noHistory": "Nessun test registrato. Esegui la tua prima misurazione!",
+    "record": "Il Tuo Record",
+    "initial": "Salto Iniziale",
+    "currentGain": "Guadagno Totale",
+    "chartLabel": "Elevazione (cm)"
+  },
+  "profile": {
+    "title": "Profilo Atleta",
+    "statsTitle": "Statistiche Atletiche",
+    "position": "Ruolo",
+    "level": "Livello",
+    "height": "Altezza",
+    "weight": "Peso",
+    "initialJump": "Salto Iniziale",
+    "currentJump": "Salto Attuale",
+    "totalGain": "Guadagno Totale",
+    "subscriptionTitle": "Gestione Abbonamento",
+    "activePlan": "Piano Attivo: VolleyJump PRO (Annuale)",
+    "renewalDate": "Rinnovo: 23.09.2027",
+    "paymentVia": "Pagamento: Stripe / Apple Pay / Carta",
+    "manageSub": "Gestisci abbonamento",
+    "settingsTitle": "Impostazioni e Privacy",
+    "gdpr": "Privacy e GDPR",
+    "exportData": "Esporta i miei dati (GDPR)",
+    "support": "Supporto e Contatta il Coach",
+    "logout": "Disconnetti"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "SiatkaJump AI",
+    "slug": "siatkajump-ai",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0F172A",
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "SiatkaJump AI potrzebuje dostępu do kamery, aby zmierzyć Twój czas lotu i wysokość wyskoku.",
+        "NSMicrophoneUsageDescription": "Używane do rejestracji dźwięku uderzenia o parkiet podczas wyskoku.",
+        "NSPhotoLibraryUsageDescription": "Pozwala wybrać nagrane wideo wyskoku z galerii do analizy."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0F172A",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ],
+      "predictiveBackGestureEnabled": false
+    },
+    "platforms": ["ios", "android", "web"],
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    }
+  }
+}

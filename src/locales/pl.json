@@ -1,0 +1,257 @@
+{
+  "appName": "SiatkaJump AI",
+  "tagline": "Zwiększ swój wyskok i uderzaj nad blokiem",
+  "common": {
+    "continue": "Dalej",
+    "back": "Wstecz",
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "close": "Zamknij",
+    "start": "Rozpocznij",
+    "alreadyHaveAccount": "Mam już konto",
+    "loading": "Ładowanie...",
+    "error": "Wystąpił błąd",
+    "success": "Sukces",
+    "confirm": "Zatwierdź",
+    "unitCm": "cm",
+    "unitKg": "kg",
+    "unitYears": "lat",
+    "unitSeconds": "s"
+  },
+  "welcome": {
+    "heroTitle": "ZWIĘKSZ SWÓJ WYSKOK",
+    "heroSubtitle": "I UDERZAJ NAD BLOKIEM",
+    "description": "Profesjonalna platforma motoryczna i laboratoryjny pomiar skoku z kamery telefonu dla siatkarzy w Polsce.",
+    "ctaStart": "Rozpocznij",
+    "ctaLogin": "Mam już konto",
+    "badgeTech": "Pomiar czasem lotu • Bez czujników"
+  },
+  "quiz": {
+    "step": "Krok {{current}} z {{total}}",
+    "step1Title": "Jaka jest Twoja pozycja na boisku?",
+    "step1Subtitle": "Dostosujemy profil obciążeń skokowych do specyfiki Twojej gry.",
+    "positions": {
+      "outside": "Przyjmujący",
+      "opposite": "Atakujący",
+      "middle": "Środkowy",
+      "setter": "Rozgrywający",
+      "libero": "Libero",
+      "beach": "Siatkówka Plażowa"
+    },
+    "step2Title": "Twój poziom zaawansowania",
+    "step2Subtitle": "Wybierz stopień Twojego doświadczenia treningowego.",
+    "levels": {
+      "beginner": {
+        "title": "Początkujący",
+        "desc": "Gra amatorska, brak regularnego treningu siłowego"
+      },
+      "intermediate": {
+        "title": "Średniozaawansowany",
+        "desc": "Liga regionalna/akademicka, 2-3 treningi w tygodniu"
+      },
+      "advanced": {
+        "title": "Zaawansowany",
+        "desc": "Klub ligowy (II/I Liga / PlusLiga / Młoda Liga)"
+      }
+    },
+    "step3Title": "Główne cele i dolegliwości",
+    "step3Subtitle": "Możesz wybrać kilka opcji.",
+    "pains": {
+      "jumper_knee": {
+        "title": "Bóle kolan (Kolano skoczka)",
+        "desc": "Ból więzadła rzepki przy lądowaniu lub głębokim ugięciu"
+      },
+      "higher_jump": {
+        "title": "Chcę skakać wyżej",
+        "desc": "Cel: Zwiększenie zasięgu w ataku i bloku o 6-10 cm"
+      },
+      "dynamism": {
+        "title": "Brak dynamiki",
+        "desc": "Zwiększenie eksplozywności i szybkości wyjścia w górę"
+      }
+    },
+    "step4Title": "Twoje parametry fizyczne",
+    "step4Subtitle": "Niezbędne do precyzyjnego wyliczenia zasięgu w ataku i mocy.",
+    "age": "Wiek",
+    "height": "Wzrost (cm)",
+    "weight": "Waga (kg)",
+    "standingReach": "Zasięg stojąc (opcjonalnie, cm)",
+    "standingReachHelp": "Zasięg ręki wyciągniętej w górę bez skoku (domyślnie obliczany na ok. 1.33 × wzrost)"
+  },
+  "cameraIntro": {
+    "badge": "Technologia SiatkaJump AI",
+    "title": "Laboratoryjny pomiar wyskoku z Twojej kamery",
+    "description": "Nasz algorytm precyzyjnie mierzy czas lotu (czas spędzony w powietrzu od oderwania do lądowania) i przelicza go na rzeczywistą wysokość wyskoku:",
+    "formula": "h = (g · t²) / 8",
+    "formulaDesc": "gdzie g = 9.81 m/s², a t to czas lotu w sekundach.",
+    "benefit1": "Brak konieczności kupowania drogich mat czy czujników",
+    "benefit2": "Dokładność laboratoryjnej platformy tensometrycznej",
+    "cta": "Wykonaj pierwszy darmowy test"
+  },
+  "instructions": {
+    "title": "Instrukcja testu wyskoku",
+    "subtitle": "Wykonaj te 3 proste kroki, aby uzyskać dokładny pomiar:",
+    "step1Title": "1. Ustaw telefon",
+    "step1Desc": "Oprzyj telefon stabilnie na parkiecie w odległości ok. 2 metrów od miejsca skoku.",
+    "step2Title": "2. Cała sylwetka w kadrze",
+    "step2Desc": "Upewnij się, że widać Twoje stopy i miejsce nad głową z zapasem na skok.",
+    "step3Title": "3. Skok na sygnał",
+    "step3Desc": "Po odliczeniu 3, 2, 1 wyskocz obunóż z maksymalną siłą, jak do ataku.",
+    "cta": "Otwórz kamerę"
+  },
+  "camera": {
+    "recording": "NAGRYWANIE...",
+    "alignGuide": "Dopasuj sylwetkę do linii",
+    "countdown": "Przygotuj się!",
+    "galleryOption": "Wybierz wideo z galerii",
+    "flipCamera": "Odwróć kamerę",
+    "takeoffDetected": "Wykryto oderwanie",
+    "landingDetected": "Wykryto lądowanie",
+    "processing": "Analiza trajektorii i czasu lotu...",
+    "frameScrubber": "Korektor klatkowy (dla maksymalnej precyzji)"
+  },
+  "results": {
+    "title": "Wynik Twojego Wyskoku",
+    "subtitle": "Pomiar zarejestrowany pomyślnie",
+    "jumpHeight": "Twój Wyskok",
+    "flightTime": "Czas Lotu",
+    "attackReach": "Zasięg w ataku",
+    "standingReach": "Zasięg dosiężny",
+    "benchmark": "Poziom siatkarski",
+    "benchmarkPro": "Reprezentacja / PlusLiga",
+    "benchmarkGood": "Solidny poziom ligowy",
+    "benchmarkBeginner": "Baza do dynamicznego rozwoju",
+    "potentialGain": "Potencjał programu: +6 do +10 cm w 8 tygodni",
+    "ctaUnlock": "Odblokuj swój plan treningowy"
+  },
+  "paywall": {
+    "title": "Zwiększ swój wyskok o 6-10 cm w 8 tygodni",
+    "subtitle": "Dołącz do ponad 1 800 siatkarzy w Polsce trenujących z SiatkaJump AI.",
+    "benefits": [
+      {
+        "icon": "unlock",
+        "title": "Personalizowany plan na 8 tygodni",
+        "desc": "Ułożony pod Twoją pozycję na boisku i poziom zaawansowania."
+      },
+      {
+        "icon": "trending-up",
+        "title": "Nielimitowane testy wyskoku",
+        "desc": "Mierz postępy po każdym cyklu plyometrycznym bez ograniczeń."
+      },
+      {
+        "icon": "shield-check",
+        "title": "Program ochrony kolan i barków",
+        "desc": "Izometria, ekscentryka i profilaktyka kolana skoczka (więzadło rzepki)."
+      },
+      {
+        "icon": "video",
+        "title": "Filmy HD z ćwiczeniami",
+        "desc": "Wskazówki techniczne w jakości HD od trenerów przygotowania fizycznego."
+      }
+    ],
+    "annual": {
+      "name": "Plano Roczny",
+      "price": "349,00 PLN",
+      "period": "/ rok",
+      "perMonth": "~29 PLN / miesiąc",
+      "badge": "OSZCZĘDZASZ 40%",
+      "selected": true
+    },
+    "monthly": {
+      "name": "Plano Miesięczny",
+      "price": "49,00 PLN",
+      "period": "/ miesiąc",
+      "perMonth": "49 PLN / miesiąc",
+      "badge": "Standard"
+    },
+    "paymentMethods": "Bezpieczne płatności w Polsce:",
+    "methods": ["BLIK", "Apple Pay", "Google Pay", "Karta płatnicza"],
+    "guarantee": "14 dni gwarancji zwrotu pieniędzy • Anuluj w dowolnym momencie",
+    "cta": "Wypróbuj teraz",
+    "terms": "Subskrypcja odnawialna automatycznie. Zgodne z polskim prawem i RODO."
+  },
+  "dashboard": {
+    "tabs": {
+      "workouts": "Treningi",
+      "evaluations": "Pomiary",
+      "profile": "Profil"
+    }
+  },
+  "workoutHome": {
+    "todayTitle": "Trening Dnia",
+    "todayWorkout": "Trening A: Moc i Wyskok",
+    "duration": "45 min",
+    "intensity": "Wysoka intensywność",
+    "startToday": "Rozpocznij dzisiejszy trening",
+    "completedToday": "Trening na dziś wykonany! Brawo!",
+    "modulesTitle": "Dedykowane Programy Siatkarskie",
+    "modules": {
+      "main8Weeks": {
+        "title": "Główny Program: Wyskok 8 Tygodni",
+        "desc": "Faza plyometrii, adaptacji ścięgnistej i maksymalnej mocy eksplozywnej.",
+        "badge": "Program Główny"
+      },
+      "healthyKnees": {
+        "title": "Zdrowe Kolana (Profilaktyka)",
+        "desc": "Protokół ochrony więzadła rzepki — eliminacja 'kolana skoczka'.",
+        "badge": "Rehabilitacja & Prewencja"
+      },
+      "homeWorkout": {
+        "title": "Trening w Domu (Bez sprzętu)",
+        "desc": "Szybki trening plyometryczny i stabilizacyjny na małej przestrzeni.",
+        "badge": "Bez Sprzętu"
+      },
+      "matchWarmup": {
+        "title": "Rozgrzewka Przed Meczem",
+        "desc": "Aktywacja układu nerwowego i stawów skokowych tuż przed wyjściem na parkiet.",
+        "badge": "15 min"
+      }
+    }
+  },
+  "workoutPlayer": {
+    "exerciseOf": "Ćwiczenie {{current}} z {{total}}",
+    "setsAndReps": "{{sets}} serie × {{reps}} powtórzeń",
+    "suggestedWeight": "Obciążenie: {{weight}}",
+    "targetMuscle": "Główny akcent: {{focus}}",
+    "restTimer": "Czas odpoczynku",
+    "restRemaining": "Zostało: {{seconds}}s",
+    "skipRest": "Pomiń odpoczynek",
+    "completeSet": "Zalicz serię",
+    "completeExercise": "Ukończ ćwiczenie",
+    "workoutComplete": "Trening Ukończony!",
+    "workoutCompleteSub": "Świetna robota! Twoje ścięgna i włókna szybkokurczliwe zaadaptowały bodziec.",
+    "saveAndExit": "Zapisz i wróć do pulpitu"
+  },
+  "evaluations": {
+    "title": "Historia i Pomiary Wyskoku",
+    "latestTest": "Ostatni Zarejestrowany Pomiar",
+    "newTestCta": "Wykonaj Nowy Test z Kamery",
+    "historyTitle": "Progres Wyskoku (Wzrost w czasie)",
+    "noHistory": "Brak zarejestrowanych testów. Zrób swój pierwszy pomiar!",
+    "record": "Twój Rekord",
+    "initial": "Wyskok Początkowy",
+    "currentGain": "Łączny Progres",
+    "chartLabel": "Wyskok (cm)"
+  },
+  "profile": {
+    "title": "Profil Zawodnika",
+    "statsTitle": "Statystyki Atletyczne",
+    "position": "Pozycja",
+    "level": "Poziom",
+    "height": "Wzrost",
+    "weight": "Waga",
+    "initialJump": "Salto Inicial (Początkowy)",
+    "currentJump": "Salto Atual (Aktualny)",
+    "totalGain": "Zysk Łączny (Ganho)",
+    "subscriptionTitle": "Zarządzanie Subskrypcją",
+    "activePlan": "Aktywny Plan: SiatkaJump PRO (Roczny)",
+    "renewalDate": "Odnowienie: 23.09.2027",
+    "paymentVia": "Płatność: BLIK / Stripe / RevenueCat",
+    "manageSub": "Zarządzaj subskrypcją",
+    "settingsTitle": "Ustawienia i Prywatność",
+    "gdpr": "Prywatność i RODO (GDPR)",
+    "exportData": "Eksportuj moje dane (RODO)",
+    "support": "Wsparcie i Kontakt z Trenerem",
+    "logout": "Wyloguj się"
+  }
+}
