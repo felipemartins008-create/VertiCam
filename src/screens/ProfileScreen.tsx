@@ -45,7 +45,7 @@ export const ProfileScreen: React.FC = () => {
   const handleManageSubscription = () => {
     Alert.alert(
       'Gestione Abbonamento',
-      'L\'abbonamento VolleyJump PRO è attivo (349,00 € / anno). Prossimo rinnovo: 23.09.2027.',
+      'L\'abbonamento VertiCam PRO è attivo (349,00 € / anno). Prossimo rinnovo: 23.09.2027.',
       [
         { text: 'Disdici rinnovo', style: 'destructive' },
         { text: 'Chiudi', style: 'cancel' },
@@ -69,7 +69,7 @@ export const ProfileScreen: React.FC = () => {
           </View>
           <View style={styles.profileInfo}>
             <View style={styles.nameRow}>
-              <Text style={styles.profileName}>{userProfile.fullName || 'Pallavolista'}</Text>
+              <Text style={styles.profileName}>{userProfile.fullName || 'Atleta VertiCam'}</Text>
               <View style={styles.proPill}>
                 <Text style={styles.proPillText}>PRO</Text>
               </View>
@@ -162,7 +162,7 @@ export const ProfileScreen: React.FC = () => {
             onPress={() =>
               Alert.alert(
                 'Conformità GDPR',
-                'VolleyJump AI tratta i dati biometrici in conformità al Regolamento Generale sulla Protezione dei Dati (UE) 2016/679 (GDPR). Hai il pieno diritto di consultazione e cancellazione dei tuoi dati in qualsiasi momento.'
+                'VertiCam tratta i dati biometrici in conformità al Regolamento Generale sulla Protezione dei Dati (UE) 2016/679 (GDPR). Hai il pieno diritto di consultazione e cancellazione dei tuoi dati in qualsiasi momento.'
               )
             }
           >
@@ -181,8 +181,8 @@ export const ProfileScreen: React.FC = () => {
             activeOpacity={0.8}
             onPress={() =>
               Alert.alert(
-                'Wsparcie Trenera Siatkówki',
-                'Nasz zespół trenerów przygotowania motorycznego odpowiada pod adresem: kontakt@siatkajump.pl'
+                'Supporto Coach & Preparazione Atletica',
+                'Il nostro team di specialisti della biomeccanica e autoregolazione neuromuscolare risponde a: support@verticam.app'
               )
             }
           >
@@ -191,7 +191,7 @@ export const ProfileScreen: React.FC = () => {
             </View>
             <View style={styles.settingsTextWrap}>
               <Text style={styles.settingsTitle}>{t('profile.support')}</Text>
-              <Text style={styles.settingsSub}>Zadaj pytanie dotyczące techniki</Text>
+              <Text style={styles.settingsSub}>Fai una domanda sulla tecnica o sul programma</Text>
             </View>
             <ChevronRight size={18} color={Colors.textMuted} />
           </TouchableOpacity>

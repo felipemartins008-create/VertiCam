@@ -13,7 +13,7 @@ export const CameraIntroScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header showBack onBack={() => navigate('Quiz')} title="VolleyJump AI Vision" />
+      <Header showBack onBack={() => navigate('Quiz')} title="VertiCam Vision" />
 
       <ScrollView contentContainerStyle={styles.content}>
         {/* Odznaka innowacji */}

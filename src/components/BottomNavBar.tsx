@@ -64,7 +64,7 @@ export const BottomNavBar: React.FC = () => {
             <View style={[styles.iconWrapper, active && styles.iconWrapperActive]}>
               <tab.Icon
                 size={22}
-                color={active ? '#F59E0B' : '#71717A'}
+                color={active ? Colors.primary : Colors.textMuted}
                 strokeWidth={active ? 2.4 : 1.8}
               />
             </View>
@@ -81,12 +81,12 @@ export const BottomNavBar: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     height: 68,
-    backgroundColor: '#0A0E1A',
+    backgroundColor: Colors.background,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.06)',
+    borderTopColor: Colors.cardBorder,
     paddingBottom: 8,
     paddingTop: 6,
   },
@@ -104,15 +104,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   iconWrapperActive: {
-    backgroundColor: 'rgba(245, 158, 11, 0.12)',
+    backgroundColor: 'rgba(0, 229, 255, 0.12)',
   },
   label: {
     fontSize: 10,
-    color: '#71717A',
+    color: Colors.textMuted,
     fontWeight: '600',
   },
   labelActive: {
-    color: '#F59E0B',
+    color: Colors.primary,
     fontWeight: '800',
   },
 });

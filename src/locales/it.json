@@ -1,6 +1,6 @@
 {
-  "appName": "VolleyJump AI",
-  "tagline": "Aumenta la tua elevazione e schiaccia sopra il muro",
+  "appName": "VertiCam",
+  "tagline": "Vertical Jump Analysis & Autoregolazione Neuromuscolare",
   "common": {
     "continue": "Continua",
     "back": "Indietro",
@@ -21,11 +21,11 @@
   "welcome": {
     "heroTitle": "AUMENTA LA TUA",
     "heroTitle2": "ELEVAZIONE",
-    "heroSubtitle": "E SCHIACCIA SOPRA IL MURO",
-    "description": "Piattaforma professionale di preparazione fisica e misurazione dell'elevazione con telecamera per pallavolisti.",
+    "heroSubtitle": "VERTICAL JUMP ANALYSIS",
+    "description": "Piattaforma professionale di preparazione fisica con analisi biomeccanica del salto tramite telecamera dello smartphone e autoregolazione neuromuscolare.",
     "ctaStart": "Inizia — Test Gratuito",
     "ctaLogin": "Ho già un account",
-    "badgeTech": "Misurazione del tempo di volo • Senza sensori"
+    "badgeTech": "Analisi Tempo di Volo & RSI • Senza Sensori"
   },
   "quiz": {
     "step": "Passo {{current}} di {{total}}",
@@ -127,7 +127,7 @@
   },
   "paywall": {
     "title": "Aumenta la tua elevazione di 6-10 cm in 8 settimane",
-    "subtitle": "Unisciti a oltre 1.800 pallavolisti che si allenano con VolleyJump AI.",
+    "subtitle": "Unisciti a oltre 1.800 atleti che ottimizzano il proprio salto con VertiCam.",
     "benefits": [
       {
         "icon": "unlock",
@@ -245,7 +245,7 @@
     "currentJump": "Salto Attuale",
     "totalGain": "Guadagno Totale",
     "subscriptionTitle": "Gestione Abbonamento",
-    "activePlan": "Piano Attivo: VolleyJump PRO (Annuale)",
+    "activePlan": "Piano Attivo: VertiCam PRO (Annuale)",
     "renewalDate": "Rinnovo: 23.09.2027",
     "paymentVia": "Pagamento: Stripe / Apple Pay / Carta",
     "manageSub": "Gestisci abbonamento",

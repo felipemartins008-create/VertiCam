@@ -121,8 +121,8 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   neon: {
-    backgroundColor: '#FACC15',
-    shadowColor: '#FACC15',
+    backgroundColor: Colors.primary,
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.45,
     shadowRadius: 12,
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   textPrimary: {
-    color: '#0F172A',
+    color: '#080C14',
     fontSize: 15,
   },
   textSecondary: {

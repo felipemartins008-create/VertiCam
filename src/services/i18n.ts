@@ -3,7 +3,7 @@ import itTranslations from '../locales/it.json';
 type TranslationTree = typeof itTranslations;
 
 /**
- * Gestore i18n per VolleyJump AI con supporto a chiavi annidate e sostituzione parametri {{param}}.
+ * Gestore i18n per VertiCam con supporto a chiavi annidate e sostituzione parametri {{param}}.
  */
 export function t(keyPath: string, params?: Record<string, string | number>): string {
   const keys = keyPath.split('.');

@@ -11,6 +11,7 @@ import { Colors } from '../theme/colors';
 import { useApp } from '../context/AppContext';
 import { WORKOUT_MODULES } from '../data/mockData';
 import { WorkoutModule } from '../types';
+import { VertiCamLogo } from '../components/VertiCamLogo';
 
 const WEEK_DAYS = [
   { label: 'LUN', day: 28, isSelected: true },
@@ -35,24 +36,18 @@ export const WorkoutHomeScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* ── TOP BAR (ESTILO BTPRIME) ── */}
+        {/* ── TOP BAR (VERTICAM BRANDED) ── */}
         <View style={styles.topBarCard}>
-          {/* Logo com ícone esportivo */}
-          <View style={styles.logoContainer}>
-            <Zap size={18} color="#EF4444" fill="#EF4444" />
-            <Text style={styles.logoTitle}>
-              Volley<Text style={styles.logoTitleBold}>Jump</Text>
-            </Text>
-          </View>
+          <VertiCamLogo size="small" variant="image" />
 
-          {/* Bolinha esportiva central */}
-          <View style={styles.tennisBall}>
-            <View style={styles.tennisBallLine} />
-          </View>
-
-          {/* Menu Hambúrguer */}
-          <TouchableOpacity style={styles.menuButton} activeOpacity={0.7}>
-            <Menu size={22} color="#FFFFFF" strokeWidth={2.4} />
+          {/* Quick Check-in CTA button */}
+          <TouchableOpacity
+            style={styles.checkinQuickBtn}
+            activeOpacity={0.75}
+            onPress={() => navigate('DailyCheckin')}
+          >
+            <Activity size={15} color={Colors.primary} />
+            <Text style={styles.checkinQuickText}>Check-in SNC</Text>
           </TouchableOpacity>
         </View>
 
@@ -178,7 +173,7 @@ export const WorkoutHomeScreen: React.FC = () => {
           >
             <View style={styles.secondaryModuleLeft}>
               <View style={styles.secondaryModuleIconBox}>
-                <Flame size={18} color="#F59E0B" />
+                <Flame size={18} color={Colors.primary} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.secondaryModuleTitle}>{module.title}</Text>
@@ -217,46 +212,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 18,
-    paddingVertical: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     marginBottom: 20,
   },
-  logoContainer: {
+  checkinQuickBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-  },
-  logoTitle: {
-    fontSize: 16,
-    color: '#EF4444',
-    fontWeight: '700',
-  },
-  logoTitleBold: {
-    fontWeight: '900',
-    color: '#EF4444',
-  },
-  tennisBall: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: '#84CC16',
+    backgroundColor: 'rgba(0, 229, 255, 0.1)',
     borderWidth: 1,
-    borderColor: '#4D7C0F',
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
+    borderColor: 'rgba(0, 229, 255, 0.3)',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
   },
-  tennisBallLine: {
-    width: 14,
-    height: 1,
-    backgroundColor: '#FFFFFF',
-    transform: [{ rotate: '45deg' }],
-  },
-  menuButton: {
-    width: 32,
-    height: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
+  checkinQuickText: {
+    color: Colors.primary,
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
 
   // Saudação
@@ -436,9 +411,9 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     padding: 2,
-    backgroundColor: 'rgba(239, 68, 68, 0.4)',
+    backgroundColor: 'rgba(0, 229, 255, 0.2)',
     borderWidth: 2,
-    borderColor: '#EF4444',
+    borderColor: Colors.primary,
   },
   floatingAvatarImg: {
     width: '100%',
@@ -460,13 +435,19 @@ const styles = StyleSheet.create({
 
   // Card Treino de Hoje
   workoutItemCard: {
-    backgroundColor: '#F59E0B',
+    backgroundColor: '#0F1726',
     borderRadius: 18,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 10,
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
   },
   workoutItemLeft: {
     flex: 1,
@@ -476,7 +457,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(11, 17, 33, 0.2)',
+    backgroundColor: 'rgba(0, 229, 255, 0.15)',
     alignSelf: 'flex-start' as any,
     paddingVertical: 3,
     paddingHorizontal: 8,
@@ -485,12 +466,12 @@ const styles = StyleSheet.create({
   workoutItemBadgeText: {
     fontSize: 10,
     fontWeight: '900',
-    color: '#0B1121',
+    color: Colors.primary,
   },
   workoutItemTitle: {
     fontSize: 16,
     fontWeight: '900',
-    color: '#0B1121',
+    color: '#FFFFFF',
   },
   workoutItemMeta: {
     flexDirection: 'row',
@@ -500,28 +481,32 @@ const styles = StyleSheet.create({
   workoutItemMetaText: {
     fontSize: 12,
     fontWeight: '700',
-    color: 'rgba(11, 17, 33, 0.8)',
+    color: '#94A3B8',
   },
   workoutItemMetaDivider: {
-    color: 'rgba(11, 17, 33, 0.4)',
+    color: '#475569',
   },
   workoutPlayIcon: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#0B1121',
+    backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 12,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
   },
 
   // Módulos Secundários
   secondaryModuleCard: {
-    backgroundColor: '#111722',
+    backgroundColor: '#0F1726',
     borderRadius: 16,
     padding: 14,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
+    borderColor: Colors.cardBorder,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -537,7 +522,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 10,
-    backgroundColor: 'rgba(245, 158, 11, 0.12)',
+    backgroundColor: 'rgba(0, 229, 255, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
   },

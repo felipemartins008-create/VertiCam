@@ -1,5 +1,5 @@
 /**
- * VolleyJump AI - Motore di calcolo biomeccanico del salto verticale per la pallavolo
+ * VertiCam - Motore di calcolo biomeccanico del salto verticale & autoregolazione
  */
 
 export const GRAVITY_G = 9.81; // Accelerazione di gravità in m/s²

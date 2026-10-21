@@ -7,6 +7,7 @@ import {
 } from 'lucide-react-native';
 import { useApp, ScreenName } from '../context/AppContext';
 import { Colors } from '../theme/colors';
+import { VertiCamLogo } from './VertiCamLogo';
 
 const SIDEBAR_W = 220;
 const SIDEBAR_COLLAPSED = 64;
@@ -146,13 +147,14 @@ export const WebSidebar: React.FC = () => {
     <View style={[styles.sidebar, { width: W }]}>
       {/* Logo row */}
       <View style={[styles.logoRow, collapsed && styles.logoRowCollapsed]}>
-        <View style={styles.logoIcon}>
-          <Zap size={16} color="#0F172A" fill="#0F172A" />
-        </View>
-        {!collapsed && (
-          <Text style={styles.logoText} numberOfLines={1}>
-            VOLLEY<Text style={styles.logoHighlight}>JUMP</Text>
-          </Text>
+        {!collapsed ? (
+          <View style={{ flex: 1, alignItems: 'flex-start' }}>
+            <VertiCamLogo size="small" variant="image" />
+          </View>
+        ) : (
+          <View style={styles.logoIcon}>
+            <Zap size={16} color="#080C14" fill={Colors.primary} />
+          </View>
         )}
         <TouchableOpacity
           onPress={() => setCollapsed(v => !v)}
@@ -188,18 +190,18 @@ export const WebSidebar: React.FC = () => {
       <View style={[styles.userRow, collapsed && styles.userRowCollapsed]}>
         <View style={styles.userAvatar}>
           <Text style={styles.userAvatarText}>
-            {(userProfile?.fullName || 'S').charAt(0).toUpperCase()}
+            {(userProfile?.fullName || 'V').charAt(0).toUpperCase()}
           </Text>
         </View>
         {!collapsed && (
           <View style={{ flex: 1, overflow: 'hidden' }}>
             <Text style={styles.userName} numberOfLines={1}>
-              {userProfile?.fullName || 'Siatkarzu'}
+              {userProfile?.fullName || 'Atleta'}
             </Text>
             <Text style={styles.userSub} numberOfLines={1}>
               {userProfile?.isSubscribed
                 ? '⭐ Premium'
-                : positionLabel[userProfile?.position] || 'Siatkarz'}
+                : positionLabel[userProfile?.position] || 'Atleta'}
             </Text>
           </View>
         )}
@@ -210,10 +212,10 @@ export const WebSidebar: React.FC = () => {
 
 const styles = StyleSheet.create({
   sidebar: {
-    backgroundColor: '#080E1C',
+    backgroundColor: '#080C14',
     height: '100%' as any,
     borderRightWidth: 1,
-    borderRightColor: 'rgba(255,255,255,0.05)',
+    borderRightColor: Colors.cardBorder,
     flexDirection: 'column',
     paddingVertical: 0,
   },

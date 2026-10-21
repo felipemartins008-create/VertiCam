@@ -1,36 +1,41 @@
 export const Colors = {
-  // Backgrounds
-  background: '#0F172A',      // Głęboki grafit / ciemny granat (slate-900)
-  cardBackground: '#1E293B',  // Grafitowy panel (slate-800)
-  cardBorder: '#334155',      // Obramowanie kart (slate-700)
-  surfaceHighlight: '#334155',
+  // Backgrounds - High-Tech Deep Slate & Charcoal
+  background: '#080C14',      // Deep space navy / black slate
+  cardBackground: '#0F1726',  // Elevated tech card background
+  cardBorder: '#1E293B',      // Crisp border
+  surfaceHighlight: '#1E2D44', // Active / highlighted surface
 
-  // Accents (Sporty Neon / Athletic Energy)
-  primary: '#F59E0B',         // Neonowy bursztyn / dynamiczny żółty siatkarski (amber-500)
-  primaryHover: '#D97706',
-  primaryGlow: 'rgba(245, 158, 11, 0.25)',
+  // Brand Accents - VertiCam Cyan & Mint Neon
+  primary: '#00E5FF',         // Electric Cyan / Neon Blue (matching 'cam' in logo)
+  primaryHover: '#00B4D8',    // Deepened Cyan
+  primaryGlow: 'rgba(0, 229, 255, 0.22)',
   
-  secondary: '#EF4444',       // Elektryczny czerwony / sportowy akcent (red-500)
-  secondaryGlow: 'rgba(239, 68, 68, 0.2)',
+  secondary: '#10B981',       // High-Tech Mint / Neon Emerald
+  secondaryGlow: 'rgba(16, 185, 129, 0.20)',
 
-  accentGreen: '#10B981',     // Zielony sukcesu / odnowy (emerald-500)
-  accentBlue: '#38BDF8',      // Błękit analityczny (sky-400)
+  accentCyan: '#00E5FF',      // Electric Cyan
+  accentMint: '#10B981',      // Mint Neon
+  accentGreen: '#10B981',     // Green / Ready / Success
+  accentBlue: '#00B4D8',      // Sky analytical blue
+  accentPurple: '#8B5CF6',    // Optional accent
 
   // Typography
-  textPrimary: '#FFFFFF',     // Główny tekst
-  textSecondary: '#94A3B8',   // Podtytuły, etykiety (slate-400)
-  textMuted: '#64748B',       // Mniej istotne teksty (slate-500)
+  textPrimary: '#FFFFFF',     // Crisp white
+  textSecondary: '#94A3B8',   // Slate 400 for secondary text
+  textMuted: '#64748B',       // Slate 500 for captions / placeholders
 
   // System
-  success: '#22C55E',
+  success: '#10B981',
   warning: '#F59E0B',
   error: '#EF4444',
   black: '#000000',
   white: '#FFFFFF',
 
   // Gradients (Linear gradient arrays)
-  gradientHero: ['#0F172A', '#1E293B', '#0F172A'] as const,
-  gradientAccent: ['#F59E0B', '#EF4444'] as const,
-  gradientCard: ['#1E293B', '#0F172A'] as const,
+  gradientHero: ['#080C14', '#0F1726', '#080C14'] as const,
+  gradientAccent: ['#00E5FF', '#10B981'] as const, // VertiCam signature Cyan-to-Mint gradient
+  gradientCard: ['#0F1726', '#080C14'] as const,
+  gradientCyan: ['#00E5FF', '#00B4D8'] as const,
+  gradientMint: ['#2DD4BF', '#10B981'] as const,
   gradientGold: ['#FBBF24', '#D97706'] as const,
 };

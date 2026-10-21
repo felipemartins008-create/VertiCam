@@ -1,148 +1,94 @@
-# 🏐 VertiCam (VolleyJump AI) — Elevazione Pallavolo & Test Salto con Telecamera
+# 🚀 VertiCam — Vertical Jump Analysis & Autoregolazione Neuromuscolare
 
-**SiatkaJump AI** to innowacyjna platforma mobilna dedykowana dla zawodniczek i zawodników siatkówki w Polsce, łącząca laboratoryjny pomiar wysokości wyskoku z kamery telefonu (**Wyskok Test**) z profesjonalnym, 8-tygodniowym programem plyometrycznym oraz protokołem profilaktyki i leczenia tendinopatii więzadła rzepki (**"Kolano skoczka"**).
+**VertiCam** è un'applicazione mobile innovativa ad alte prestazioni dedicata allo sviluppo scientifico dell'elevazione verticale e al monitoraggio biomeccanico tramite fotocamera dello smartphone (tempo di volo e RSI), con prescrizione giornaliera di allenamenti 100% autoregolati basati sul recupero del Sistema Nervoso Centrale (SNC).
 
 ---
 
-## ⚡ Kluczowe Cechy Aplikacji
+## ⚡ Caratteristiche Principali
 
-1. **Wyskok Test (AI Camera & Flight Time Physics):**
-   - Pomiar czasu lotu zawodnika w powietrzu bez użycia drogich mat tensometrycznych czy sensorów.
-   - Wzór biomechaniczny:
+1. **Analisi Biomeccanica del Salto (AI Vision & Flight Time Physics):**
+   - Misurazione scientifica del tempo di volo senza sensori costosi o pedane di forza.
+   - Formula biomeccanica:
      $$h = \frac{g \cdot t^2}{8} \times 100$$
-     gdzie $g = 9.81\text{ m/s}^2$, a $t$ to czas lotu w sekundach.
-   - Nakładka sylwetki (Body Silhouette Guide) ułatwiająca ustawienie telefonu w odległości 2 metrów.
-   - Odliczanie 3-2-1 z sygnałem dźwiękowym oraz automatyczna rejestracja próby 5 sekund.
-   - **Korektor klatkowy (Frame Scrubber):** Możliwość mikro-korekty punktu oderwania (Takeoff) i lądowania (Landing) z dokładnością do 0.01 sekundy.
-   - Wyliczenie teoretycznego zasięgu w ataku (zasięg stojąc + wyskok).
+     dove $g = 9.81\text{ m/s}^2$, e $t$ è il tempo di volo in secondi.
+   - Calcolo dell'Indice di Forza Reattiva (RSI = Altezza di volo / Tempo di contatto).
+   - Calcolo del rapporto EUR (Elastic Utilization Ratio = CMJ / SJ) per identificare deficit elastici o deficit di forza pura.
+   - Guida sagoma atleta in tempo reale (Silhouette Guide a 2 metri di distanza).
+   - Scrubber fotogramma per correzione micrometrica del punto di stacco (Takeoff) e atterraggio (Landing).
 
-2. **Język i Rynek:**
-   - 100% natywny język polski (wszystkie stringi w `src/locales/pl.json`).
-   - Terminologia siatkarska: *Przyjmujący, Atakujący, Środkowy, Rozgrywający, Libero, Siatkówka Plażowa*.
-   - Benchmarki porównawcze dopasowane do PlusLigi, I/II Ligi PZPS i lig amatorskich.
+2. **Motore di Autoregolazione Neuromuscolare Giornaliera:**
+   - **Check-in di Prontezza (Readiness Score):**
+     $$\text{Readiness Score} = \left(\frac{\text{daily\_cmj\_height}}{\text{baseline\_cmj\_height}}\right) \times 100$$
+   - **Zona Verde (>= 95%):** SNC recuperato al 100% -> Carichi balistici pesanti (30-45% 1RM), Loaded CMJ/SJ, Drop Jump ad alta intensità (contatto al suolo < 250ms).
+   - **Zona Gialla (85% - 94%):** Affaticamento residuo moderato -> Volume ridotto, carichi 25-35% 1RM, correzione specifica del deficit EUR.
+   - **Zona Rossa (< 85%):** Esgotamento neurale acuto -> Stop carichi ad alto impatto pliometrico. Sessione di recupero attivo, isometrie tendinee (Spanish Squat / Calf raises) e mobilità.
 
-3. **Monetyzacja & Płatności w Polsce:**
-   - Subskrypcje Freemium zoptymalizowane pod polski rynek:
-     - **Plan Roczny:** 349,00 PLN / rok (~29 PLN/mies.) — *Oszczędzasz 40%*
-     - **Plan Miesięczny:** 49,00 PLN / miesiąc
-   - Wsparcie dla popularnych metod płatności: **BLIK**, **Apple Pay**, **Google Pay**, **Karta płatnicza**.
-   - Integracja z RevenueCat i Stripe.
+3. **Identità Visiva VertiCam:**
+   - Palette Tech Neon: Sfondo ardesia profondo (`#080C14`), accenti in Ciano Elettrico (`#00E5FF`) e Menta Smeraldo (`#10B981`).
+   - Logo ufficiale con sagoma dell'atleta in elevazione con bilanciere e badge `VERTICAL JUMP ANALYSIS`.
+   - Layout responsive: Mobile viewport ottimizzato con Web Sidebar su schermi desktop.
 
-4. **Program Treningowy & Player:**
-   - **Trening Dnia:** Szybki start sesji dopasowanej do pozycji na boisku.
-   - **4 Główne Moduły:**
-     1. *Główny Program: Wyskok 8 Tygodni* (Pogo Hops, Bułgarski przysiad z wyskokiem, Depth Jump).
-     2. *Zdrowe Kolana (Profilaktyka)* (Izometria Spanish Squat, Deska skośna).
-     3. *Trening w Domu (Bez sprzętu)* (Tuck Jumps, wspięcia na palce).
-     4. *Rozgrzewka Przed Meczem* (Rotatory barku z gumą, kroki nabiegu do ataku).
-   - Odtwarzacz ćwiczeń w pętli HD, serie/powtórzenia/ciężary oraz **automatyczny licznik odpoczynku**.
-
-5. **Pomiary i Profil Zawodnika:**
-   - Wykres słupkowy postępów w czasie (*Wzrost wyskoku*).
-   - Porównanie: *Salto Inicial (Początkowy)* vs *Salto Atual (Aktualny)* vs *Ganho Total (Zysk)*.
-   - Zarządzanie danymi osobowymi zgodnie z **RODO / GDPR** (eksport danych, usunięcie profilu).
+4. **Monetizzazione & Conformità:**
+   - Piani in abbonamento **VertiCam PRO** (Annuale con -40% o Mensile).
+   - Conformità al GDPR europeo per i dati biometrici.
 
 ---
 
-## 🏗️ Architektura Projektu
+## 🏗️ Architettura del Progetto
 
 ```
 IMPULSÃO/
-├── App.tsx                     # Główny router i provider stanu aplikacji
-├── app.json                    # Konfiguracja Expo (uprawnienia kamery, dark mode)
-├── package.json                # Zależności projektu
+├── App.tsx                     # Router principale e Context Provider
+├── app.json                    # Configurazione Expo & permessi nativi
+├── package.json                # Dipendenze (Expo 57, React 19, Lucide)
+├── assets/                     # Asset grafici, logo ufficiale e icone
+│   ├── logo.png                # Logo ufficiale VertiCam
+│   └── icon.png                # App icon
 ├── src/
-│   ├── components/             # Reużywalne komponenty UI
-│   │   ├── BottomNavBar.tsx    # 3-zakładkowy pasek dolny (Treningi, Pomiary, Profil)
-│   │   ├── Button.tsx          # Przyciski neonowe z efektami glow
-│   │   ├── Card.tsx            # Panele w kolorystyce Slate-800
-│   │   └── Header.tsx          # Górna belka nawigacyjna z logo i akcjami
+│   ├── components/             # Componenti UI riutilizzabili
+│   │   ├── VertiCamLogo.tsx    # Componente Logo ufficiale VertiCam
+│   │   ├── Header.tsx          # Barra di navigazione con branding
+│   │   ├── WebSidebar.tsx      # Sidebar desktop per visualizzazione web
+│   │   ├── BottomNavBar.tsx    # Tab bar mobile
+│   │   ├── Button.tsx          # Pulsanti con accenti neon Ciano/Menta
+│   │   └── Card.tsx            # Card ad alto contrasto
 │   ├── context/
-│   │   └── AppContext.tsx      # Globalny stan (ekran, profil, historia skoków, subskrypcja)
-│   ├── data/
-│   │   └── mockData.ts         # Programy treningowe, ćwiczenia i profil początkowy
+│   │   └── AppContext.tsx      # Stato globale dell'applicazione
 │   ├── locales/
-│   │   └── pl.json             # Słownik języka polskiego (i18n)
-│   ├── screens/                # Ekrany wszystkich 4 faz lejka
-│   │   ├── WelcomeScreen.tsx       # Faza 1: Boas-Vindas
-│   │   ├── QuizScreen.tsx          # Faza 1: Quiz profilujący (4 kroki)
-│   │   ├── CameraIntroScreen.tsx   # Faza 1: Wprowadzenie do pomiaru z kamery
-│   │   ├── JumpInstructionScreen.tsx # Faza 2: Instrukcja testu (3 kroki)
-│   │   ├── JumpCameraScreen.tsx    # Faza 2: Kamera, sylwetka, odliczanie i korektor
-│   │   ├── JumpResultScreen.tsx    # Faza 2: Wynik w cm, czas lotu, zasięg w ataku
-│   │   ├── PaywallScreen.tsx       # Faza 3: Paywall (BLIK, 349 PLN / 49 PLN)
-│   │   ├── DashboardScreen.tsx     # Faza 4: Kontener zakładek dolnych
-│   │   ├── WorkoutHomeScreen.tsx   # Faza 4 (Aba 1): Treningi i programy
-│   │   ├── WorkoutPlayerScreen.tsx # Faza 4: Odtwarzacz ćwiczeń z timerem odpoczynku
-│   │   ├── EvaluationScreen.tsx    # Faza 4 (Aba 2): Historia skoków i wykres
-│   │   └── ProfileScreen.tsx       # Faza 4 (Aba 3): Profil, RODO, subskrypcje
+│   │   └── it.json             # Traduzioni e testi in lingua italiana
+│   ├── screens/                # Schermate dell'applicazione
+│   │   ├── WelcomeScreen.tsx   # Landing / onboarding con logo VertiCam
+│   │   ├── QuizScreen.tsx      # Valutazione iniziale profilo atleta
+│   │   ├── CameraIntroScreen.tsx
+│   │   ├── JumpInstructionScreen.tsx
+│   │   ├── JumpCameraScreen.tsx # Misurazione live con fotocamera
+│   │   ├── JumpResultScreen.tsx # Analisi tempo di volo e potenziale
+│   │   ├── DailyCheckinScreen.tsx # Motore di autoregolazione SNC
+│   │   ├── WorkoutHomeScreen.tsx
+│   │   ├── WorkoutPlayerScreen.tsx
+│   │   ├── EvaluationScreen.tsx
+│   │   ├── ProfileScreen.tsx
+│   │   └── PaywallScreen.tsx
 │   ├── services/
-│   │   ├── i18n.ts             # Serwis tłumaczeń z interpolacją zmiennych
-│   │   └── supabase.ts         # Klient bazy PostgreSQL Supabase
+│   │   ├── i18n.ts             # Servizio internazionalizzazione
+│   │   └── prescriptionEngine.ts # Algoritmo di prescrizione autoregolata
 │   ├── theme/
-│   │   └── colors.ts           # Paleta kolorów (Dark Slate / Neon Amber / Red)
-│   ├── types/
-│   │   └── index.ts            # Definicje typów TypeScript
+│   │   └── colors.ts           # Tavolozza colori VertiCam
 │   └── utils/
-│       └── jumpPhysics.ts      # Silnik biomechaniki i fizyki wyskoku
-├── supabase/
-│   └── schema.sql              # Kompletny schemat bazy PostgreSQL dla Supabase
-└── scripts/
-    └── testPhysics.js          # Skrypt weryfikacji formuły fizyki
+│       └── jumpPhysics.ts      # Equazioni balistiche e biomeccaniche
 ```
 
 ---
 
-## 🚀 Jak Uruchomić Aplikację
+## 🚀 Comandi di Sviluppo
 
-### 1. Uruchomienie w Przeglądarce (Web)
 ```bash
-npm run web
-```
-Lub:
-```bash
-npx expo start --web
-```
+# Avvio ambiente di sviluppo
+npm start
 
-### 2. Uruchomienie na Telefonie (Android / iOS)
-1. Zainstaluj aplikację **Expo Go** ze sklepu Google Play lub App Store na swoim telefonie.
-2. Uruchom projekt:
-   ```bash
-   npx expo start
-   ```
-3. Zeskanuj kod QR aparatem telefonu (iOS) lub aplikacją Expo Go (Android).
+# Compilazione Web per Vercel
+npm run build
 
----
-
-## 🗄️ Konfiguracja Bazy Danych Supabase
-
-Plik [`supabase/schema.sql`](file:///e:/APLICATIVOS/IMPULS%C3%83O/supabase/schema.sql) zawiera pełny schemat bazy danych dla PostgreSQL:
-- Tabela `profiles` (parametry antropometryczne, pozycja, poziom, rekordy).
-- Tabela `jump_tests` (czas lotu, wysokość skoku, zasięg w ataku, url wideo).
-- Tabela `workout_programs` & `exercises` (baza programów siatkarskich).
-- Tabela `user_workouts` (rejestr odbytych sesji treningowych).
-- Tabela `subscriptions` (BLIK, Apple Pay, Google Pay, status aktywności).
-- Włączone **Row Level Security (RLS)** dla ochrony danych zawodników.
-
-Aby połączyć własny projekt Supabase:
-Utwórz plik `.env` w głównym katalogu:
-```env
-EXPO_PUBLIC_SUPABASE_URL=https://twoj-projekt.supabase.co
-EXPO_PUBLIC_SUPABASE_ANON_KEY=twoj-anon-key
-```
-
----
-
-## 🔬 Weryfikacja Formuły Fizycznej
-
-Możesz w dowolnym momencie przetestować laboratoryjną formułę fizyczną uruchamiając:
-```bash
-node scripts/testPhysics.js
-```
-Wynik:
-```
-Czas lotu t = 0.60s -> Wyskok: 44.1 cm [PASSED]
-Czas lotu t = 0.70s -> Wyskok: 60.1 cm [PASSED]
-Czas lotu t = 0.71s -> Wyskok: 61.8 cm [PASSED]
-Czas lotu t = 0.80s -> Wyskok: 78.5 cm [PASSED]
+# Verifica statica TypeScript
+node --stack-size=65536 ./node_modules/typescript/bin/tsc --noEmit
 ```

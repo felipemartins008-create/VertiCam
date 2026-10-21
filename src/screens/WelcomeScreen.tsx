@@ -1,86 +1,80 @@
 import React from 'react';
 import { View, Text, StyleSheet, StatusBar, SafeAreaView, TouchableOpacity } from 'react-native';
-import { Zap, ShieldCheck, Flame, ChevronRight, TrendingUp } from 'lucide-react-native';
+import { Zap, ShieldCheck, Flame, ChevronRight, TrendingUp, Activity } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
 import { Button } from '../components/Button';
+import { VertiCamLogo } from '../components/VertiCamLogo';
 import { useApp } from '../context/AppContext';
-import { t } from '../services/i18n';
 
 export const WelcomeScreen: React.FC = () => {
   const { navigate } = useApp();
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.background} />
 
-      {/* Gradiente animado de fundo simulado com layers */}
+      {/* High-tech ambient gradients */}
       <View style={styles.bgGradient} />
-      <View style={styles.bgAccent} />
-      <View style={styles.bgAccent2} />
+      <View style={styles.bgAccentCyan} />
+      <View style={styles.bgAccentMint} />
 
       <SafeAreaView style={styles.safeArea}>
-        {/* Topo: Badge tecnológico */}
+        {/* Top: Tech Badge */}
         <View style={styles.header}>
           <View style={styles.techBadge}>
-            <Zap size={14} color={Colors.primary} fill={Colors.primary} />
-            <Text style={styles.techBadgeText}>MISURA CON TEMPO DI VOLO • SENZA SENSORI</Text>
+            <Activity size={13} color={Colors.primary} />
+            <Text style={styles.techBadgeText}>AUTOREGOLAZIONE NEUROMUSCOLARE • AI VISION</Text>
           </View>
         </View>
 
-        {/* Centro: Hero */}
+        {/* Center: Brand Hero & Value Proposition */}
         <View style={styles.content}>
-          {/* Logo */}
-          <View style={styles.brandRow}>
-            <View style={styles.logoIcon}>
-              <Zap size={22} color="#0F172A" fill="#0F172A" />
-            </View>
-            <Text style={styles.brandName}>
-              VOLLEY<Text style={styles.brandHighlight}>JUMP</Text>
-              <Text style={styles.brandAI}> AI</Text>
-            </Text>
+          {/* Official VertiCam Logo */}
+          <View style={styles.logoWrapper}>
+            <VertiCamLogo size="large" variant="image" />
           </View>
 
-          {/* Headline principal */}
-          <Text style={styles.headline}>AUMENTA LA TUA{'\n'}ELEVAZIONE</Text>
-          <Text style={styles.headlineSub}>E SCHIACCIA SOPRA IL MURO</Text>
+          {/* Headline */}
+          <Text style={styles.headline}>ANALISI BIOMECCANICA{'\n'}& SALTO VERTICALE</Text>
+          <Text style={styles.headlineSub}>MASSIMIZZA LA TUA ELEVAZIONE</Text>
 
           <Text style={styles.description}>
-            Piattaforma professionale di preparazione fisica con misurazione scientifica del salto tramite telecamera dello smartphone — per i pallavolisti in Italia.
+            Misura il tempo di volo, RSI e altezza tramite fotocamera. Ricevi ogni giorno un programma di salto autoregolato al 100% sullo stato del tuo SNC.
           </Text>
 
-          {/* Pillars */}
+          {/* Tech & Scientific Pillars */}
           <View style={styles.pillarsContainer}>
             <View style={styles.pillarRow}>
-              <View style={styles.pillarIcon}>
+              <View style={[styles.pillarIcon, { backgroundColor: 'rgba(0, 229, 255, 0.12)' }]}>
                 <TrendingUp size={16} color={Colors.primary} />
               </View>
               <Text style={styles.pillarText}>+6 a +10 cm di salto in 8 settimane</Text>
             </View>
 
             <View style={styles.pillarRow}>
-              <View style={styles.pillarIcon}>
+              <View style={[styles.pillarIcon, { backgroundColor: 'rgba(16, 185, 129, 0.12)' }]}>
                 <ShieldCheck size={16} color={Colors.accentGreen} />
               </View>
-              <Text style={styles.pillarText}>Protezione ginocchia — Ginocchio del saltatore</Text>
+              <Text style={styles.pillarText}>Prevenzione tendinopatia rotulea e carichi ottimali</Text>
             </View>
 
             <View style={styles.pillarRow}>
-              <View style={styles.pillarIcon}>
-                <Flame size={16} color={Colors.secondary} />
+              <View style={[styles.pillarIcon, { backgroundColor: 'rgba(0, 229, 255, 0.12)' }]}>
+                <Zap size={16} color={Colors.primary} />
               </View>
-              <Text style={styles.pillarText}>Misurazione con telecamera (tempo di volo)</Text>
+              <Text style={styles.pillarText}>Test di prontezza giornaliera (CMJ, SJ, RSI)</Text>
             </View>
           </View>
         </View>
 
-        {/* Botões de ação */}
+        {/* Action Buttons */}
         <View style={styles.footer}>
           <Button
-            title="Inizia — Test Gratuito"
+            title="Inizia Valutazione Gratuita"
             variant="primary"
             size="large"
             onPress={() => navigate('Quiz')}
-            icon={<ChevronRight size={20} color="#0F172A" strokeWidth={3} />}
+            icon={<ChevronRight size={20} color="#080C14" strokeWidth={3} />}
           />
 
           <TouchableOpacity
@@ -99,7 +93,7 @@ export const WelcomeScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    backgroundColor: Colors.background,
     position: 'relative',
     overflow: 'hidden',
   },
@@ -109,25 +103,25 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#0F172A',
+    backgroundColor: Colors.background,
   },
-  bgAccent: {
+  bgAccentCyan: {
     position: 'absolute',
-    top: -80,
+    top: -90,
     right: -80,
-    width: 260,
-    height: 260,
-    borderRadius: 130,
-    backgroundColor: 'rgba(245, 158, 11, 0.08)',
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    backgroundColor: 'rgba(0, 229, 255, 0.08)',
   },
-  bgAccent2: {
+  bgAccentMint: {
     position: 'absolute',
-    bottom: 60,
-    left: -60,
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    backgroundColor: 'rgba(239, 68, 68, 0.06)',
+    bottom: 80,
+    left: -70,
+    width: 240,
+    height: 240,
+    borderRadius: 120,
+    backgroundColor: 'rgba(16, 185, 129, 0.06)',
   },
   safeArea: {
     flex: 1,
@@ -144,9 +138,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(245, 158, 11, 0.12)',
+    backgroundColor: 'rgba(0, 229, 255, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.35)',
+    borderColor: 'rgba(0, 229, 255, 0.3)',
     paddingVertical: 5,
     paddingHorizontal: 12,
     borderRadius: 20,
@@ -160,60 +154,32 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     justifyContent: 'center',
-    paddingVertical: 16,
+    paddingVertical: 12,
   },
-  brandRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
+  logoWrapper: {
+    alignItems: 'flex-start',
     marginBottom: 20,
   },
-  logoIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 10,
-    backgroundColor: Colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  brandName: {
-    fontSize: 20,
-    fontWeight: '900',
-    color: Colors.textPrimary,
-    letterSpacing: 1.5,
-  },
-  brandHighlight: {
-    color: Colors.primary,
-  },
-  brandAI: {
-    color: Colors.secondary,
-    fontWeight: '900',
-  },
   headline: {
-    fontSize: 34,
+    fontSize: 30,
     fontWeight: '900',
     color: Colors.textPrimary,
-    lineHeight: 40,
+    lineHeight: 36,
     letterSpacing: -0.5,
   },
   headlineSub: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '900',
     color: Colors.primary,
     marginTop: 6,
     marginBottom: 14,
-    letterSpacing: 0.5,
+    letterSpacing: 0.4,
   },
   description: {
     fontSize: 13,
     color: Colors.textSecondary,
     lineHeight: 20,
-    marginBottom: 24,
+    marginBottom: 22,
   },
   pillarsContainer: {
     gap: 10,
@@ -222,9 +188,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: 'rgba(30, 41, 59, 0.7)',
+    backgroundColor: 'rgba(15, 23, 38, 0.75)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.07)',
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderRadius: 12,
@@ -233,7 +199,6 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 7,
-    backgroundColor: 'rgba(15, 23, 42, 0.8)',
     alignItems: 'center',
     justifyContent: 'center',
   },

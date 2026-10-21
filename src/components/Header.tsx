@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { ArrowLeft, Zap } from 'lucide-react-native';
+import { ArrowLeft } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
+import { VertiCamLogo } from './VertiCamLogo';
 
 interface HeaderProps {
   title?: string;
@@ -19,10 +20,7 @@ export const Header: React.FC<HeaderProps> = ({ title, showBack, onBack, rightAc
             <ArrowLeft color={Colors.textPrimary} size={22} />
           </TouchableOpacity>
         ) : (
-          <View style={styles.logoBadge}>
-            <Zap color={Colors.primary} size={18} fill={Colors.primary} />
-            <Text style={styles.logoText}>SIATKA<Text style={styles.logoTextHighlight}>JUMP</Text></Text>
-          </View>
+          <VertiCamLogo size="small" variant="image" />
         )}
       </View>
 
@@ -69,23 +67,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: Colors.cardBackground,
   },
-  logoBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  logoText: {
-    color: Colors.textPrimary,
-    fontSize: 16,
-    fontWeight: '900',
-    letterSpacing: 1,
-  },
-  logoTextHighlight: {
-    color: Colors.primary,
-  },
   title: {
-    color: Colors.textPrimary,
     fontSize: 16,
     fontWeight: '700',
+    color: Colors.textPrimary,
+    letterSpacing: 0.3,
   },
 });

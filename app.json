@@ -1,23 +1,23 @@
 {
   "expo": {
-    "name": "SiatkaJump AI",
-    "slug": "siatkajump-ai",
+    "name": "VertiCam",
+    "slug": "verticam",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
-    "backgroundColor": "#0F172A",
+    "backgroundColor": "#080C14",
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSCameraUsageDescription": "SiatkaJump AI potrzebuje dostępu do kamery, aby zmierzyć Twój czas lotu i wysokość wyskoku.",
-        "NSMicrophoneUsageDescription": "Używane do rejestracji dźwięku uderzenia o parkiet podczas wyskoku.",
-        "NSPhotoLibraryUsageDescription": "Pozwala wybrać nagrane wideo wyskoku z galerii do analizy."
+        "NSCameraUsageDescription": "VertiCam richiede l'accesso alla fotocamera per misurare scientificamente il tempo di volo e l'altezza del tuo salto.",
+        "NSMicrophoneUsageDescription": "Utilizzato per rilevare l'impatto con il suolo durante il salto.",
+        "NSPhotoLibraryUsageDescription": "Consente di selezionare video di salti registrati dalla galleria per l'analisi biomeccanica."
       }
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#0F172A",
+        "backgroundColor": "#080C14",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"

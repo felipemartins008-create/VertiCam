@@ -100,7 +100,7 @@ export const DailyCheckinScreen: React.FC = () => {
           <View style={styles.cardSection}>
             <View style={styles.badgeRow}>
               <View style={styles.phaseBadge}>
-                <Flame size={12} color="#F59E0B" />
+                <Flame size={12} color={Colors.primary} />
                 <Text style={styles.phaseBadgeText}>FASE 1: PREPARAZIONE BIOMECCANICA</Text>
               </View>
             </View>
@@ -126,7 +126,7 @@ export const DailyCheckinScreen: React.FC = () => {
             {/* Item 2: Saltos Livres */}
             <View style={styles.protocolItem}>
               <View style={styles.protocolIconBox}>
-                <Zap size={20} color="#F59E0B" />
+                <Zap size={20} color={Colors.primary} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.protocolName}>2. Salti Liberi Progressivi</Text>

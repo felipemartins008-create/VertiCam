@@ -77,7 +77,7 @@ const RootNavigator: React.FC = () => {
   // 2. Layout Mobile (Tela móvel ou navegador em resolução mobile < 768px)
   return (
     <View style={styles.appContainer}>
-      <StatusBar barStyle="light-content" backgroundColor="#0B1121" />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.background} />
       {renderScreen()}
     </View>
   );
@@ -86,7 +86,7 @@ const RootNavigator: React.FC = () => {
 export default function App() {
   return (
     <AppProvider>
-      <View style={{ flex: 1, backgroundColor: '#0B1121' }}>
+      <View style={{ flex: 1, backgroundColor: Colors.background }}>
         <RootNavigator />
       </View>
     </AppProvider>
@@ -97,7 +97,7 @@ export default function App() {
 const styles = StyleSheet.create({
   appContainer: {
     flex: 1,
-    backgroundColor: '#0B1121',
+    backgroundColor: Colors.background,
   },
 });
 
@@ -107,12 +107,12 @@ const webStyles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     minHeight: '100vh' as any,
-    backgroundColor: '#060C17',
+    backgroundColor: Colors.background,
   } as any,
 
   mainArea: {
     flex: 1,
-    backgroundColor: '#0B1121',
+    backgroundColor: Colors.background,
     overflow: 'hidden' as any,
     minHeight: '100vh' as any,
   } as any,
@@ -126,7 +126,7 @@ const webStyles = StyleSheet.create({
   centeredLayout: {
     flex: 1,
     minHeight: '100vh' as any,
-    backgroundColor: '#060C17',
+    backgroundColor: '#04070D',
     alignItems: 'center',
     justifyContent: 'center',
   } as any,
@@ -137,9 +137,9 @@ const webStyles = StyleSheet.create({
     backgroundColor: Colors.background,
     borderRadius: 20,
     overflow: 'hidden',
-    shadowColor: '#F59E0B',
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.12,
+    shadowOpacity: 0.25,
     shadowRadius: 60,
   } as any,
 });

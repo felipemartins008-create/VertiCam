@@ -88,8 +88,8 @@ export const JumpResultScreen: React.FC = () => {
         {/* Baner potencjału adaptacyjnego */}
         <Card style={styles.potentialCard}>
           <View style={styles.potentialHeader}>
-            <TrendingUp size={20} color={Colors.accentGreen} />
-            <Text style={styles.potentialTitle}>Il Tuo Potenziale con VolleyJump AI</Text>
+            <TrendingUp size={20} color={Colors.primary} />
+            <Text style={styles.potentialTitle}>Il Tuo Potenziale con VertiCam</Text>
           </View>
           <Text style={styles.potentialText}>
             Con la tua altezza ({userProfile.heightCm} cm) e il tuo ruolo (
@@ -143,12 +143,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'center',
     gap: 6,
-    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    backgroundColor: 'rgba(0, 229, 255, 0.1)',
     paddingVertical: 6,
     paddingHorizontal: 14,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.3)',
+    borderColor: 'rgba(0, 229, 255, 0.3)',
     marginBottom: 16,
   },
   successBadgeText: {

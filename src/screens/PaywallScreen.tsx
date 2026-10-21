@@ -69,7 +69,7 @@ export const PaywallScreen: React.FC = () => {
       <Header
         showBack
         onBack={() => navigate('JumpResult')}
-        title="VolleyJump PRO"
+        title="VertiCam PRO"
       />
 
       <ScrollView contentContainerStyle={styles.content}>
