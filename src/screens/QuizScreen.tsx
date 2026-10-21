@@ -9,36 +9,28 @@ import {
   Image,
   ActivityIndicator,
   useWindowDimensions,
-  Platform,
 } from 'react-native';
 import {
   ChevronRight,
   ArrowLeft,
-  CheckCircle2,
   Activity,
-  Zap,
-  TrendingUp,
   ShieldCheck,
   Lock,
-  Camera,
-  Play,
+  Star,
   Award,
   HelpCircle,
   Menu,
+  CheckCircle2,
 } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
-import { Button } from '../components/Button';
-import { VertiCamLogo } from '../components/VertiCamLogo';
 import { useApp } from '../context/AppContext';
-import { VolleyballPosition, ExperienceLevel } from '../types';
+import { VolleyballPosition } from '../types';
 import { estimateStandingReach } from '../utils/jumpPhysics';
 
 interface BetterMeCardOption {
   id: string;
   pillTitle: string;
   imageUri: string;
-  badge?: string;
-  subtitle?: string;
 }
 
 export const QuizScreen: React.FC = () => {
@@ -47,7 +39,8 @@ export const QuizScreen: React.FC = () => {
   const isDesktop = width >= 768;
 
   // Current Funnel Step:
-  // 1: Ti alleni già per aumentare l'elevazione? (Pergunta do usuário)
+  // 0: Apenas Prova Social embaixo da Headline + Botão COMEÇAR
+  // 1: Ti alleni già per aumentare l'elevazione? (Pergunta 1 do usuário)
   // 2: Scegli la tua età (Exatamente a tela BetterMe da foto!)
   // 3: Sport & Ruolo
   // 4: Ostacolo principale / frustrazione
@@ -55,7 +48,7 @@ export const QuizScreen: React.FC = () => {
   // 6: Parametri fisici (Altezza, Peso)
   // 7: Analisi Algoritmo IA (Loader BetterMe)
   // 8: Offerta / Diagnosi Personalizzata (Sales Pitch)
-  const [currentStep, setCurrentStep] = useState<number>(1);
+  const [currentStep, setCurrentStep] = useState<number>(0);
 
   // Form State
   const [alreadyTrains, setAlreadyTrains] = useState<string>('stuck');
@@ -102,7 +95,7 @@ export const QuizScreen: React.FC = () => {
   };
 
   const handleBack = () => {
-    if (currentStep > 1 && currentStep !== 7) {
+    if (currentStep > 0 && currentStep !== 7) {
       setCurrentStep(currentStep - 1);
     } else {
       navigate('Welcome');
@@ -193,7 +186,7 @@ export const QuizScreen: React.FC = () => {
       {/* ── TOP HEADER (ESTILO BETTERME: LOGO NA ESQUERDA, MENU CIRCULAR NA DIREITA) ── */}
       <View style={styles.headerBar}>
         <View style={styles.headerLeft}>
-          {currentStep > 1 && currentStep !== 7 && (
+          {currentStep > 0 && currentStep !== 7 && (
             <TouchableOpacity onPress={handleBack} style={styles.headerBackBtn} activeOpacity={0.7}>
               <ArrowLeft size={18} color="#FFFFFF" />
             </TouchableOpacity>
@@ -213,6 +206,80 @@ export const QuizScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
       >
         {/* ══════════════════════════════════════════════════════
+            STEP 0: HEADLINE + APENAS UMA PROVA SOCIAL + BOTÃO COMEÇAR
+           ══════════════════════════════════════════════════════ */}
+        {currentStep === 0 && (
+          <View style={styles.stepContainer}>
+            <Text style={styles.mainTitle}>PIANO DI ALLENAMENTO ELEVAZIONE & SALTO</Text>
+            <Text style={styles.mainSubtitle}>
+              RISPONDI AL TEST PER INIZIARE IL TUO ALLENAMENTO PERSONALIZZATO
+            </Text>
+
+            {/* ── APENAS UMA PROVA SOCIAL EMBAIXO DA HEADLINE ── */}
+            <View style={styles.singleProofCard}>
+              <View style={styles.singleProofTop}>
+                <View style={styles.proofAvatarCircle}>
+                  <Text style={styles.proofAvatarText}>F</Text>
+                </View>
+
+                <View style={{ flex: 1 }}>
+                  <View style={styles.proofStarsRow}>
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Star key={s} size={14} color="#FBBF24" fill="#FBBF24" />
+                    ))}
+                    <Text style={styles.proofScoreText}>4.9/5 • Atleta Verificato</Text>
+                  </View>
+                  <Text style={styles.proofAuthorText}>
+                    Filippo R. <Text style={{ color: '#9E9E9E', fontWeight: '400' }}>(Schiacciatore Serie B - 23 anni)</Text>
+                  </Text>
+                </View>
+
+                <View style={styles.proofGainBadge}>
+                  <Text style={styles.proofGainBadgeText}>+9.2 cm</Text>
+                </View>
+              </View>
+
+              <Text style={styles.singleProofQuote}>
+                "Ero fermo a 56 cm da oltre un anno. La misurazione quotidiana con la fotocamera e l'autoregolazione sulle zone di prontezza mi hanno fatto toccare 65.2 cm in 8 settimane, senza mai più dolore alle ginocchia!"
+              </Text>
+
+              <View style={styles.singleProofStatRow}>
+                <View style={styles.statMiniItem}>
+                  <Text style={styles.statMiniNumber}>+8.4 cm</Text>
+                  <Text style={styles.statMiniLabel}>Aumento medio in 8 sett.</Text>
+                </View>
+                <View style={styles.statMiniDivider} />
+                <View style={styles.statMiniItem}>
+                  <Text style={styles.statMiniNumber}>94.2%</Text>
+                  <Text style={styles.statMiniLabel}>Nuovo record personale</Text>
+                </View>
+                <View style={styles.statMiniDivider} />
+                <View style={styles.statMiniItem}>
+                  <Text style={styles.statMiniNumber}>0 Dolori</Text>
+                  <Text style={styles.statMiniLabel}>Tendine rotuleo protetto</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* ── BOTÃO ESCRITO COMEÇAR ── */}
+            <TouchableOpacity
+              style={styles.startPillButton}
+              activeOpacity={0.88}
+              onPress={() => setCurrentStep(1)}
+            >
+              <Text style={styles.startPillButtonText}>COMEÇAR</Text>
+              <View style={styles.startArrowCircle}>
+                <ChevronRight size={18} color="#FFFFFF" strokeWidth={3} />
+              </View>
+            </TouchableOpacity>
+
+            <Text style={styles.startFootnote}>
+              ⏱️ Richiede solo 1 minuto • 100% scientifico via fotocamera
+            </Text>
+          </View>
+        )}
+
+        {/* ══════════════════════════════════════════════════════
             STEP 1: PERGUNTA 1 (OBRIGATÓRIA DO USUÁRIO)
             "Você já faz treinos de impulsão?"
            ══════════════════════════════════════════════════════ */}
@@ -220,12 +287,6 @@ export const QuizScreen: React.FC = () => {
           <View style={styles.stepContainer}>
             <Text style={styles.mainTitle}>PIANO DI ALLENAMENTO ELEVAZIONE & SALTO</Text>
             <Text style={styles.mainSubtitle}>TI ALLENI GIÀ PER AUMENTARE L'ELEVAZIONE?</Text>
-
-            <View style={styles.trustMetricRow}>
-              <Text style={styles.trustMetricText}>
-                ⭐ 4.9 • Rispondi al test per iniziare il tuo allenamento personalizzato
-              </Text>
-            </View>
 
             {renderBetterMeCards(
               [
@@ -456,7 +517,7 @@ export const QuizScreen: React.FC = () => {
 
               <TouchableOpacity
                 style={styles.continuePillBtn}
-                activeOpacity={0.85}
+                activeOpacity={0.88}
                 onPress={handleFinishBiometrics}
               >
                 <Text style={styles.continuePillText}>CALCOLA IL MIO PIANO PERSONALIZZATO</Text>
@@ -536,7 +597,7 @@ export const QuizScreen: React.FC = () => {
 
                 <TouchableOpacity
                   style={styles.pitchCtaBtn}
-                  activeOpacity={0.85}
+                  activeOpacity={0.88}
                   onPress={() => {
                     setSubscribed(true);
                     navigate('Dashboard');
@@ -657,18 +718,149 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     textAlign: 'center',
     textTransform: 'uppercase',
-    marginBottom: 28,
+    marginBottom: 24,
   },
-  trustMetricRow: {
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-    paddingVertical: 6,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    marginBottom: 28,
+
+  // ── STEP 0: CARD DE PROVA SOCIAL INDIVIDUAL ──
+  singleProofCard: {
+    width: '100%',
+    maxWidth: 640,
+    backgroundColor: '#161922',
+    borderWidth: 1.5,
+    borderColor: 'rgba(0, 229, 255, 0.25)',
+    borderRadius: 22,
+    padding: 22,
+    marginBottom: 26,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 18,
   },
-  trustMetricText: {
+  singleProofTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 12,
+  },
+  proofAvatarCircle: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  proofAvatarText: {
+    color: '#080C14',
+    fontSize: 16,
+    fontWeight: '900',
+  },
+  proofStarsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    marginBottom: 3,
+  },
+  proofScoreText: {
     color: '#CCCCCC',
+    fontSize: 11,
+    fontWeight: '700',
+    marginLeft: 4,
+  },
+  proofAuthorText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  proofGainBadge: {
+    backgroundColor: 'rgba(0, 229, 255, 0.15)',
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
+  },
+  proofGainBadgeText: {
+    color: Colors.primary,
     fontSize: 12,
+    fontWeight: '900',
+  },
+  singleProofQuote: {
+    color: '#D1D5DB',
+    fontSize: 13,
+    lineHeight: 20,
+    fontStyle: 'italic',
+    marginBottom: 16,
+  },
+  singleProofStatRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#0C0E14',
+    borderRadius: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  statMiniItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  statMiniNumber: {
+    color: Colors.primary,
+    fontSize: 15,
+    fontWeight: '900',
+    marginBottom: 2,
+  },
+  statMiniLabel: {
+    color: '#888888',
+    fontSize: 10,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  statMiniDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  },
+
+  // ── BOTÃO COMEÇAR (ESTILO BETTERME PILL) ──
+  startPillButton: {
+    width: '100%',
+    maxWidth: 360,
+    height: 56,
+    backgroundColor: '#F3F4ED', // O tom creme BetterMe
+    borderRadius: 28,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    marginBottom: 10,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  startPillButtonText: {
+    color: '#000000',
+    fontSize: 16,
+    fontWeight: '900',
+    letterSpacing: 1,
+  },
+  startArrowCircle: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#000000',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  startFootnote: {
+    color: '#666666',
+    fontSize: 11,
+    textAlign: 'center',
     fontWeight: '600',
   },
 
