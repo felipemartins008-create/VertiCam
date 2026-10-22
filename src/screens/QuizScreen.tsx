@@ -54,7 +54,7 @@ export const QuizScreen: React.FC = () => {
   // Form State
   const [gender, setGender] = useState<'female' | 'male'>('female');
   const [ageRange, setAgeRange] = useState<string>('under_25');
-  const [selectedSport, setSelectedSport] = useState<string>('volley_outside');
+  const [selectedSport, setSelectedSport] = useState<string>('outside');
   const [selectedObstacle, setSelectedObstacle] = useState<string>('plateau');
   const [targetGain, setTargetGain] = useState<string>('gain_8_12');
   const [height, setHeight] = useState<string>(String(userProfile.heightCm || 192));
@@ -108,11 +108,11 @@ export const QuizScreen: React.FC = () => {
     const calculatedStandingReach = estimateStandingReach(heightNum);
 
     let pos: VolleyballPosition = 'outside';
-    if (selectedSport.includes('outside')) pos = 'outside';
-    else if (selectedSport.includes('opposite')) pos = 'opposite';
-    else if (selectedSport.includes('middle')) pos = 'middle';
-    else if (selectedSport.includes('setter')) pos = 'setter';
-    else if (selectedSport.includes('beach')) pos = 'beach';
+    if (selectedSport === 'opposite') pos = 'opposite';
+    else if (selectedSport === 'middle') pos = 'middle';
+    else if (selectedSport === 'setter') pos = 'setter';
+    else if (selectedSport === 'libero') pos = 'libero';
+    else pos = 'outside';
 
     let ageNum = 24;
     if (ageRange === 'under_25') ageNum = 20;
@@ -189,11 +189,15 @@ export const QuizScreen: React.FC = () => {
     selectedId: string,
     onSelect: (id: string) => void
   ) => {
+    const isFive = options.length >= 5;
+
     return (
       <View
         style={[
           styles.cardsGrid,
-          isDesktop ? styles.cardsGridDesktop : styles.cardsGridMobile,
+          isDesktop
+            ? (isFive ? styles.cardsGrid5Desktop : styles.cardsGridDesktop)
+            : styles.cardsGridMobile,
         ]}
       >
         {options.map((opt) => {
@@ -204,13 +208,21 @@ export const QuizScreen: React.FC = () => {
               activeOpacity={0.88}
               style={[
                 styles.betterMeCard,
-                isDesktop ? styles.betterMeCardDesktop : styles.betterMeCardMobile,
+                isDesktop
+                  ? (isFive ? styles.betterMeCard5Desktop : styles.betterMeCardDesktop)
+                  : styles.betterMeCardMobile,
                 isSelected && styles.betterMeCardSelected,
               ]}
               onPress={() => onSelect(opt.id)}
             >
               {/* Imagem do Atleta com corte suave */}
-              <View style={[styles.cardImageContainer, !isDesktop && styles.cardImageContainerMobile]}>
+              <View
+                style={[
+                  styles.cardImageContainer,
+                  isDesktop && isFive && styles.cardImageContainer5,
+                  !isDesktop && styles.cardImageContainerMobile,
+                ]}
+              >
                 <Image
                   source={opt.imageSource || { uri: opt.imageUri }}
                   style={styles.cardImage}
@@ -223,18 +235,29 @@ export const QuizScreen: React.FC = () => {
               <View
                 style={[
                   styles.cardBottomPill,
+                  isDesktop && isFive && styles.cardBottomPill5,
                   !isDesktop && styles.cardBottomPillMobile,
                   isSelected && styles.cardBottomPillSelected,
                 ]}
               >
                 <Text
-                  style={[styles.cardPillText, !isDesktop && styles.cardPillTextMobile]}
+                  style={[
+                    styles.cardPillText,
+                    isDesktop && isFive && styles.cardPillText5,
+                    !isDesktop && styles.cardPillTextMobile,
+                  ]}
                   numberOfLines={1}
                 >
                   {opt.pillTitle}
                 </Text>
-                <View style={[styles.cardArrowCircle, !isDesktop && styles.cardArrowCircleMobile]}>
-                  <ChevronRight size={isDesktop ? 14 : 12} color="#FFFFFF" strokeWidth={3} />
+                <View
+                  style={[
+                    styles.cardArrowCircle,
+                    isDesktop && isFive && styles.cardArrowCircle5,
+                    !isDesktop && styles.cardArrowCircleMobile,
+                  ]}
+                >
+                  <ChevronRight size={isDesktop && !isFive ? 14 : 12} color="#FFFFFF" strokeWidth={3} />
                 </View>
               </View>
             </TouchableOpacity>
@@ -360,34 +383,39 @@ export const QuizScreen: React.FC = () => {
         )}
 
         {/* ══════════════════════════════════════════════════════
-            STEP 3: SPORT & RUOLO
+            STEP 3: RUOLO IN CAMPO (POSIZIONE PALLAVOLO)
            ══════════════════════════════════════════════════════ */}
         {currentStep === 3 && (
           <View style={styles.stepContainer}>
-            <Text style={styles.mainTitle}>SPECIFICITÀ DELLO STACCO</Text>
-            <Text style={styles.mainSubtitle}>IN QUALE SPORT E RUOLO VUOI DOMINARE?</Text>
+            <Text style={styles.mainTitle}>RUOLO IN CAMPO</Text>
+            <Text style={styles.mainSubtitle}>IN QUALE POSIZIONE GIOCHI A PALLAVOLO?</Text>
 
             {renderBetterMeCards(
               [
                 {
-                  id: 'volley_outside',
-                  pillTitle: 'Schiacciatore (Banda)',
+                  id: 'outside',
+                  pillTitle: 'Schiacciatore',
                   imageUri: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=600&q=80',
                 },
                 {
-                  id: 'volley_opposite',
-                  pillTitle: 'Opposto / Centrale',
+                  id: 'opposite',
+                  pillTitle: 'Opposto',
+                  imageUri: 'https://images.unsplash.com/photo-1592656094267-764a45160876?auto=format&fit=crop&w=600&q=80',
+                },
+                {
+                  id: 'middle',
+                  pillTitle: 'Centrale',
+                  imageUri: 'https://images.unsplash.com/photo-1600679472829-3044539ce8ed?auto=format&fit=crop&w=600&q=80',
+                },
+                {
+                  id: 'setter',
+                  pillTitle: 'Palleggiatore',
+                  imageUri: 'https://images.unsplash.com/photo-1547347298-4074fc3086f0?auto=format&fit=crop&w=600&q=80',
+                },
+                {
+                  id: 'libero',
+                  pillTitle: 'Libero',
                   imageUri: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=600&q=80',
-                },
-                {
-                  id: 'basketball',
-                  pillTitle: 'Pallacanestro (Basket)',
-                  imageUri: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=600&q=80',
-                },
-                {
-                  id: 'other',
-                  pillTitle: 'Altri Sport Dinamici',
-                  imageUri: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80',
                 },
               ],
               selectedSport,
@@ -797,6 +825,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 16,
   },
+  cardsGrid5Desktop: {
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    justifyContent: 'center',
+    gap: 12,
+  },
   cardsGridMobile: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -826,6 +860,10 @@ const styles = StyleSheet.create({
     width: 225,
     height: 310,
   },
+  betterMeCard5Desktop: {
+    width: 182,
+    height: 265,
+  },
   betterMeCardMobile: {
     width: '47%',
     maxWidth: 185,
@@ -844,6 +882,9 @@ const styles = StyleSheet.create({
     height: 234,
     borderRadius: 12,
     overflow: 'hidden',
+  },
+  cardImageContainer5: {
+    height: 198,
   },
   cardImageContainerMobile: {
     height: 174,
@@ -864,6 +905,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 14,
   },
+  cardBottomPill5: {
+    height: 46,
+    paddingHorizontal: 12,
+    borderRadius: 13,
+  },
   cardBottomPillMobile: {
     height: 44,
     borderRadius: 12,
@@ -881,6 +927,10 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 6,
   },
+  cardPillText5: {
+    fontSize: 14,
+    fontWeight: '800',
+  },
   cardPillTextMobile: {
     fontSize: 14,
     fontWeight: '800',
@@ -892,6 +942,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  cardArrowCircle5: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
   },
   cardArrowCircleMobile: {
     width: 22,
