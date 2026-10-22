@@ -9,6 +9,7 @@ import {
   Image,
   ActivityIndicator,
   useWindowDimensions,
+  PanResponder,
 } from 'react-native';
 import {
   ChevronRight,
@@ -42,6 +43,10 @@ interface BetterMeCardOption {
   imageUri?: string;
   imageSource?: any;
 }
+
+const RULER_TICK_WIDTH = 14;
+const RULER_MIN_CM = 0;
+const RULER_MAX_CM = 60;
 
 export const QuizScreen: React.FC = () => {
   const { userProfile, updateProfile, navigate, setSubscribed } = useApp();
@@ -77,6 +82,54 @@ export const QuizScreen: React.FC = () => {
   const [trainingDays, setTrainingDays] = useState<string>('3-4');
   const [weight, setWeight] = useState<string>(String(userProfile.weightKg || 84));
   const [height, setHeight] = useState<string>(String(userProfile.heightCm || 192));
+
+  // Régua interativa Step 4 (0-60 cm com arraste e centralização suave)
+  const rulerScrollRef = React.useRef<ScrollView>(null);
+  const [rulerContainerWidth, setRulerContainerWidth] = useState<number>(320);
+  const targetGainCmRef = React.useRef<number>(targetGainCm);
+  targetGainCmRef.current = targetGainCm;
+
+  const panResponder = React.useMemo(() => {
+    let startOffset = 0;
+    return PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, gestureState) => Math.abs(gestureState.dx) > 2,
+      onPanResponderGrant: () => {
+        startOffset = targetGainCmRef.current * RULER_TICK_WIDTH;
+      },
+      onPanResponderMove: (_, gestureState) => {
+        const newOffset = startOffset - gestureState.dx;
+        const clampedOffset = Math.max(0, Math.min(RULER_MAX_CM * RULER_TICK_WIDTH, newOffset));
+        const newCm = Math.round(clampedOffset / RULER_TICK_WIDTH);
+        if (newCm !== targetGainCmRef.current) {
+          targetGainCmRef.current = newCm;
+          setTargetGainCm(newCm);
+        }
+        rulerScrollRef.current?.scrollTo({ x: clampedOffset, animated: false });
+      },
+      onPanResponderRelease: () => {
+        const finalX = targetGainCmRef.current * RULER_TICK_WIDTH;
+        rulerScrollRef.current?.scrollTo({ x: finalX, animated: true });
+      },
+      onPanResponderTerminate: () => {
+        const finalX = targetGainCmRef.current * RULER_TICK_WIDTH;
+        rulerScrollRef.current?.scrollTo({ x: finalX, animated: true });
+      },
+    });
+  }, []);
+
+  // Sincronizza a posição da régua para o centro sempre que abrir o Step 4
+  useEffect(() => {
+    if (currentStep === 4) {
+      const timer = setTimeout(() => {
+        rulerScrollRef.current?.scrollTo({
+          x: targetGainCmRef.current * RULER_TICK_WIDTH,
+          animated: false,
+        });
+      }, 70);
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep, rulerContainerWidth]);
 
   // AI Loading state (Step 12)
   const [analysisProgress, setAnalysisProgress] = useState<number>(10);
@@ -506,7 +559,7 @@ export const QuizScreen: React.FC = () => {
         )}
 
         {/* ══════════════════════════════════════════════════════
-            STEP 4: OBIETTIVO DI ELEVAZIONE (REGUA 1-60 CM + ATLETA VIVO)
+            STEP 4: OBIETTIVO DI ELEVAZIONE (REGUA 0-60 CM + ATLETA VIVO)
            ══════════════════════════════════════════════════════ */}
         {currentStep === 4 && (
           <View style={styles.stepContainer}>
@@ -516,14 +569,19 @@ export const QuizScreen: React.FC = () => {
             <View style={[styles.rulerScreenLayout, isDesktop && styles.rulerScreenLayoutDesktop]}>
               {/* ── PAINEL DA REGUA E CONTROLE (ESQUERDA NO DESKTOP) ── */}
               <View style={[styles.rulerControlsCard, isDesktop && styles.rulerControlsCardDesktop]}>
-                <Text style={styles.rulerCardSubtitle}>IL TUO ALVO DI AUMENTO</Text>
+                <Text style={styles.rulerCardSubtitle}>IL TUO OBIETTIVO DI AUMENTO</Text>
 
                 {/* Hero Number com botões de ajuste fino (-) e (+) */}
                 <View style={styles.rulerHeroNumberRow}>
                   <TouchableOpacity
                     style={styles.rulerStepBtn}
                     activeOpacity={0.7}
-                    onPress={() => setTargetGainCm((prev) => Math.max(1, prev - 1))}
+                    onPress={() => {
+                      const next = Math.max(RULER_MIN_CM, targetGainCm - 1);
+                      setTargetGainCm(next);
+                      targetGainCmRef.current = next;
+                      rulerScrollRef.current?.scrollTo({ x: next * RULER_TICK_WIDTH, animated: true });
+                    }}
                   >
                     <Minus size={20} color="#FFFFFF" />
                   </TouchableOpacity>
@@ -537,7 +595,12 @@ export const QuizScreen: React.FC = () => {
                   <TouchableOpacity
                     style={styles.rulerStepBtn}
                     activeOpacity={0.7}
-                    onPress={() => setTargetGainCm((prev) => Math.min(60, prev + 1))}
+                    onPress={() => {
+                      const next = Math.min(RULER_MAX_CM, targetGainCm + 1);
+                      setTargetGainCm(next);
+                      targetGainCmRef.current = next;
+                      rulerScrollRef.current?.scrollTo({ x: next * RULER_TICK_WIDTH, animated: true });
+                    }}
                   >
                     <Plus size={20} color="#FFFFFF" />
                   </TouchableOpacity>
@@ -547,7 +610,9 @@ export const QuizScreen: React.FC = () => {
                 <View style={styles.rulerLevelBadge}>
                   <Flame size={14} color={Colors.primary} />
                   <Text style={styles.rulerLevelText}>
-                    {targetGainCm <= 8
+                    {targetGainCm === 0
+                      ? 'Livello Attuale di Base'
+                      : targetGainCm <= 8
                       ? 'Adattamento Base Rapido'
                       : targetGainCm <= 15
                       ? 'Trasformazione Balistica (Consigliato)'
@@ -557,57 +622,82 @@ export const QuizScreen: React.FC = () => {
                   </Text>
                 </View>
 
-                {/* Régua Interativa (1 a 60 cm) */}
-                <View style={styles.rulerBoxContainer}>
-                  <View style={styles.rulerPointerMarker} pointerEvents="none" />
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.rulerScrollContent}
-                  >
-                    {Array.from({ length: 60 }, (_, i) => i + 1).map((cm) => {
-                      const isMajor = cm % 5 === 0;
-                      const isSelected = cm === targetGainCm;
-                      return (
-                        <TouchableOpacity
-                          key={cm}
-                          activeOpacity={0.7}
-                          onPress={() => setTargetGainCm(cm)}
-                          style={styles.rulerTickCol}
-                        >
-                          <View
-                            style={[
-                              styles.rulerTickLine,
-                              isMajor ? styles.rulerTickMajor : styles.rulerTickMinor,
-                              isSelected && styles.rulerTickActive,
-                            ]}
-                          />
-                          {isMajor && (
-                            <Text style={[styles.rulerTickText, isSelected && styles.rulerTickTextActive]}>
-                              {cm}
-                            </Text>
-                          )}
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </ScrollView>
-                </View>
-
-                {/* Chips / Atalhos Rápidos */}
-                <View style={styles.quickChipsRow}>
-                  {[5, 10, 15, 20, 30, 45].map((preset) => (
-                    <TouchableOpacity
-                      key={preset}
-                      style={[styles.quickChip, targetGainCm === preset && styles.quickChipActive]}
-                      onPress={() => setTargetGainCm(preset)}
-                      activeOpacity={0.7}
+                {/* Régua Interativa Arrastável (0 a 60 cm) */}
+                {(() => {
+                  const spacerWidth = Math.max(0, Math.round(rulerContainerWidth / 2 - RULER_TICK_WIDTH / 2));
+                  return (
+                    <View
+                      style={[styles.rulerBoxContainer, { cursor: 'ew-resize' as any }]}
+                      onLayout={(e) => {
+                        const w = e.nativeEvent.layout.width;
+                        if (w > 0 && Math.abs(w - rulerContainerWidth) > 2) {
+                          setRulerContainerWidth(w);
+                        }
+                      }}
+                      {...panResponder.panHandlers}
                     >
-                      <Text style={[styles.quickChipText, targetGainCm === preset && styles.quickChipTextActive]}>
-                        +{preset}cm
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
+                      <View style={styles.rulerPointerMarker} pointerEvents="none" />
+                      <ScrollView
+                        ref={rulerScrollRef}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        scrollEventThrottle={16}
+                        snapToInterval={RULER_TICK_WIDTH}
+                        decelerationRate="fast"
+                        contentContainerStyle={styles.rulerScrollContent}
+                        onScroll={(e) => {
+                          const offsetX = e.nativeEvent.contentOffset.x;
+                          const cm = Math.round(offsetX / RULER_TICK_WIDTH);
+                          const clampedCm = Math.max(RULER_MIN_CM, Math.min(RULER_MAX_CM, cm));
+                          if (clampedCm !== targetGainCmRef.current) {
+                            targetGainCmRef.current = clampedCm;
+                            setTargetGainCm(clampedCm);
+                          }
+                        }}
+                        onMomentumScrollEnd={(e) => {
+                          const offsetX = e.nativeEvent.contentOffset.x;
+                          const cm = Math.round(offsetX / RULER_TICK_WIDTH);
+                          const clampedCm = Math.max(RULER_MIN_CM, Math.min(RULER_MAX_CM, cm));
+                          targetGainCmRef.current = clampedCm;
+                          setTargetGainCm(clampedCm);
+                          rulerScrollRef.current?.scrollTo({ x: clampedCm * RULER_TICK_WIDTH, animated: true });
+                        }}
+                      >
+                        <View style={{ width: spacerWidth }} />
+                        {Array.from({ length: 61 }, (_, i) => i).map((cm) => {
+                          const isMajor = cm % 5 === 0;
+                          const isSelected = cm === targetGainCm;
+                          return (
+                            <TouchableOpacity
+                              key={cm}
+                              activeOpacity={0.7}
+                              onPress={() => {
+                                setTargetGainCm(cm);
+                                targetGainCmRef.current = cm;
+                                rulerScrollRef.current?.scrollTo({ x: cm * RULER_TICK_WIDTH, animated: true });
+                              }}
+                              style={styles.rulerTickCol}
+                            >
+                              <View
+                                style={[
+                                  styles.rulerTickLine,
+                                  isMajor ? styles.rulerTickMajor : styles.rulerTickMinor,
+                                  isSelected && styles.rulerTickActive,
+                                ]}
+                              />
+                              {isMajor && (
+                                <Text style={[styles.rulerTickText, isSelected && styles.rulerTickTextActive]}>
+                                  {cm}
+                                </Text>
+                              )}
+                            </TouchableOpacity>
+                          );
+                        })}
+                        <View style={{ width: spacerWidth }} />
+                      </ScrollView>
+                    </View>
+                  );
+                })()}
               </View>
 
               {/* ── PALCO DO ATLETA DE VÔLEI COM CHÃO & SALTO DINÂMICO (DIREITA NO DESKTOP) ── */}
@@ -645,7 +735,9 @@ export const QuizScreen: React.FC = () => {
                 >
                   <View style={styles.feetElevationLine} />
                   <View style={styles.feetElevationBadge}>
-                    <Text style={styles.feetElevationBadgeText}>+{targetGainCm} cm</Text>
+                    <Text style={styles.feetElevationBadgeText}>
+                      {targetGainCm > 0 ? `+${targetGainCm} cm` : '0 cm'}
+                    </Text>
                   </View>
                 </View>
 
@@ -655,7 +747,8 @@ export const QuizScreen: React.FC = () => {
                     styles.measurementArrowTrack,
                     {
                       bottom: 42,
-                      height: Math.max(12, Math.round((targetGainCm / 60) * (isDesktop ? 130 : 95))),
+                      height: Math.max(0, Math.round((targetGainCm / 60) * (isDesktop ? 130 : 95))),
+                      opacity: targetGainCm > 0 ? 1 : 0,
                     },
                   ]}
                 >
@@ -1803,7 +1896,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.08)',
-    marginBottom: 18,
+    marginBottom: 4,
   },
   rulerPointerMarker: {
     position: 'absolute',
@@ -1816,7 +1909,6 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   rulerScrollContent: {
-    paddingHorizontal: 20,
     alignItems: 'center',
   },
   rulerTickCol: {
