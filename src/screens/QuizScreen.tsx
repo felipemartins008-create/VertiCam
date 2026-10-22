@@ -215,12 +215,17 @@ export const QuizScreen: React.FC = () => {
               RISPONDI AL TEST PER INIZIARE IL TUO ALLENAMENTO PERSONALIZZATO
             </Text>
 
-            {/* ── IMMAGINE DI PROVA ELEVAZIONE (PRIMA vs DOPO) ── */}
+            {/* ── IMMAGINE DI PROVA ELEVAZIONE (PRIMA vs DOPO - WEBP OTTIMIZZATA) ── */}
             <View style={styles.proofImageCard}>
               <Image
-                source={require('../../assets/proof-jump.jpg')}
+                source={require('../../assets/proof-jump.webp')}
                 style={styles.proofImage}
                 resizeMode="cover"
+                fadeDuration={0}
+                // @ts-ignore Web performance props
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
               />
             </View>
 
