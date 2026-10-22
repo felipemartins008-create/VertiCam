@@ -718,7 +718,7 @@ export const QuizScreen: React.FC = () => {
                   ]}
                 >
                   <Image
-                    source={require('../../assets/athlete-jump-transparent.webp')}
+                    source={require('../../assets/athlete-jump-transparent.png')}
                     style={styles.athleteFigureImage}
                     resizeMode="contain"
                   />
@@ -729,7 +729,7 @@ export const QuizScreen: React.FC = () => {
                   style={[
                     styles.feetElevationMarker,
                     {
-                      bottom: 42 + Math.round((targetGainCm / 60) * (isDesktop ? 130 : 95)),
+                      bottom: 42 + Math.round((targetGainCm / 60) * (isDesktop ? 130 : 95)) - 10,
                     },
                   ]}
                 >
@@ -2038,6 +2038,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 16,
     right: 16,
+    height: 22,
     flexDirection: 'row',
     alignItems: 'center',
     zIndex: 6,
