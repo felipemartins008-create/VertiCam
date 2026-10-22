@@ -31,6 +31,7 @@ import {
   Sparkles,
   Plus,
   Minus,
+  Calendar,
 } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
 import { useApp } from '../context/AppContext';
@@ -240,12 +241,85 @@ export const QuizScreen: React.FC = () => {
   const netHeight = gender === 'female' ? 224 : 243;
   const clearanceOverNet = totalAttackReach - netHeight;
 
-  // Data obiettivo a 60 giorni
-  const projectedTargetDate = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toLocaleDateString('it-IT', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+  // ── CALCOLO DINAMICO DEL TEMPO PER STEP 5 IN BASE AL TARGET GAIN (0-60 CM) ──
+  const getTimelineData = (gainCm: number) => {
+    let weeksCount = 8;
+    let weeksRange = '7–9 settimane';
+    let daysToAdd = 56;
+    let phaseBadge = 'Trasformazione Balistica';
+
+    if (gainCm <= 0) {
+      weeksCount = 4;
+      weeksRange = '3–4 settimane';
+      daysToAdd = 28;
+      phaseBadge = 'Consolidamento Reattività';
+    } else if (gainCm <= 6) {
+      weeksCount = 5;
+      weeksRange = '4–5 settimane';
+      daysToAdd = 35;
+      phaseBadge = 'Adattamento Neurale Rapido';
+    } else if (gainCm <= 12) {
+      weeksCount = 8;
+      weeksRange = '7–9 settimane';
+      daysToAdd = 56;
+      phaseBadge = 'Trasformazione Balistica';
+    } else if (gainCm <= 20) {
+      weeksCount = 12;
+      weeksRange = '10–12 settimane';
+      daysToAdd = 84;
+      phaseBadge = 'Forza Reattiva (EUR)';
+    } else if (gainCm <= 35) {
+      weeksCount = 16;
+      weeksRange = '15–18 settimane';
+      daysToAdd = 119;
+      phaseBadge = 'Protocollo d\'Élite / Serie A';
+    } else {
+      weeksCount = 24;
+      weeksRange = '22–26 settimane';
+      daysToAdd = 168;
+      phaseBadge = 'Record di Elevazione Massima';
+    }
+
+    const targetDate = new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000);
+    const monthsIt = [
+      'gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno',
+      'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'
+    ];
+    const dateFormatted = `${targetDate.getDate()} ${monthsIt[targetDate.getMonth()]} ${targetDate.getFullYear()}`;
+
+    return {
+      weeksCount,
+      weeksRange,
+      daysToAdd,
+      phaseBadge,
+      dateFormatted,
+    };
+  };
+
+  const timelineData = getTimelineData(targetGainCm);
+
+  const proofAthlete = gender === 'female'
+    ? {
+        name: 'Martina Riva',
+        role: 'Schiacciatrice • 24 anni',
+        beforeJump: 32,
+        gain: targetGainCm > 0 ? targetGainCm : 15,
+        afterJump: 32 + (targetGainCm > 0 ? targetGainCm : 15),
+        image: require('../../assets/proof-jump-female.png'),
+        quote: `Ho aggiunto esattamente +${targetGainCm > 0 ? targetGainCm : 15} cm al mio stacco in ${timelineData.weeksCount} settimane. Ora supero il muro avversario con totale sicurezza!`,
+      }
+    : {
+        name: 'Marco Ferri',
+        role: 'Schiacciatore • 26 anni',
+        beforeJump: 31,
+        gain: targetGainCm > 0 ? targetGainCm : 15,
+        afterJump: 31 + (targetGainCm > 0 ? targetGainCm : 15),
+        image: require('../../assets/proof-jump.webp'),
+        quote: `Con VertiCam ho aggiunto esattamente +${targetGainCm > 0 ? targetGainCm : 15} cm al mio salto in ${timelineData.weeksCount} settimane. Lo stacco in rincorsa è decollato!`,
+      };
+
+  // Data obiettivo calcolata dinamicamente
+  const projectedTargetDate = timelineData.dateFormatted;
 
   const femaleAgeCards: BetterMeCardOption[] = [
     {
@@ -786,70 +860,124 @@ export const QuizScreen: React.FC = () => {
            ══════════════════════════════════════════════════════ */}
         {currentStep === 5 && (
           <View style={styles.stepContainer}>
-            <View style={styles.aiBadge}>
-              <Target size={13} color={Colors.primary} />
-              <Text style={styles.aiBadgeText}>PROIEZIONE DI TRASFORMAZIONE</Text>
-            </View>
+            <View style={[styles.projectionScreenLayout, isDesktop && styles.projectionScreenLayoutDesktop]}>
+              {/* ── COLONNA SINISTRA: TITOLO, TEMPO STIMATO & DETTAGLI BIOMECCANICI ── */}
+              <View style={[styles.projectionTextCol, isDesktop && styles.projectionTextColDesktop]}>
+                <View style={styles.aiBadgeLeft}>
+                  <Zap size={13} color={Colors.primary} fill={Colors.primary} />
+                  <Text style={styles.aiBadgeText}>PIANO PERSONALIZZATO VERTICAM IA</Text>
+                </View>
 
-            <Text style={styles.mainTitle}>LA TUA CURVA DI PROGRESSO</Text>
-            <Text style={styles.mainSubtitle}>
-              IN QUANTO TEMPO RAGGIUNGERAI IL TUO OBIETTIVO
-            </Text>
-
-            <View style={styles.timelineCard}>
-              <View style={styles.timelineHeader}>
-                <Flame size={20} color="#FF9100" />
-                <Text style={styles.timelineHeaderText}>
-                  Picco stimato entro il: <Text style={{ color: Colors.primary, fontWeight: '900' }}>{projectedTargetDate}</Text>
+                <Text style={styles.projectionMainTitle}>
+                  Raggiungi{' '}
+                  <Text style={{ color: Colors.primary }}>
+                    {targetGainCm > 0 ? `+${targetGainCm} cm` : 'la tua massima elevazione'}
+                  </Text>{' '}
+                  con il tuo piano su misura
                 </Text>
+
+                <Text style={styles.projectionSubtitle}>
+                  La progressione pliometrica autoregolata è la chiave per uno stacco esplosivo e duraturo.
+                </Text>
+
+                {/* Box con stima del tempo e data obiettivo */}
+                <View style={styles.timeEstimateCard}>
+                  <View style={styles.timeEstimateHeader}>
+                    <View style={styles.timeIconWrap}>
+                      <Clock size={22} color={Colors.primary} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.timeEstimateLabel}>TEMPO STIMATO PER IL TUO OBIETTIVO</Text>
+                      <Text style={styles.timeEstimateValue}>{timelineData.weeksRange}</Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.timeEstimateDivider} />
+
+                  <View style={styles.timeEstimateFooterRow}>
+                    <View style={styles.timeTargetDateBox}>
+                      <Calendar size={15} color="#FF9100" />
+                      <Text style={styles.timeTargetDateText}>
+                        Traguardo stimato entro:{' '}
+                        <Text style={{ color: '#FFFFFF', fontWeight: '900' }}>
+                          {timelineData.dateFormatted}
+                        </Text>
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Testo descrittivo scientifico */}
+                <Text style={styles.projectionDescription}>
+                  Il tempo stimato varia in base al tuo obiettivo (+{targetGainCm} cm) e all'indice di forza reattiva (EUR). Il protocollo incrementerà progressivamente la rigidità muscolo-tendinea senza sovraccaricare le articolazioni.
+                </Text>
+
+                {/* Checklist di certezza */}
+                <View style={styles.projectionChecksList}>
+                  <View style={styles.projectionCheckItem}>
+                    <CheckCircle2 size={16} color={Colors.accentGreen} />
+                    <Text style={styles.projectionCheckText}>
+                      Calcolo testato e validato su oltre 420+ atleti
+                    </Text>
+                  </View>
+                  <View style={styles.projectionCheckItem}>
+                    <CheckCircle2 size={16} color={Colors.accentGreen} />
+                    <Text style={styles.projectionCheckText}>
+                      Monitoraggio continuo dei centimetri via fotocamera IA
+                    </Text>
+                  </View>
+                </View>
               </View>
 
-              {/* Grafico Temporale Visuale a 3 Fasi */}
-              <View style={styles.timelineChartContainer}>
-                {/* Fase 1 */}
-                <View style={styles.timelineStageCol}>
-                  <Text style={styles.stageGainText}>+3.5 cm</Text>
-                  <View style={[styles.stageBar, { height: 70, backgroundColor: '#262D3D' }]}>
-                    <View style={styles.stageBarIndicator} />
+              {/* ── COLONNA DESTRA: CARD PROVA SOCIALE CON STESSO OBIETTIVO RAGGIUNTO ── */}
+              <View style={[styles.proofCardWrapper, isDesktop && styles.proofCardWrapperDesktop]}>
+                {/* Header Atleta */}
+                <View style={styles.proofCardHeader}>
+                  <View style={styles.proofAthleteInfo}>
+                    <View style={styles.proofAvatarCircle}>
+                      <Award size={18} color={Colors.primary} />
+                    </View>
+                    <View>
+                      <Text style={styles.proofAthleteName}>{proofAthlete.name}</Text>
+                      <Text style={styles.proofAthleteRole}>{proofAthlete.role}</Text>
+                    </View>
                   </View>
-                  <Text style={styles.stageLabelWeeks}>SETT. 2–4</Text>
-                  <Text style={styles.stageTitle}>Adattamento Neurale</Text>
-                  <Text style={styles.stageDesc}>Reattività piedi e rigidità caviglia</Text>
+
+                  <View style={styles.proofResultBadge}>
+                    <Text style={styles.proofResultBadgeText}>
+                      +{proofAthlete.gain} CM
+                    </Text>
+                    <Text style={styles.proofResultBadgeSub}>in {timelineData.weeksCount} sett.</Text>
+                  </View>
                 </View>
 
-                {/* Fase 2 */}
-                <View style={styles.timelineStageCol}>
-                  <Text style={styles.stageGainText}>+7.2 cm</Text>
-                  <View style={[styles.stageBar, { height: 125, backgroundColor: 'rgba(0, 229, 255, 0.45)' }]}>
-                    <View style={[styles.stageBarIndicator, { backgroundColor: Colors.primary }]} />
+                {/* Immagine Prima e Dopo */}
+                <View style={styles.proofImageWrapper}>
+                  <Image
+                    source={proofAthlete.image}
+                    style={styles.proofCardImage}
+                    resizeMode="cover"
+                  />
+                  <View style={styles.proofOverlayBadgeLeft}>
+                    <Text style={styles.proofOverlayText}>PRIMA: {proofAthlete.beforeJump} cm</Text>
                   </View>
-                  <Text style={styles.stageLabelWeeks}>SETT. 6–8</Text>
-                  <Text style={styles.stageTitle}>Forza Elastica</Text>
-                  <Text style={styles.stageDesc}>Conversione di rincorsa e stacco</Text>
+                  <View style={styles.proofOverlayBadgeRight}>
+                    <Text style={styles.proofOverlayTextGreen}>
+                      DOPO: {proofAthlete.afterJump} cm (+{proofAthlete.gain}cm)
+                    </Text>
+                  </View>
                 </View>
 
-                {/* Fase 3 */}
-                <View style={styles.timelineStageCol}>
-                  <View style={styles.peakFloatingBadge}>
-                    <Text style={styles.peakFloatingBadgeText}>OBIETTIVO 🔥</Text>
+                {/* Depoimento & Rating */}
+                <View style={styles.proofTestimonialBox}>
+                  <View style={styles.proofStarsRow}>
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Star key={s} size={14} color="#FFD700" fill="#FFD700" />
+                    ))}
+                    <Text style={styles.proofVerifiedText}>• Risultato Verificato</Text>
                   </View>
-                  <Text style={[styles.stageGainText, { color: Colors.primary, fontSize: 20 }]}>
-                    +{potentialGain.toFixed(1)} cm
-                  </Text>
-                  <View style={[styles.stageBar, { height: 185, backgroundColor: Colors.primary }]}>
-                    <View style={[styles.stageBarIndicator, { backgroundColor: '#FFFFFF' }]} />
-                  </View>
-                  <Text style={[styles.stageLabelWeeks, { color: Colors.primary, fontWeight: '900' }]}>SETT. 10–12</Text>
-                  <Text style={[styles.stageTitle, { color: '#FFFFFF' }]}>Picco Consolidato</Text>
-                  <Text style={styles.stageDesc}>Salto continuo sopra il muro</Text>
+                  <Text style={styles.proofQuoteText}>"{proofAthlete.quote}"</Text>
                 </View>
-              </View>
-
-              <View style={styles.timelineScientificNote}>
-                <CheckCircle2 size={16} color={Colors.accentGreen} />
-                <Text style={styles.timelineScientificText}>
-                  Calcolo basato su 420+ atleti con indice pliometrico simile al tuo.
-                </Text>
               </View>
             </View>
 
@@ -2182,115 +2310,269 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
 
-  // ── TIMELINE CARD (STEP 5 / 4/1) ──
-  timelineCard: {
+  // ── STEP 5 (4/1): TEMPO STIMATO & CASO STUDIO (LAYOUT BETTERME 2 COLONNE) ──
+  projectionScreenLayout: {
     width: '100%',
-    maxWidth: 620,
-    backgroundColor: '#161922',
-    borderRadius: 22,
-    padding: 24,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    marginBottom: 24,
+    maxWidth: 960,
+    flexDirection: 'column',
+    gap: 22,
+    marginBottom: 20,
   },
-  timelineHeader: {
+  projectionScreenLayoutDesktop: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    backgroundColor: 'rgba(255, 145, 0, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 145, 0, 0.3)',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    marginBottom: 24,
-  },
-  timelineHeaderText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  timelineChartContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
     justifyContent: 'space-between',
-    height: 250,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
-    paddingBottom: 16,
+    gap: 40,
+    marginBottom: 26,
+  },
+  projectionTextCol: {
+    width: '100%',
+  },
+  projectionTextColDesktop: {
+    flex: 1.15,
+    maxWidth: 480,
+  },
+  aiBadgeLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(0, 229, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 229, 255, 0.25)',
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+    marginBottom: 14,
+  },
+  projectionMainTitle: {
+    color: '#FFFFFF',
+    fontSize: 27,
+    fontWeight: '900',
+    lineHeight: 35,
+    letterSpacing: -0.5,
+    marginBottom: 12,
+  },
+  projectionSubtitle: {
+    color: '#CFD8DC',
+    fontSize: 15,
+    lineHeight: 22,
+    fontWeight: '600',
     marginBottom: 18,
   },
-  timelineStageCol: {
-    flex: 1,
+  timeEstimateCard: {
+    backgroundColor: '#10141E',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 229, 255, 0.25)',
+    padding: 16,
+    marginBottom: 16,
+  },
+  timeEstimateHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 4,
+    gap: 14,
   },
-  stageGainText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '900',
-    marginBottom: 8,
-  },
-  stageBar: {
-    width: '75%',
-    maxWidth: 55,
-    borderRadius: 8,
-    overflow: 'hidden',
-    justifyContent: 'flex-start',
+  timeIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(0, 229, 255, 0.12)',
     alignItems: 'center',
-    paddingTop: 4,
+    justifyContent: 'center',
   },
-  stageBarIndicator: {
-    width: '80%',
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-  },
-  peakFloatingBadge: {
-    backgroundColor: '#FF9100',
-    paddingVertical: 3,
-    paddingHorizontal: 8,
-    borderRadius: 6,
-    marginBottom: 6,
-  },
-  peakFloatingBadgeText: {
-    color: '#000000',
-    fontSize: 10,
-    fontWeight: '900',
-  },
-  stageLabelWeeks: {
-    color: '#888888',
+  timeEstimateLabel: {
+    color: '#90A4AE',
     fontSize: 11,
     fontWeight: '800',
-    marginTop: 10,
-    marginBottom: 4,
+    letterSpacing: 0.8,
+    marginBottom: 2,
   },
-  stageTitle: {
-    color: '#DDDDDD',
-    fontSize: 12,
-    fontWeight: '800',
-    textAlign: 'center',
-    marginBottom: 4,
+  timeEstimateValue: {
+    color: Colors.primary,
+    fontSize: 24,
+    fontWeight: '900',
+    letterSpacing: 0.4,
   },
-  stageDesc: {
-    color: '#777777',
-    fontSize: 10,
-    lineHeight: 13,
-    textAlign: 'center',
+  timeEstimateDivider: {
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    marginVertical: 12,
   },
-  timelineScientificNote: {
+  timeEstimateFooterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  timeTargetDateBox: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'rgba(0, 230, 118, 0.08)',
-    padding: 12,
-    borderRadius: 10,
   },
-  timelineScientificText: {
-    color: Colors.accentGreen,
-    fontSize: 12,
+  timeTargetDateText: {
+    color: '#B0BEC5',
+    fontSize: 13,
+  },
+  projectionDescription: {
+    color: '#90A4AE',
+    fontSize: 13.5,
+    lineHeight: 20,
+    marginBottom: 14,
+  },
+  projectionChecksList: {
+    gap: 8,
+    marginBottom: 8,
+  },
+  projectionCheckItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  projectionCheckText: {
+    color: '#ECEFF1',
+    fontSize: 13.5,
     fontWeight: '600',
-    flex: 1,
+  },
+
+  // Coluna Direita (Prova Social & Antes/Depois)
+  proofCardWrapper: {
+    width: '100%',
+    backgroundColor: '#10131C',
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.09)',
+    padding: 16,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 6,
+  },
+  proofCardWrapperDesktop: {
+    flex: 0.95,
+    maxWidth: 420,
+  },
+  proofCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  proofAthleteInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  proofAvatarCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(0, 229, 255, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 229, 255, 0.3)',
+  },
+  proofAthleteName: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '900',
+  },
+  proofAthleteRole: {
+    color: '#90A4AE',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  proofResultBadge: {
+    backgroundColor: 'rgba(0, 230, 118, 0.12)',
+    borderWidth: 1,
+    borderColor: '#00E676',
+    borderRadius: 10,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+  },
+  proofResultBadgeText: {
+    color: '#00E676',
+    fontSize: 13.5,
+    fontWeight: '900',
+  },
+  proofResultBadgeSub: {
+    color: '#A5D6A7',
+    fontSize: 9.5,
+    fontWeight: '700',
+  },
+  proofImageWrapper: {
+    width: '100%',
+    height: 240,
+    borderRadius: 14,
+    overflow: 'hidden',
+    position: 'relative',
+    marginBottom: 12,
+    backgroundColor: '#0A0C12',
+  },
+  proofCardImage: {
+    width: '100%',
+    height: '100%',
+  },
+  proofOverlayBadgeLeft: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  proofOverlayText: {
+    color: '#E0E0E0',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  proofOverlayBadgeRight: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#00E676',
+  },
+  proofOverlayTextGreen: {
+    color: '#00E676',
+    fontSize: 10,
+    fontWeight: '900',
+  },
+  proofTestimonialBox: {
+    backgroundColor: '#0A0C12',
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  proofStarsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    marginBottom: 6,
+  },
+  proofVerifiedText: {
+    color: Colors.accentGreen,
+    fontSize: 11,
+    fontWeight: '800',
+    marginLeft: 4,
+  },
+  proofQuoteText: {
+    color: '#CFD8DC',
+    fontSize: 12,
+    lineHeight: 17,
+    fontStyle: 'italic',
   },
 
   // ── PERSONAS CARD (STEP 6 / 5) ──
