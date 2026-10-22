@@ -30,7 +30,8 @@ import { estimateStandingReach } from '../utils/jumpPhysics';
 interface BetterMeCardOption {
   id: string;
   pillTitle: string;
-  imageUri: string;
+  imageUri?: string;
+  imageSource?: any;
 }
 
 export const QuizScreen: React.FC = () => {
@@ -158,9 +159,10 @@ export const QuizScreen: React.FC = () => {
               {/* Imagem do Atleta com corte suave */}
               <View style={styles.cardImageContainer}>
                 <Image
-                  source={{ uri: opt.imageUri }}
+                  source={opt.imageSource || { uri: opt.imageUri }}
                   style={styles.cardImage}
                   resizeMode="cover"
+                  fadeDuration={0}
                 />
               </View>
 
@@ -259,27 +261,27 @@ export const QuizScreen: React.FC = () => {
                 {
                   id: 'under_18',
                   pillTitle: 'Età: <18',
-                  imageUri: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=600&q=80',
+                  imageSource: require('../../assets/age-under18.webp'),
                 },
                 {
                   id: '18-29',
                   pillTitle: 'Età: 18–29',
-                  imageUri: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=600&q=80',
+                  imageSource: require('../../assets/age-18-29.webp'),
                 },
                 {
                   id: '30-39',
                   pillTitle: 'Età: 30–39',
-                  imageUri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80',
+                  imageSource: require('../../assets/age-30-39.webp'),
                 },
                 {
                   id: '40-49',
                   pillTitle: 'Età: 40–49',
-                  imageUri: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80',
+                  imageSource: require('../../assets/age-40-49.webp'),
                 },
                 {
                   id: '50+',
                   pillTitle: 'Età: 50+',
-                  imageUri: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80',
+                  imageSource: require('../../assets/age-50plus.webp'),
                 },
               ],
               ageRange,
