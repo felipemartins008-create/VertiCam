@@ -112,6 +112,7 @@ export const QuizScreen: React.FC = () => {
     else if (selectedSport === 'middle') pos = 'middle';
     else if (selectedSport === 'setter') pos = 'setter';
     else if (selectedSport === 'libero') pos = 'libero';
+    else if (selectedSport === 'beach') pos = 'beach';
     else pos = 'outside';
 
     let ageNum = 24;
@@ -189,19 +190,22 @@ export const QuizScreen: React.FC = () => {
     selectedId: string,
     onSelect: (id: string) => void
   ) => {
-    const isFive = options.length >= 5;
+    const isSix = options.length >= 6;
+    const isFive = options.length === 5;
 
     return (
       <View
         style={[
           styles.cardsGrid,
           isDesktop
-            ? (isFive ? styles.cardsGrid5Desktop : styles.cardsGridDesktop)
-            : styles.cardsGridMobile,
+            ? (isSix ? styles.cardsGrid6Desktop : isFive ? styles.cardsGrid5Desktop : styles.cardsGridDesktop)
+            : (isSix ? styles.cardsGrid6Mobile : styles.cardsGridMobile),
         ]}
       >
         {options.map((opt) => {
           const isSelected = selectedId === opt.id;
+          const isLongWord = opt.pillTitle.length >= 12;
+
           return (
             <TouchableOpacity
               key={opt.id}
@@ -209,8 +213,8 @@ export const QuizScreen: React.FC = () => {
               style={[
                 styles.betterMeCard,
                 isDesktop
-                  ? (isFive ? styles.betterMeCard5Desktop : styles.betterMeCardDesktop)
-                  : styles.betterMeCardMobile,
+                  ? (isSix ? styles.betterMeCard6Desktop : isFive ? styles.betterMeCard5Desktop : styles.betterMeCardDesktop)
+                  : (isSix ? styles.betterMeCard6Mobile : styles.betterMeCardMobile),
                 isSelected && styles.betterMeCardSelected,
               ]}
               onPress={() => onSelect(opt.id)}
@@ -219,8 +223,9 @@ export const QuizScreen: React.FC = () => {
               <View
                 style={[
                   styles.cardImageContainer,
-                  isDesktop && isFive && styles.cardImageContainer5,
-                  !isDesktop && styles.cardImageContainerMobile,
+                  isDesktop
+                    ? (isSix ? styles.cardImageContainer6Desktop : isFive ? styles.cardImageContainer5 : undefined)
+                    : (isSix ? styles.cardImageContainer6Mobile : styles.cardImageContainerMobile),
                 ]}
               >
                 <Image
@@ -235,8 +240,9 @@ export const QuizScreen: React.FC = () => {
               <View
                 style={[
                   styles.cardBottomPill,
-                  isDesktop && isFive && styles.cardBottomPill5,
-                  !isDesktop && styles.cardBottomPillMobile,
+                  isDesktop
+                    ? (isSix ? styles.cardBottomPill6Desktop : isFive ? styles.cardBottomPill5 : undefined)
+                    : (isSix ? styles.cardBottomPill6Mobile : styles.cardBottomPillMobile),
                   isSelected && styles.cardBottomPillSelected,
                 ]}
               >
@@ -244,7 +250,9 @@ export const QuizScreen: React.FC = () => {
                   style={[
                     styles.cardPillText,
                     isDesktop && isFive && styles.cardPillText5,
-                    !isDesktop && styles.cardPillTextMobile,
+                    isDesktop && isSix && styles.cardPillText6Desktop,
+                    !isDesktop && !isSix && styles.cardPillTextMobile,
+                    !isDesktop && isSix && (isLongWord ? styles.cardPillText6MobileLong : styles.cardPillText6Mobile),
                   ]}
                   numberOfLines={1}
                 >
@@ -254,10 +262,16 @@ export const QuizScreen: React.FC = () => {
                   style={[
                     styles.cardArrowCircle,
                     isDesktop && isFive && styles.cardArrowCircle5,
-                    !isDesktop && styles.cardArrowCircleMobile,
+                    isDesktop && isSix && styles.cardArrowCircle6Desktop,
+                    !isDesktop && !isSix && styles.cardArrowCircleMobile,
+                    !isDesktop && isSix && styles.cardArrowCircle6Mobile,
                   ]}
                 >
-                  <ChevronRight size={isDesktop && !isFive ? 14 : 12} color="#FFFFFF" strokeWidth={3} />
+                  <ChevronRight
+                    size={isDesktop ? (isSix ? 11 : isFive ? 12 : 14) : (isSix ? 9 : 12)}
+                    color="#FFFFFF"
+                    strokeWidth={isSix ? 2.5 : 3}
+                  />
                 </View>
               </View>
             </TouchableOpacity>
@@ -416,6 +430,11 @@ export const QuizScreen: React.FC = () => {
                   id: 'libero',
                   pillTitle: 'Libero',
                   imageSource: require('../../assets/pos-libero.webp'),
+                },
+                {
+                  id: 'beach',
+                  pillTitle: 'Beach Volley',
+                  imageSource: require('../../assets/pos-beach.webp'),
                 },
               ],
               selectedSport,
@@ -831,11 +850,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 12,
   },
+  cardsGrid6Desktop: {
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    justifyContent: 'center',
+    gap: 10,
+    width: '100%',
+    maxWidth: 1060,
+  },
   cardsGridMobile: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
     gap: 12,
+    width: '100%',
+    maxWidth: 420,
+  },
+  cardsGrid6Mobile: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 8,
     width: '100%',
     maxWidth: 420,
   },
@@ -864,6 +899,13 @@ const styles = StyleSheet.create({
     width: 182,
     height: 265,
   },
+  betterMeCard6Desktop: {
+    width: 154,
+    height: 236,
+    paddingBottom: 6,
+    paddingHorizontal: 6,
+    borderRadius: 14,
+  },
   betterMeCardMobile: {
     width: '47%',
     maxWidth: 185,
@@ -871,6 +913,15 @@ const styles = StyleSheet.create({
     paddingBottom: 6,
     paddingHorizontal: 6,
     borderRadius: 16,
+  },
+  betterMeCard6Mobile: {
+    width: '31%',
+    maxWidth: 125,
+    minWidth: 96,
+    height: 182,
+    paddingBottom: 5,
+    paddingHorizontal: 4,
+    borderRadius: 13,
   },
   betterMeCardSelected: {
     borderColor: Colors.primary,
@@ -886,9 +937,17 @@ const styles = StyleSheet.create({
   cardImageContainer5: {
     height: 198,
   },
+  cardImageContainer6Desktop: {
+    height: 172,
+    borderRadius: 10,
+  },
   cardImageContainerMobile: {
     height: 174,
     borderRadius: 10,
+  },
+  cardImageContainer6Mobile: {
+    height: 126,
+    borderRadius: 9,
   },
   cardImage: {
     width: '100%',
@@ -910,10 +969,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 13,
   },
+  cardBottomPill6Desktop: {
+    height: 42,
+    paddingHorizontal: 8,
+    borderRadius: 11,
+  },
   cardBottomPillMobile: {
     height: 44,
     borderRadius: 12,
     paddingHorizontal: 10,
+  },
+  cardBottomPill6Mobile: {
+    height: 38,
+    borderRadius: 10,
+    paddingHorizontal: 5,
   },
   cardBottomPillSelected: {
     backgroundColor: '#FFFFFF',
@@ -931,9 +1000,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '800',
   },
+  cardPillText6Desktop: {
+    fontSize: 12,
+    fontWeight: '800',
+  },
   cardPillTextMobile: {
     fontSize: 14,
     fontWeight: '800',
+  },
+  cardPillText6Mobile: {
+    fontSize: 10.5,
+    fontWeight: '800',
+    letterSpacing: -0.3,
+  },
+  cardPillText6MobileLong: {
+    fontSize: 9.2,
+    fontWeight: '800',
+    letterSpacing: -0.4,
   },
   cardArrowCircle: {
     width: 26,
@@ -948,10 +1031,20 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: 11,
   },
+  cardArrowCircle6Desktop: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+  },
   cardArrowCircleMobile: {
     width: 22,
     height: 22,
     borderRadius: 11,
+  },
+  cardArrowCircle6Mobile: {
+    width: 17,
+    height: 17,
+    borderRadius: 8.5,
   },
 
   // ── STEP 6: PARAMETRI FISICI ──
