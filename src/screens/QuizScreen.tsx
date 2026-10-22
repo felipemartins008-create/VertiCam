@@ -393,29 +393,29 @@ export const QuizScreen: React.FC = () => {
             {renderBetterMeCards(
               [
                 {
-                  id: 'outside',
-                  pillTitle: 'Schiacciatore',
-                  imageUri: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=600&q=80',
+                  id: 'middle',
+                  pillTitle: 'Centrale',
+                  imageSource: require('../../assets/pos-centrale.webp'),
                 },
                 {
                   id: 'opposite',
                   pillTitle: 'Opposto',
-                  imageUri: 'https://images.unsplash.com/photo-1592656094267-764a45160876?auto=format&fit=crop&w=600&q=80',
+                  imageSource: require('../../assets/pos-opposto.webp'),
                 },
                 {
-                  id: 'middle',
-                  pillTitle: 'Centrale',
-                  imageUri: 'https://images.unsplash.com/photo-1600679472829-3044539ce8ed?auto=format&fit=crop&w=600&q=80',
+                  id: 'outside',
+                  pillTitle: 'Schiacciatore',
+                  imageSource: require('../../assets/pos-schiacciatore.webp'),
                 },
                 {
                   id: 'setter',
                   pillTitle: 'Palleggiatore',
-                  imageUri: 'https://images.unsplash.com/photo-1547347298-4074fc3086f0?auto=format&fit=crop&w=600&q=80',
+                  imageSource: require('../../assets/pos-palleggiatore.webp'),
                 },
                 {
                   id: 'libero',
                   pillTitle: 'Libero',
-                  imageUri: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=600&q=80',
+                  imageSource: require('../../assets/pos-libero.webp'),
                 },
               ],
               selectedSport,
