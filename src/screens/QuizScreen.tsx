@@ -774,7 +774,9 @@ export const QuizScreen: React.FC = () => {
               onPress={handleProceedFromGain}
             >
               <Text style={styles.continuePillText}>PROSSIMO PASSO</Text>
-              <ChevronRight size={18} color="#000000" strokeWidth={3} />
+              <View style={styles.startArrowCircle}>
+                <ChevronRight size={18} color="#FFFFFF" strokeWidth={3} />
+              </View>
             </TouchableOpacity>
           </View>
         )}
@@ -857,7 +859,9 @@ export const QuizScreen: React.FC = () => {
               onPress={handleNextStep}
             >
               <Text style={styles.continuePillText}>CONTINUA</Text>
-              <ChevronRight size={18} color="#000000" strokeWidth={3} />
+              <View style={styles.startArrowCircle}>
+                <ChevronRight size={18} color="#FFFFFF" strokeWidth={3} />
+              </View>
             </TouchableOpacity>
           </View>
         )}
@@ -999,7 +1003,9 @@ export const QuizScreen: React.FC = () => {
               onPress={handleNextStep}
             >
               <Text style={styles.continuePillText}>HO CAPITO, CONTINUA</Text>
-              <ChevronRight size={18} color="#000000" strokeWidth={3} />
+              <View style={styles.startArrowCircle}>
+                <ChevronRight size={18} color="#FFFFFF" strokeWidth={3} />
+              </View>
             </TouchableOpacity>
           </View>
         )}
@@ -1044,7 +1050,9 @@ export const QuizScreen: React.FC = () => {
                 onPress={handleNextStep}
               >
                 <Text style={styles.continuePillText}>INSERISCI I TUOI PARAMETRI</Text>
-                <ChevronRight size={18} color="#000000" strokeWidth={3} />
+                <View style={styles.startArrowCircle}>
+                  <ChevronRight size={18} color="#FFFFFF" strokeWidth={3} />
+                </View>
               </TouchableOpacity>
             </View>
           </View>
@@ -1151,7 +1159,9 @@ export const QuizScreen: React.FC = () => {
                 onPress={handleNextStep}
               >
                 <Text style={styles.continuePillText}>CONFERMA IL PESO</Text>
-                <ChevronRight size={18} color="#000000" strokeWidth={3} />
+                <View style={styles.startArrowCircle}>
+                  <ChevronRight size={18} color="#FFFFFF" strokeWidth={3} />
+                </View>
               </TouchableOpacity>
             </View>
           </View>
@@ -1189,12 +1199,14 @@ export const QuizScreen: React.FC = () => {
               </View>
 
               <TouchableOpacity
-                style={styles.continuePillBtn}
+                style={[styles.continuePillBtn, { maxWidth: 390 }]}
                 activeOpacity={0.88}
                 onPress={handleFinishBiometrics}
               >
                 <Text style={styles.continuePillText}>GENERA IL MIO PIANO CON L'IA</Text>
-                <ChevronRight size={18} color="#000000" strokeWidth={3} />
+                <View style={styles.startArrowCircle}>
+                  <ChevronRight size={18} color="#FFFFFF" strokeWidth={3} />
+                </View>
               </TouchableOpacity>
             </View>
           </View>
@@ -2537,14 +2549,22 @@ const styles = StyleSheet.create({
   },
   continuePillBtn: {
     width: '100%',
+    maxWidth: 360,
+    alignSelf: 'center',
     height: 58,
     backgroundColor: '#F3F4ED',
     borderRadius: 29,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 10,
-    marginTop: 8,
+    gap: 12,
+    marginTop: 18,
+    marginBottom: 8,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 4,
   },
   continuePillText: {
     color: '#000000',
