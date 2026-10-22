@@ -397,12 +397,12 @@ export const QuizScreen: React.FC = () => {
         )}
 
         {/* ══════════════════════════════════════════════════════
-            STEP 3: RUOLO IN CAMPO (POSIZIONE PALLAVOLO)
+            STEP 3: IL TUO RUOLO (PALLAVOLO / BEACH VOLLEY)
            ══════════════════════════════════════════════════════ */}
         {currentStep === 3 && (
           <View style={styles.stepContainer}>
-            <Text style={styles.mainTitle}>RUOLO IN CAMPO</Text>
-            <Text style={styles.mainSubtitle}>IN QUALE POSIZIONE GIOCHI A PALLAVOLO?</Text>
+            <Text style={styles.mainTitle}>IL TUO RUOLO</Text>
+            <Text style={styles.mainSubtitle}>IN CHE RUOLO GIOCHI?</Text>
 
             {renderBetterMeCards(
               [
