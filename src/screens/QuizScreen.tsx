@@ -244,44 +244,52 @@ export const QuizScreen: React.FC = () => {
   // ── CALCOLO DINAMICO DEL TEMPO PER STEP 5 IN BASE AL TARGET GAIN (MAX 4 MESI A 60 CM) ──
   const getTimelineData = (gainCm: number) => {
     let weeksCount = 7;
-    let weeksRange = '6–8 settimane (~1,5–2 mesi)';
+    let weeksRange = '6–8 settimane';
+    let monthsHighlight = '2 MESI';
     let daysToAdd = 49;
     let phaseBadge = 'Trasformazione Balistica';
 
     if (gainCm <= 0) {
       weeksCount = 3;
       weeksRange = '2–3 settimane';
+      monthsHighlight = '3 SETTIMANE';
       daysToAdd = 20;
       phaseBadge = 'Consolidamento Reattività';
     } else if (gainCm <= 9) {
       weeksCount = 4;
-      weeksRange = '3–4 settimane (~1 mese)';
+      weeksRange = '3–4 settimane';
+      monthsHighlight = '1 MESE';
       daysToAdd = 28;
       phaseBadge = 'Adattamento Neurale Rapido';
     } else if (gainCm <= 19) {
       weeksCount = 7;
-      weeksRange = '6–8 settimane (~1,5–2 mesi)';
+      weeksRange = '6–8 settimane';
+      monthsHighlight = '2 MESI';
       daysToAdd = 49;
       phaseBadge = 'Trasformazione Balistica';
     } else if (gainCm <= 29) {
       weeksCount = 10;
-      weeksRange = '9–10 settimane (~2,5 mesi)';
+      weeksRange = '9–10 settimane';
+      monthsHighlight = '2,5 MESI';
       daysToAdd = 68;
       phaseBadge = 'Forza Reattiva (EUR)';
     } else if (gainCm <= 39) {
       weeksCount = 12;
-      weeksRange = '11–12 settimane (~3 mesi)';
+      weeksRange = '11–12 settimane';
+      monthsHighlight = '3 MESI';
       daysToAdd = 82;
       phaseBadge = 'Forza Esplosiva & Stacco';
     } else if (gainCm <= 49) {
       weeksCount = 14;
-      weeksRange = '13–14 settimane (~3,5 mesi)';
+      weeksRange = '13–14 settimane';
+      monthsHighlight = '3,5 MESI';
       daysToAdd = 96;
       phaseBadge = 'Sviluppo Balistico Avanzato';
     } else {
       // 50 a 60 cm: MASSIMO 4 MESI!
       weeksCount = 16;
-      weeksRange = '16 settimane (~4 mesi)';
+      weeksRange = '16 settimane';
+      monthsHighlight = '4 MESI';
       daysToAdd = 118;
       phaseBadge = 'Protocollo d\'Élite (4 Mesi)';
     }
@@ -296,6 +304,7 @@ export const QuizScreen: React.FC = () => {
     return {
       weeksCount,
       weeksRange,
+      monthsHighlight,
       daysToAdd,
       phaseBadge,
       dateFormatted,
@@ -862,83 +871,55 @@ export const QuizScreen: React.FC = () => {
         )}
 
         {/* ══════════════════════════════════════════════════════
-            STEP 5 (4/1): PROIEZIONE TEMPORALE (GRAFICO EVOLUZIONE)
+            STEP 5 (4/1): TEMPO STIMATO & CASO STUDIO (LAYOUT CLEAN)
            ══════════════════════════════════════════════════════ */}
         {currentStep === 5 && (
           <View style={styles.stepContainer}>
             <View style={[styles.projectionScreenLayout, isDesktop && styles.projectionScreenLayoutDesktop]}>
-              {/* ── COLONNA SINISTRA: TITOLO, TEMPO STIMATO & DETTAGLI BIOMECCANICI ── */}
+              {/* ── COLONNA SINISTRA: OBIETTIVO E TEMPO STIMATO IN PRIMO PIANO ── */}
               <View style={[styles.projectionTextCol, isDesktop && styles.projectionTextColDesktop]}>
-                <View style={styles.aiBadgeLeft}>
-                  <Zap size={13} color={Colors.primary} fill={Colors.primary} />
-                  <Text style={styles.aiBadgeText}>PIANO PERSONALIZZATO VERTICAM IA</Text>
-                </View>
+                <Text style={styles.cleanHeaderGoalLabel}>IL TUO OBIETTIVO</Text>
 
-                <Text style={styles.projectionMainTitle}>
+                <Text style={styles.cleanHeroTitle}>
                   Raggiungi{' '}
                   <Text style={{ color: Colors.primary }}>
-                    {targetGainCm > 0 ? `+${targetGainCm} cm` : 'la tua massima elevazione'}
-                  </Text>{' '}
-                  con il tuo piano su misura
+                    +{targetGainCm > 0 ? targetGainCm : 12} cm
+                  </Text>
                 </Text>
 
-                <Text style={styles.projectionSubtitle}>
-                  La progressione pliometrica autoregolata è la chiave per uno stacco esplosivo e duraturo.
-                </Text>
+                {/* Bloco de Destaque Máximo: O TEMPO */}
+                <View style={styles.heroTimeCard}>
+                  <Text style={styles.heroTimeCardLabel}>TEMPO STIMATO PER RAGGIUNGERLO</Text>
 
-                {/* Box con stima del tempo e data obiettivo */}
-                <View style={styles.timeEstimateCard}>
-                  <View style={styles.timeEstimateHeader}>
-                    <View style={styles.timeIconWrap}>
-                      <Clock size={22} color={Colors.primary} />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.timeEstimateLabel}>TEMPO STIMATO PER IL TUO OBIETTIVO</Text>
-                      <Text style={styles.timeEstimateValue}>{timelineData.weeksRange}</Text>
-                    </View>
+                  <View style={styles.heroTimeDigitsRow}>
+                    <Clock size={36} color={Colors.primary} />
+                    <Text style={styles.heroTimeDigitsText}>{timelineData.monthsHighlight}</Text>
                   </View>
 
-                  <View style={styles.timeEstimateDivider} />
+                  <Text style={styles.heroTimeWeeksSub}>({timelineData.weeksRange})</Text>
 
-                  <View style={styles.timeEstimateFooterRow}>
-                    <View style={styles.timeTargetDateBox}>
-                      <Calendar size={15} color="#FF9100" />
-                      <Text style={styles.timeTargetDateText}>
-                        Traguardo stimato entro:{' '}
-                        <Text style={{ color: '#FFFFFF', fontWeight: '900' }}>
-                          {timelineData.dateFormatted}
-                        </Text>
+                  <View style={styles.heroTimeDivider} />
+
+                  <View style={styles.heroTimeDateRow}>
+                    <Calendar size={16} color="#FF9100" />
+                    <Text style={styles.heroTimeDateText}>
+                      Data prevista:{' '}
+                      <Text style={{ color: '#FFFFFF', fontWeight: '900' }}>
+                        {timelineData.dateFormatted}
                       </Text>
-                    </View>
+                    </Text>
                   </View>
                 </View>
 
-                {/* Testo descrittivo scientifico */}
-                <Text style={styles.projectionDescription}>
-                  Il tempo stimato varia in base al tuo obiettivo (+{targetGainCm} cm) e all'indice di forza reattiva (EUR). Il protocollo incrementerà progressivamente la rigidità muscolo-tendinea senza sovraccaricare le articolazioni.
+                <Text style={styles.cleanFooterInsight}>
+                  ⚡ Progressione biomeccanica calibrata per la tua frequenza di allenamento.
                 </Text>
-
-                {/* Checklist di certezza */}
-                <View style={styles.projectionChecksList}>
-                  <View style={styles.projectionCheckItem}>
-                    <CheckCircle2 size={16} color={Colors.accentGreen} />
-                    <Text style={styles.projectionCheckText}>
-                      Calcolo testato e validato su oltre 420+ atleti
-                    </Text>
-                  </View>
-                  <View style={styles.projectionCheckItem}>
-                    <CheckCircle2 size={16} color={Colors.accentGreen} />
-                    <Text style={styles.projectionCheckText}>
-                      Monitoraggio continuo dei centimetri via fotocamera IA
-                    </Text>
-                  </View>
-                </View>
               </View>
 
-              {/* ── COLONNA DESTRA: CARD PROVA SOCIALE CON STESSO OBIETTIVO RAGGIUNTO ── */}
+              {/* ── COLONNA DESTRA: PROVA SOCIALE CLEAN (APENAS FOTO E DADOS DE EVOLUÇÃO) ── */}
               <View style={[styles.proofCardWrapper, isDesktop && styles.proofCardWrapperDesktop]}>
-                {/* Header Atleta */}
-                <View style={styles.proofCardHeader}>
+                {/* Header Atleta com Resultado */}
+                <View style={styles.cleanProofHeader}>
                   <View style={styles.proofAthleteInfo}>
                     <View style={styles.proofAvatarCircle}>
                       <Award size={18} color={Colors.primary} />
@@ -957,8 +938,8 @@ export const QuizScreen: React.FC = () => {
                   </View>
                 </View>
 
-                {/* Immagine Prima e Dopo */}
-                <View style={styles.proofImageWrapper}>
+                {/* Immagine Prima e Dopo com Badges de Evolução */}
+                <View style={styles.cleanProofImageWrapper}>
                   <Image
                     source={proofAthlete.image}
                     style={styles.proofCardImage}
@@ -972,17 +953,6 @@ export const QuizScreen: React.FC = () => {
                       DOPO: {proofAthlete.afterJump} cm (+{proofAthlete.gain}cm)
                     </Text>
                   </View>
-                </View>
-
-                {/* Depoimento & Rating */}
-                <View style={styles.proofTestimonialBox}>
-                  <View style={styles.proofStarsRow}>
-                    {[1, 2, 3, 4, 5].map((s) => (
-                      <Star key={s} size={14} color="#FFD700" fill="#FFD700" />
-                    ))}
-                    <Text style={styles.proofVerifiedText}>• Risultato Verificato</Text>
-                  </View>
-                  <Text style={styles.proofQuoteText}>"{proofAthlete.quote}"</Text>
                 </View>
               </View>
             </View>
@@ -2316,7 +2286,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
 
-  // ── STEP 5 (4/1): TEMPO STIMATO & CASO STUDIO (LAYOUT BETTERME 2 COLONNE) ──
+  // ── STEP 5 (4/1): TEMPO STIMATO & CASO STUDIO (LAYOUT CLEAN) ──
   projectionScreenLayout: {
     width: '100%',
     maxWidth: 960,
@@ -2329,120 +2299,90 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 40,
-    marginBottom: 26,
+    marginBottom: 24,
   },
   projectionTextCol: {
     width: '100%',
   },
   projectionTextColDesktop: {
-    flex: 1.15,
-    maxWidth: 480,
+    flex: 1.1,
+    maxWidth: 460,
   },
-  aiBadgeLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(0, 229, 255, 0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(0, 229, 255, 0.25)',
-    paddingVertical: 5,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    alignSelf: 'flex-start',
-    marginBottom: 14,
-  },
-  projectionMainTitle: {
-    color: '#FFFFFF',
-    fontSize: 27,
-    fontWeight: '900',
-    lineHeight: 35,
-    letterSpacing: -0.5,
-    marginBottom: 12,
-  },
-  projectionSubtitle: {
-    color: '#CFD8DC',
-    fontSize: 15,
-    lineHeight: 22,
-    fontWeight: '600',
-    marginBottom: 18,
-  },
-  timeEstimateCard: {
-    backgroundColor: '#10141E',
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(0, 229, 255, 0.25)',
-    padding: 16,
-    marginBottom: 16,
-  },
-  timeEstimateHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-  },
-  timeIconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(0, 229, 255, 0.12)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  timeEstimateLabel: {
+  cleanHeaderGoalLabel: {
     color: '#90A4AE',
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '800',
-    letterSpacing: 0.8,
-    marginBottom: 2,
+    letterSpacing: 1.2,
+    marginBottom: 6,
   },
-  timeEstimateValue: {
-    color: Colors.primary,
-    fontSize: 24,
+  cleanHeroTitle: {
+    color: '#FFFFFF',
+    fontSize: 34,
     fontWeight: '900',
-    letterSpacing: 0.4,
+    lineHeight: 42,
+    letterSpacing: -0.8,
+    marginBottom: 20,
   },
-  timeEstimateDivider: {
+  heroTimeCard: {
+    backgroundColor: '#0F131D',
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: 'rgba(0, 229, 255, 0.35)',
+    padding: 22,
+    marginBottom: 16,
+    shadowColor: '#00E5FF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 18,
+  },
+  heroTimeCardLabel: {
+    color: '#90A4AE',
+    fontSize: 11.5,
+    fontWeight: '800',
+    letterSpacing: 1,
+    marginBottom: 10,
+  },
+  heroTimeDigitsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 4,
+  },
+  heroTimeDigitsText: {
+    color: Colors.primary,
+    fontSize: 38,
+    fontWeight: '900',
+    letterSpacing: -0.5,
+  },
+  heroTimeWeeksSub: {
+    color: '#B0BEC5',
+    fontSize: 14,
+    fontWeight: '700',
+    marginBottom: 14,
+    marginLeft: 48,
+  },
+  heroTimeDivider: {
     height: 1,
     backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    marginVertical: 12,
-  },
-  timeEstimateFooterRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  timeTargetDateBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  timeTargetDateText: {
-    color: '#B0BEC5',
-    fontSize: 13,
-  },
-  projectionDescription: {
-    color: '#90A4AE',
-    fontSize: 13.5,
-    lineHeight: 20,
     marginBottom: 14,
   },
-  projectionChecksList: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  projectionCheckItem: {
+  heroTimeDateRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
   },
-  projectionCheckText: {
-    color: '#ECEFF1',
+  heroTimeDateText: {
+    color: '#CFD8DC',
     fontSize: 13.5,
+    fontWeight: '600',
+  },
+  cleanFooterInsight: {
+    color: '#78909C',
+    fontSize: 12.5,
     fontWeight: '600',
   },
 
-  // Coluna Direita (Prova Social & Antes/Depois)
+  // Coluna Direita (Prova Social Clean com Foto em Destaque)
   proofCardWrapper: {
     width: '100%',
     backgroundColor: '#10131C',
@@ -2457,14 +2397,14 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   proofCardWrapperDesktop: {
-    flex: 0.95,
-    maxWidth: 420,
+    flex: 1,
+    maxWidth: 440,
   },
-  proofCardHeader: {
+  cleanProofHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    marginBottom: 14,
   },
   proofAthleteInfo: {
     flexDirection: 'row',
@@ -2510,13 +2450,12 @@ const styles = StyleSheet.create({
     fontSize: 9.5,
     fontWeight: '700',
   },
-  proofImageWrapper: {
+  cleanProofImageWrapper: {
     width: '100%',
-    height: 240,
-    borderRadius: 14,
+    height: 320,
+    borderRadius: 16,
     overflow: 'hidden',
     position: 'relative',
-    marginBottom: 12,
     backgroundColor: '#0A0C12',
   },
   proofCardImage: {
@@ -2525,60 +2464,35 @@ const styles = StyleSheet.create({
   },
   proofOverlayBadgeLeft: {
     position: 'absolute',
-    top: 8,
-    left: 8,
+    top: 10,
+    left: 10,
     backgroundColor: 'rgba(0, 0, 0, 0.75)',
-    paddingVertical: 3,
-    paddingHorizontal: 8,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
     borderRadius: 6,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   proofOverlayText: {
     color: '#E0E0E0',
-    fontSize: 10,
+    fontSize: 10.5,
     fontWeight: '800',
   },
   proofOverlayBadgeRight: {
     position: 'absolute',
-    top: 8,
-    right: 8,
+    top: 10,
+    right: 10,
     backgroundColor: 'rgba(0, 0, 0, 0.75)',
-    paddingVertical: 3,
-    paddingHorizontal: 8,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
     borderRadius: 6,
     borderWidth: 1,
     borderColor: '#00E676',
   },
   proofOverlayTextGreen: {
     color: '#00E676',
-    fontSize: 10,
+    fontSize: 10.5,
     fontWeight: '900',
-  },
-  proofTestimonialBox: {
-    backgroundColor: '#0A0C12',
-    borderRadius: 12,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.05)',
-  },
-  proofStarsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-    marginBottom: 6,
-  },
-  proofVerifiedText: {
-    color: Colors.accentGreen,
-    fontSize: 11,
-    fontWeight: '800',
-    marginLeft: 4,
-  },
-  proofQuoteText: {
-    color: '#CFD8DC',
-    fontSize: 12,
-    lineHeight: 17,
-    fontStyle: 'italic',
   },
 
   // ── PERSONAS CARD (STEP 6 / 5) ──
