@@ -53,7 +53,7 @@ export const QuizScreen: React.FC = () => {
 
   // Form State
   const [gender, setGender] = useState<'female' | 'male'>('female');
-  const [ageRange, setAgeRange] = useState<string>('18-29');
+  const [ageRange, setAgeRange] = useState<string>('under_25');
   const [selectedSport, setSelectedSport] = useState<string>('volley_outside');
   const [selectedObstacle, setSelectedObstacle] = useState<string>('plateau');
   const [targetGain, setTargetGain] = useState<string>('gain_8_12');
@@ -114,12 +114,11 @@ export const QuizScreen: React.FC = () => {
     else if (selectedSport.includes('setter')) pos = 'setter';
     else if (selectedSport.includes('beach')) pos = 'beach';
 
-    let ageNum = 22;
-    if (ageRange === 'under_18') ageNum = 16;
-    else if (ageRange === '18-29') ageNum = 23;
-    else if (ageRange === '30-39') ageNum = 34;
-    else if (ageRange === '40-49') ageNum = 44;
-    else ageNum = 52;
+    let ageNum = 24;
+    if (ageRange === 'under_25') ageNum = 20;
+    else if (ageRange === '25-35') ageNum = 30;
+    else if (ageRange === '35-45') ageNum = 40;
+    else ageNum = 49;
 
     await updateProfile({
       position: pos,
@@ -140,56 +139,46 @@ export const QuizScreen: React.FC = () => {
 
   const femaleAgeCards: BetterMeCardOption[] = [
     {
-      id: 'under_18',
-      pillTitle: 'Età: <18',
-      imageSource: require('../../assets/age-under18.webp'),
-    },
-    {
-      id: '18-29',
-      pillTitle: 'Età: 18–29',
+      id: 'under_25',
+      pillTitle: 'Età: <25',
       imageSource: require('../../assets/age-18-29.webp'),
     },
     {
-      id: '30-39',
-      pillTitle: 'Età: 30–39',
+      id: '25-35',
+      pillTitle: 'Età: 25–35',
       imageSource: require('../../assets/age-30-39.webp'),
     },
     {
-      id: '40-49',
-      pillTitle: 'Età: 40–49',
+      id: '35-45',
+      pillTitle: 'Età: 35–45',
       imageSource: require('../../assets/age-40-49.webp'),
     },
     {
-      id: '50+',
-      pillTitle: 'Età: 50+',
+      id: '45+',
+      pillTitle: 'Età: 45+',
       imageSource: require('../../assets/age-50plus.webp'),
     },
   ];
 
   const maleAgeCards: BetterMeCardOption[] = [
     {
-      id: 'under_18',
-      pillTitle: 'Età: <18',
-      imageSource: require('../../assets/male-under18.webp'),
-    },
-    {
-      id: '18-29',
-      pillTitle: 'Età: 18–29',
+      id: 'under_25',
+      pillTitle: 'Età: <25',
       imageSource: require('../../assets/male-18-29.webp'),
     },
     {
-      id: '30-39',
-      pillTitle: 'Età: 30–39',
+      id: '25-35',
+      pillTitle: 'Età: 25–35',
       imageSource: require('../../assets/male-30-39.webp'),
     },
     {
-      id: '40-49',
-      pillTitle: 'Età: 40–49',
+      id: '35-45',
+      pillTitle: 'Età: 35–45',
       imageSource: require('../../assets/male-40-49.webp'),
     },
     {
-      id: '50+',
-      pillTitle: 'Età: 50+',
+      id: '45+',
+      pillTitle: 'Età: 45+',
       imageSource: require('../../assets/male-50plus.webp'),
     },
   ];
@@ -200,15 +189,11 @@ export const QuizScreen: React.FC = () => {
     selectedId: string,
     onSelect: (id: string) => void
   ) => {
-    const isFiveCards = options.length === 5;
-
     return (
       <View
         style={[
           styles.cardsGrid,
-          isDesktop
-            ? (isFiveCards ? styles.cardsGrid5Desktop : styles.cardsGridDesktop)
-            : styles.cardsGridMobile,
+          isDesktop ? styles.cardsGridDesktop : styles.cardsGridMobile,
         ]}
       >
         {options.map((opt) => {
@@ -219,13 +204,13 @@ export const QuizScreen: React.FC = () => {
               activeOpacity={0.88}
               style={[
                 styles.betterMeCard,
-                isDesktop && (isFiveCards ? styles.betterMeCard5Desktop : styles.betterMeCardDesktop),
+                isDesktop ? styles.betterMeCardDesktop : styles.betterMeCardMobile,
                 isSelected && styles.betterMeCardSelected,
               ]}
               onPress={() => onSelect(opt.id)}
             >
               {/* Imagem do Atleta com corte suave */}
-              <View style={[styles.cardImageContainer, isDesktop && isFiveCards && styles.cardImageContainer5]}>
+              <View style={[styles.cardImageContainer, !isDesktop && styles.cardImageContainerMobile]}>
                 <Image
                   source={opt.imageSource || { uri: opt.imageUri }}
                   style={styles.cardImage}
@@ -238,18 +223,18 @@ export const QuizScreen: React.FC = () => {
               <View
                 style={[
                   styles.cardBottomPill,
-                  isDesktop && isFiveCards && styles.cardBottomPill5,
+                  !isDesktop && styles.cardBottomPillMobile,
                   isSelected && styles.cardBottomPillSelected,
                 ]}
               >
                 <Text
-                  style={[styles.cardPillText, isDesktop && isFiveCards && styles.cardPillText5]}
+                  style={[styles.cardPillText, !isDesktop && styles.cardPillTextMobile]}
                   numberOfLines={1}
                 >
                   {opt.pillTitle}
                 </Text>
-                <View style={[styles.cardArrowCircle, isDesktop && isFiveCards && styles.cardArrowCircle5]}>
-                  <ChevronRight size={isFiveCards ? 12 : 14} color="#FFFFFF" strokeWidth={3} />
+                <View style={[styles.cardArrowCircle, !isDesktop && styles.cardArrowCircleMobile]}>
+                  <ChevronRight size={isDesktop ? 14 : 12} color="#FFFFFF" strokeWidth={3} />
                 </View>
               </View>
             </TouchableOpacity>
@@ -812,22 +797,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 16,
   },
-  cardsGrid5Desktop: {
+  cardsGridMobile: {
     flexDirection: 'row',
-    flexWrap: 'nowrap',
+    flexWrap: 'wrap',
     justifyContent: 'center',
     gap: 12,
-  },
-  cardsGridMobile: {
-    flexDirection: 'column',
-    gap: 16,
+    width: '100%',
+    maxWidth: 420,
   },
 
   // ── O CARD BETTERME COM ATLETA & PÍLULA EMBAIXO ──
   betterMeCard: {
-    width: '100%',
-    maxWidth: 320,
-    height: 310,
     backgroundColor: '#161922',
     borderRadius: 18,
     overflow: 'hidden',
@@ -843,12 +823,16 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
   },
   betterMeCardDesktop: {
-    width: 215,
-    height: 305,
+    width: 225,
+    height: 310,
   },
-  betterMeCard5Desktop: {
-    width: 182,
-    height: 265,
+  betterMeCardMobile: {
+    width: '47%',
+    maxWidth: 185,
+    height: 240,
+    paddingBottom: 6,
+    paddingHorizontal: 6,
+    borderRadius: 16,
   },
   betterMeCardSelected: {
     borderColor: Colors.primary,
@@ -857,12 +841,13 @@ const styles = StyleSheet.create({
   },
   cardImageContainer: {
     width: '100%',
-    height: 232,
+    height: 234,
     borderRadius: 12,
     overflow: 'hidden',
   },
-  cardImageContainer5: {
-    height: 198,
+  cardImageContainerMobile: {
+    height: 174,
+    borderRadius: 10,
   },
   cardImage: {
     width: '100%',
@@ -871,7 +856,7 @@ const styles = StyleSheet.create({
 
   // ── PÍLULA CLARA EMBAIXO DO CARD COM SETA PRETA (IDÊNTICA À FOTO) ──
   cardBottomPill: {
-    height: 50,
+    height: 52,
     backgroundColor: '#F3F4ED', // O tom exato off-white / creme do BetterMe
     borderRadius: 14,
     flexDirection: 'row',
@@ -879,10 +864,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 14,
   },
-  cardBottomPill5: {
-    height: 46,
-    paddingHorizontal: 12,
-    borderRadius: 13,
+  cardBottomPillMobile: {
+    height: 44,
+    borderRadius: 12,
+    paddingHorizontal: 10,
   },
   cardBottomPillSelected: {
     backgroundColor: '#FFFFFF',
@@ -896,8 +881,8 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 6,
   },
-  cardPillText5: {
-    fontSize: 15,
+  cardPillTextMobile: {
+    fontSize: 14,
     fontWeight: '800',
   },
   cardArrowCircle: {
@@ -908,7 +893,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  cardArrowCircle5: {
+  cardArrowCircleMobile: {
     width: 22,
     height: 22,
     borderRadius: 11,
