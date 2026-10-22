@@ -481,22 +481,116 @@ export const QuizScreen: React.FC = () => {
 
   return (
     <View style={styles.screenWrapper}>
-      {/* ── TOP HEADER (ESTILO BETTERME: LOGO NA ESQUERDA, MENU CIRCULAR NA DIREITA) ── */}
-      <View style={styles.headerBar}>
-        <View style={styles.headerLeft}>
-          {currentStep > 0 && currentStep !== 12 && (
-            <TouchableOpacity onPress={handleBack} style={styles.headerBackBtn} activeOpacity={0.7}>
-              <ArrowLeft size={18} color="#FFFFFF" />
-            </TouchableOpacity>
+      {/* ── TOP HEADER & BARRA DE PROGRESSO (ESTILO BETTERME) ── */}
+      <View style={styles.headerContainer}>
+        <View style={styles.headerBar}>
+          <View style={styles.headerLeft}>
+            {currentStep > 0 && currentStep !== 12 && (
+              <TouchableOpacity onPress={handleBack} style={styles.headerBackBtn} activeOpacity={0.7}>
+                <ArrowLeft size={18} color="#FFFFFF" />
+              </TouchableOpacity>
+            )}
+            <Text style={styles.betterMeLogoText}>
+              Verti<Text style={{ color: Colors.primary }}>Cam</Text>
+            </Text>
+          </View>
+
+          {/* Nome da categoria no centro (Estilo BetterMe) */}
+          {currentStep > 0 && currentStep < 12 && (
+            <Text style={styles.headerCategoryText}>
+              {currentStep <= 3
+                ? 'Profilo & Ruolo'
+                : currentStep <= 6
+                ? 'Obiettivo di Salto'
+                : currentStep <= 8
+                ? 'Metodo & Analisi IA'
+                : 'Parametri Biometrici'}
+            </Text>
           )}
-          <Text style={styles.betterMeLogoText}>
-            Verti<Text style={{ color: Colors.primary }}>Cam</Text>
-          </Text>
+
+          <TouchableOpacity style={styles.headerMenuBtn} activeOpacity={0.7}>
+            <Menu size={16} color="#FFFFFF" />
+          </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.headerMenuBtn} activeOpacity={0.7}>
-          <Menu size={16} color="#FFFFFF" />
-        </TouchableOpacity>
+        {/* ── BARRA DE PROGRESSO SEGMENTADA EM 4 ETAPAS (ESTILO BETTERME) ── */}
+        {currentStep > 0 && currentStep < 12 && (
+          <View style={styles.segmentedProgressBarContainer}>
+            {/* Segmento 1: Profilo & Ruolo (Steps 1-3) */}
+            <View style={styles.segmentTrack}>
+              <View
+                style={[
+                  styles.segmentFill,
+                  {
+                    width:
+                      currentStep >= 3
+                        ? '100%'
+                        : currentStep === 2
+                        ? '66%'
+                        : currentStep === 1
+                        ? '33%'
+                        : '0%',
+                  },
+                ]}
+              />
+            </View>
+
+            {/* Segmento 2: Obiettivo di Salto (Steps 4-6) */}
+            <View style={styles.segmentTrack}>
+              <View
+                style={[
+                  styles.segmentFill,
+                  {
+                    width:
+                      currentStep >= 6
+                        ? '100%'
+                        : currentStep === 5
+                        ? '66%'
+                        : currentStep === 4
+                        ? '33%'
+                        : '0%',
+                  },
+                ]}
+              />
+            </View>
+
+            {/* Segmento 3: Metodo & IA (Steps 7-8) */}
+            <View style={styles.segmentTrack}>
+              <View
+                style={[
+                  styles.segmentFill,
+                  {
+                    width:
+                      currentStep >= 8
+                        ? '100%'
+                        : currentStep === 7
+                        ? '50%'
+                        : '0%',
+                  },
+                ]}
+              />
+            </View>
+
+            {/* Segmento 4: Parametri Biometrici (Steps 9-11) */}
+            <View style={styles.segmentTrack}>
+              <View
+                style={[
+                  styles.segmentFill,
+                  {
+                    width:
+                      currentStep >= 11
+                        ? '100%'
+                        : currentStep === 10
+                        ? '66%'
+                        : currentStep === 9
+                        ? '33%'
+                        : '0%',
+                  },
+                ]}
+              />
+            </View>
+          </View>
+        )}
       </View>
 
       <ScrollView
@@ -1527,21 +1621,31 @@ const styles = StyleSheet.create({
     minHeight: '100%' as any,
   },
 
-  // ── HEADER ESTILO BETTERME ──
+  // ── HEADER & BARRA DE PROGRESSO ESTILO BETTERME ──
+  headerContainer: {
+    width: '100%',
+    backgroundColor: '#000000',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.06)',
+    zIndex: 100,
+  },
   headerBar: {
-    height: 64,
+    height: 60,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 32,
-    backgroundColor: '#000000',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+    paddingHorizontal: 24,
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    gap: 14,
+  },
+  headerCategoryText: {
+    color: '#9E9E9E',
+    fontSize: 12.5,
+    fontWeight: '700',
+    letterSpacing: 0.2,
   },
   headerBackBtn: {
     width: 34,
@@ -1552,7 +1656,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   betterMeLogoText: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: '900',
     color: '#FFFFFF',
     letterSpacing: -0.5,
@@ -1566,6 +1670,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.03)',
+  },
+  segmentedProgressBarContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingBottom: 6,
+    gap: 6,
+  },
+  segmentTrack: {
+    flex: 1,
+    height: 3.5,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  segmentFill: {
+    height: '100%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 2,
   },
 
   scrollContainer: {
