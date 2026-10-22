@@ -112,7 +112,8 @@ export const QuizScreen: React.FC = () => {
     else if (selectedSport.includes('beach')) pos = 'beach';
 
     let ageNum = 22;
-    if (ageRange === '18-29') ageNum = 23;
+    if (ageRange === 'under_18') ageNum = 16;
+    else if (ageRange === '18-29') ageNum = 23;
     else if (ageRange === '30-39') ageNum = 34;
     else if (ageRange === '40-49') ageNum = 44;
     else ageNum = 52;
@@ -255,6 +256,11 @@ export const QuizScreen: React.FC = () => {
 
             {renderBetterMeCards(
               [
+                {
+                  id: 'under_18',
+                  pillTitle: 'Età: <18',
+                  imageUri: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=600&q=80',
+                },
                 {
                   id: '18-29',
                   pillTitle: 'Età: 18–29',
