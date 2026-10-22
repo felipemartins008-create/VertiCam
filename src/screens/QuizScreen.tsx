@@ -94,6 +94,18 @@ export const QuizScreen: React.FC = () => {
   const [weight, setWeight] = useState<string>(String(userProfile.weightKg || 84));
   const [height, setHeight] = useState<string>(String(userProfile.heightCm || 192));
 
+  const stepWeight = (delta: number) => {
+    const current = parseInt(weight, 10) || 84;
+    const next = Math.max(40, Math.min(160, current + delta));
+    setWeight(String(next));
+  };
+
+  const stepHeight = (delta: number) => {
+    const current = parseInt(height, 10) || 190;
+    const next = Math.max(130, Math.min(235, current + delta));
+    setHeight(String(next));
+  };
+
   // Régua interativa Step 4 (0-60 cm com arraste e centralização suave)
   const rulerScrollRef = React.useRef<ScrollView>(null);
   const [rulerContainerWidth, setRulerContainerWidth] = useState<number>(320);
@@ -1478,17 +1490,37 @@ export const QuizScreen: React.FC = () => {
             </Text>
 
             <View style={styles.biometricInputCard}>
-              <Text style={styles.biometricCardLabel}>INSERISCI IL TUO PESO</Text>
-              <View style={styles.inputWithUnitBox}>
-                <TextInput
-                  value={weight}
-                  onChangeText={setWeight}
-                  keyboardType="numeric"
-                  placeholder="84"
-                  placeholderTextColor="#555555"
-                  style={styles.bigHeroInput}
-                />
-                <Text style={styles.bigHeroUnit}>KG</Text>
+              <Text style={styles.biometricCardLabel}>REGOLA IL TUO PESO</Text>
+
+              <View style={styles.biometricStepperRow}>
+                <TouchableOpacity
+                  style={styles.biometricStepBtn}
+                  activeOpacity={0.7}
+                  onPress={() => stepWeight(-1)}
+                >
+                  <Minus size={22} color="#FFFFFF" strokeWidth={2.5} />
+                </TouchableOpacity>
+
+                <View style={styles.biometricInputPill}>
+                  <TextInput
+                    value={weight}
+                    onChangeText={(txt) => setWeight(txt.replace(/[^0-9]/g, ''))}
+                    keyboardType="numeric"
+                    maxLength={3}
+                    placeholder="84"
+                    placeholderTextColor="#555555"
+                    style={styles.biometricNumberInput}
+                  />
+                  <Text style={styles.biometricUnitLabel}>KG</Text>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.biometricStepBtn}
+                  activeOpacity={0.7}
+                  onPress={() => stepWeight(1)}
+                >
+                  <Plus size={22} color="#FFFFFF" strokeWidth={2.5} />
+                </TouchableOpacity>
               </View>
 
               <View style={styles.biometricInsightBox}>
@@ -1523,17 +1555,37 @@ export const QuizScreen: React.FC = () => {
             </Text>
 
             <View style={styles.biometricInputCard}>
-              <Text style={styles.biometricCardLabel}>INSERISCI LA TUA ALTEZZA</Text>
-              <View style={styles.inputWithUnitBox}>
-                <TextInput
-                  value={height}
-                  onChangeText={setHeight}
-                  keyboardType="numeric"
-                  placeholder="192"
-                  placeholderTextColor="#555555"
-                  style={styles.bigHeroInput}
-                />
-                <Text style={styles.bigHeroUnit}>CM</Text>
+              <Text style={styles.biometricCardLabel}>REGOLA LA TUA ALTEZZA</Text>
+
+              <View style={styles.biometricStepperRow}>
+                <TouchableOpacity
+                  style={styles.biometricStepBtn}
+                  activeOpacity={0.7}
+                  onPress={() => stepHeight(-1)}
+                >
+                  <Minus size={22} color="#FFFFFF" strokeWidth={2.5} />
+                </TouchableOpacity>
+
+                <View style={styles.biometricInputPill}>
+                  <TextInput
+                    value={height}
+                    onChangeText={(txt) => setHeight(txt.replace(/[^0-9]/g, ''))}
+                    keyboardType="numeric"
+                    maxLength={3}
+                    placeholder="192"
+                    placeholderTextColor="#555555"
+                    style={styles.biometricNumberInput}
+                  />
+                  <Text style={styles.biometricUnitLabel}>CM</Text>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.biometricStepBtn}
+                  activeOpacity={0.7}
+                  onPress={() => stepHeight(1)}
+                >
+                  <Plus size={22} color="#FFFFFF" strokeWidth={2.5} />
+                </TouchableOpacity>
               </View>
 
               <View style={styles.reachEstimateBox}>
@@ -3216,44 +3268,67 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 520,
     backgroundColor: '#161922',
-    borderRadius: 22,
+    borderRadius: 24,
     padding: 26,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.08)',
+    overflow: 'hidden',
   },
   biometricCardLabel: {
-    color: '#888888',
-    fontSize: 12,
+    color: '#8A8D9B',
+    fontSize: 11.5,
     fontWeight: '800',
     letterSpacing: 1.2,
-    marginBottom: 16,
+    marginBottom: 20,
   },
-  inputWithUnitBox: {
+  biometricStepperRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#0A0C12',
-    borderWidth: 2,
-    borderColor: Colors.primary,
-    borderRadius: 18,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    marginBottom: 20,
-    minWidth: 220,
+    gap: 16,
+    marginBottom: 26,
+    width: '100%',
   },
-  bigHeroInput: {
-    fontSize: 48,
+  biometricStepBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  biometricInputPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#0D1017',
+    borderWidth: 1.5,
+    borderColor: 'rgba(0, 229, 255, 0.4)',
+    borderRadius: 20,
+    paddingHorizontal: 20,
+    height: 64,
+    minWidth: 160,
+    maxWidth: 190,
+  },
+  biometricNumberInput: {
+    fontSize: 38,
     fontWeight: '900',
     color: '#FFFFFF',
     textAlign: 'center',
-    minWidth: 100,
+    minWidth: 64,
+    maxWidth: 80,
+    padding: 0,
+    margin: 0,
   },
-  bigHeroUnit: {
-    fontSize: 24,
+  biometricUnitLabel: {
+    fontSize: 17,
     fontWeight: '900',
     color: Colors.primary,
-    marginLeft: 8,
+    marginLeft: 6,
+    letterSpacing: 0.5,
   },
   biometricInsightBox: {
     flexDirection: 'row',
