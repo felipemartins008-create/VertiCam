@@ -241,43 +241,49 @@ export const QuizScreen: React.FC = () => {
   const netHeight = gender === 'female' ? 224 : 243;
   const clearanceOverNet = totalAttackReach - netHeight;
 
-  // ── CALCOLO DINAMICO DEL TEMPO PER STEP 5 IN BASE AL TARGET GAIN (0-60 CM) ──
+  // ── CALCOLO DINAMICO DEL TEMPO PER STEP 5 IN BASE AL TARGET GAIN (MAX 4 MESI A 60 CM) ──
   const getTimelineData = (gainCm: number) => {
-    let weeksCount = 8;
-    let weeksRange = '7–9 settimane';
-    let daysToAdd = 56;
+    let weeksCount = 7;
+    let weeksRange = '6–8 settimane (~1,5–2 mesi)';
+    let daysToAdd = 49;
     let phaseBadge = 'Trasformazione Balistica';
 
     if (gainCm <= 0) {
-      weeksCount = 4;
-      weeksRange = '3–4 settimane';
-      daysToAdd = 28;
+      weeksCount = 3;
+      weeksRange = '2–3 settimane';
+      daysToAdd = 20;
       phaseBadge = 'Consolidamento Reattività';
-    } else if (gainCm <= 6) {
-      weeksCount = 5;
-      weeksRange = '4–5 settimane';
-      daysToAdd = 35;
+    } else if (gainCm <= 9) {
+      weeksCount = 4;
+      weeksRange = '3–4 settimane (~1 mese)';
+      daysToAdd = 28;
       phaseBadge = 'Adattamento Neurale Rapido';
-    } else if (gainCm <= 12) {
-      weeksCount = 8;
-      weeksRange = '7–9 settimane';
-      daysToAdd = 56;
+    } else if (gainCm <= 19) {
+      weeksCount = 7;
+      weeksRange = '6–8 settimane (~1,5–2 mesi)';
+      daysToAdd = 49;
       phaseBadge = 'Trasformazione Balistica';
-    } else if (gainCm <= 20) {
-      weeksCount = 12;
-      weeksRange = '10–12 settimane';
-      daysToAdd = 84;
+    } else if (gainCm <= 29) {
+      weeksCount = 10;
+      weeksRange = '9–10 settimane (~2,5 mesi)';
+      daysToAdd = 68;
       phaseBadge = 'Forza Reattiva (EUR)';
-    } else if (gainCm <= 35) {
-      weeksCount = 16;
-      weeksRange = '15–18 settimane';
-      daysToAdd = 119;
-      phaseBadge = 'Protocollo d\'Élite / Serie A';
+    } else if (gainCm <= 39) {
+      weeksCount = 12;
+      weeksRange = '11–12 settimane (~3 mesi)';
+      daysToAdd = 82;
+      phaseBadge = 'Forza Esplosiva & Stacco';
+    } else if (gainCm <= 49) {
+      weeksCount = 14;
+      weeksRange = '13–14 settimane (~3,5 mesi)';
+      daysToAdd = 96;
+      phaseBadge = 'Sviluppo Balistico Avanzato';
     } else {
-      weeksCount = 24;
-      weeksRange = '22–26 settimane';
-      daysToAdd = 168;
-      phaseBadge = 'Record di Elevazione Massima';
+      // 50 a 60 cm: MASSIMO 4 MESI!
+      weeksCount = 16;
+      weeksRange = '16 settimane (~4 mesi)';
+      daysToAdd = 118;
+      phaseBadge = 'Protocollo d\'Élite (4 Mesi)';
     }
 
     const targetDate = new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000);
