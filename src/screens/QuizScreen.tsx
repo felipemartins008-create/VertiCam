@@ -22,6 +22,12 @@ import {
   Menu,
   CheckCircle2,
   Zap,
+  TrendingUp,
+  Target,
+  Clock,
+  Flame,
+  Check,
+  Sparkles,
 } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
 import { useApp } from '../context/AppContext';
@@ -40,30 +46,41 @@ export const QuizScreen: React.FC = () => {
   const { width } = useWindowDimensions();
   const isDesktop = width >= 768;
 
-  // Current Funnel Step:
-  // 0: Prova Social embaixo da Headline + Botão COMEÇAR
+  // ═════════════════════════════════════════════════════════════════════
+  // FUNNEL STEPS:
+  // 0: Landing iniziale (Headline + Badge IA + Immagine Prima/Dopo + Inizia)
   // 1: Genere (Donna vs Uomo)
-  // 2: Scegli la tua età (Fascia d'età BetterMe - Donna o Uomo)
-  // 3: Sport & Ruolo
-  // 4: Ostacolo principale / frustrazione
-  // 5: Obiettivo di salto nei prossimi 60 giorni
-  // 6: Parametri fisici (Altezza, Peso)
-  // 7: Analisi Algoritmo IA (Loader BetterMe)
-  // 8: Offerta / Diagnosi Personalizzata (Sales Pitch)
+  // 2: Fascia d'età (Fasce segmentate per genere)
+  // 3: Posizione / Ruolo (6 posizioni in griglia 3x2)
+  // 4: Meta di elevazione (Quanto vuoi aumentare il salto)
+  // 5: Proiezione Temporale con Grafico (In quanto tempo raggiungi l'obiettivo)
+  // 6: Cosa cambierebbe se raggiungessi questo salto (Benefici personas)
+  // 7: Consapevolezza Soluzione (Come funziona VertiCam IA + Fotocamera)
+  // 8: Transizione verso parametri biometrici
+  // 9: Quanti giorni alla settimana vuoi allenarti
+  // 10: Peso corporeo (kg)
+  // 11: Altezza corporea (cm)
+  // 12: Caricamento e analisi IA (Loader 0-100%)
+  // 13: Offerta e Diagnostica Finale (Landing Page di conversione)
+  // ═════════════════════════════════════════════════════════════════════
   const [currentStep, setCurrentStep] = useState<number>(0);
 
   // Form State
   const [gender, setGender] = useState<'female' | 'male'>('female');
   const [ageRange, setAgeRange] = useState<string>('under_25');
   const [selectedSport, setSelectedSport] = useState<string>('outside');
-  const [selectedObstacle, setSelectedObstacle] = useState<string>('plateau');
   const [targetGain, setTargetGain] = useState<string>('gain_8_12');
-  const [height, setHeight] = useState<string>(String(userProfile.heightCm || 192));
+  const [selectedImpact, setSelectedImpact] = useState<string>('spike_over_block');
+  const [trainingDays, setTrainingDays] = useState<string>('3-4');
   const [weight, setWeight] = useState<string>(String(userProfile.weightKg || 84));
+  const [height, setHeight] = useState<string>(String(userProfile.heightCm || 192));
 
-  // AI Loading state
+  // AI Loading state (Step 12)
   const [analysisProgress, setAnalysisProgress] = useState<number>(10);
   const [analysisTextIndex, setAnalysisTextIndex] = useState<number>(0);
+
+  // Countdown timer per offerta (Step 13 - 15 minuti)
+  const [secondsRemaining, setSecondsRemaining] = useState<number>(894);
 
   const analysisSteps = [
     'Analisi della curva di forza elastica e reattività...',
@@ -73,13 +90,15 @@ export const QuizScreen: React.FC = () => {
     'Calcolo del potenziale di elevazione: +8.4 cm stimati!',
   ];
 
+  // Loader automatico per Step 12
   useEffect(() => {
-    if (currentStep === 7) {
+    if (currentStep === 12) {
+      setAnalysisProgress(10);
       const interval = setInterval(() => {
         setAnalysisProgress((prev) => {
           if (prev >= 100) {
             clearInterval(interval);
-            setTimeout(() => setCurrentStep(8), 400);
+            setTimeout(() => setCurrentStep(13), 400);
             return 100;
           }
           const next = prev + 20;
@@ -92,12 +111,28 @@ export const QuizScreen: React.FC = () => {
     }
   }, [currentStep]);
 
+  // Timer per Step 13
+  useEffect(() => {
+    if (currentStep === 13) {
+      const timer = setInterval(() => {
+        setSecondsRemaining((prev) => (prev > 0 ? prev - 1 : 0));
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [currentStep]);
+
+  const formatCountdown = (totalSec: number) => {
+    const mins = Math.floor(totalSec / 60);
+    const secs = totalSec % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
   const handleNextStep = () => {
     setCurrentStep((prev) => prev + 1);
   };
 
   const handleBack = () => {
-    if (currentStep > 0 && currentStep !== 7) {
+    if (currentStep > 0 && currentStep !== 12) {
       setCurrentStep(currentStep - 1);
     } else {
       navigate('Welcome');
@@ -132,12 +167,24 @@ export const QuizScreen: React.FC = () => {
       goals: ['higher_jump', 'jumper_knee'],
     });
 
-    setCurrentStep(7); // Trigger AI Analysis Loader
+    setCurrentStep(12); // Trigger AI Analysis Loader
   };
 
   const heightNum = parseFloat(height) || 192;
   const currentJumpEstimated = 54;
-  const potentialJumpProjected = 62.5;
+  const potentialGain = targetGain === 'gain_5_8' ? 7.5 : targetGain === 'gain_8_12' ? 12.0 : 8.5;
+  const potentialJumpProjected = currentJumpEstimated + potentialGain;
+  const standingReach = estimateStandingReach(heightNum);
+  const totalAttackReach = standingReach + Math.round(potentialJumpProjected);
+  const netHeight = gender === 'female' ? 224 : 243;
+  const clearanceOverNet = totalAttackReach - netHeight;
+
+  // Data obiettivo a 60 giorni
+  const projectedTargetDate = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toLocaleDateString('it-IT', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
 
   const femaleAgeCards: BetterMeCardOption[] = [
     {
@@ -185,7 +232,7 @@ export const QuizScreen: React.FC = () => {
     },
   ];
 
-  // ── RENDERER DE CARDS NO ESTILO BETTERME (EXATAMENTE COMO NO SCREENSHOT) ──
+  // ── RENDERER DE CARDS NO ESTILO BETTERME ──
   const renderBetterMeCards = (
     options: BetterMeCardOption[],
     selectedId: string,
@@ -237,7 +284,7 @@ export const QuizScreen: React.FC = () => {
                 />
               </View>
 
-              {/* Botão em formato de Pílula Clara com seta preta (IDÊNTICO AO BETTERME) */}
+              {/* Botão em formato de Pílula Clara com seta preta */}
               <View
                 style={[
                   styles.cardBottomPill,
@@ -287,7 +334,7 @@ export const QuizScreen: React.FC = () => {
       {/* ── TOP HEADER (ESTILO BETTERME: LOGO NA ESQUERDA, MENU CIRCULAR NA DIREITA) ── */}
       <View style={styles.headerBar}>
         <View style={styles.headerLeft}>
-          {currentStep > 0 && currentStep !== 7 && (
+          {currentStep > 0 && currentStep !== 12 && (
             <TouchableOpacity onPress={handleBack} style={styles.headerBackBtn} activeOpacity={0.7}>
               <ArrowLeft size={18} color="#FFFFFF" />
             </TouchableOpacity>
@@ -307,11 +354,10 @@ export const QuizScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
       >
         {/* ══════════════════════════════════════════════════════
-            STEP 0: HEADLINE + APENAS UMA PROVA SOCIAL + BOTÃO COMEÇAR
+            STEP 0: HEADLINE + BADGE IA + PROVA SOCIAL + BOTÃO INIZIA
            ══════════════════════════════════════════════════════ */}
         {currentStep === 0 && (
           <View style={styles.stepContainer}>
-            {/* ── BADGE TECNOLOGICO NO TOPO ── */}
             <View style={styles.aiBadge}>
               <Zap size={13} color={Colors.primary} fill={Colors.primary} />
               <Text style={styles.aiBadgeText}>POTENZIATO DA TECNOLOGIA & IA</Text>
@@ -322,7 +368,6 @@ export const QuizScreen: React.FC = () => {
               RISPONDI AL TEST PER INIZIARE IL TUO ALLENAMENTO PERSONALIZZATO
             </Text>
 
-            {/* ── IMMAGINE DI PROVA ELEVAZIONE (PRIMA vs DOPO - WEBP OTTIMIZZATA) ── */}
             <View style={styles.proofImageCard}>
               <Image
                 source={require('../../assets/proof-jump.webp')}
@@ -336,7 +381,6 @@ export const QuizScreen: React.FC = () => {
               />
             </View>
 
-            {/* ── BOTÃO ESCRITO INIZIA (COMEÇAR) ── */}
             <TouchableOpacity
               style={styles.startPillButton}
               activeOpacity={0.88}
@@ -349,7 +393,7 @@ export const QuizScreen: React.FC = () => {
             </TouchableOpacity>
 
             <Text style={styles.startFootnote}>
-              ⏱️ Richiede solo 1 minuto • 100% scientifico via fotocamera
+              ⏱ Richiede solo 2 minuti • Basato su biomeccanica applicata
             </Text>
           </View>
         )}
@@ -359,8 +403,8 @@ export const QuizScreen: React.FC = () => {
            ══════════════════════════════════════════════════════ */}
         {currentStep === 1 && (
           <View style={styles.stepContainer}>
-            <Text style={styles.mainTitle}>PIANO DI ALLENAMENTO ELEVAZIONE & SALTO</Text>
-            <Text style={styles.mainSubtitle}>QUAL È IL TUO GENERE?</Text>
+            <Text style={styles.mainTitle}>SCEGLI IL TUO GENERE</Text>
+            <Text style={styles.mainSubtitle}>PER CHI È QUESTO PIANO DI ALLENAMENTO?</Text>
 
             {renderBetterMeCards(
               [
@@ -385,15 +429,15 @@ export const QuizScreen: React.FC = () => {
         )}
 
         {/* ══════════════════════════════════════════════════════
-            STEP 2: FAIXA ETÁRIA (DIRECIONADA POR GÊNERO: DONNA OU UOMO)
+            STEP 2: FAIXA ETÁRIA (DIRECIONADA POR GÊNERO)
            ══════════════════════════════════════════════════════ */}
         {currentStep === 2 && (
           <View style={styles.stepContainer}>
-            <Text style={styles.mainTitle}>PIANO DI ALLENAMENTO ELEVAZIONE & SALTO</Text>
-            <Text style={styles.mainSubtitle}>SCEGLI LA TUA FASCIA D'ETÀ</Text>
+            <Text style={styles.mainTitle}>QUAL È LA TUA ETÀ?</Text>
+            <Text style={styles.mainSubtitle}>PER CALIBRARE IL VOLUME E IL RECUPERO ARTICOLARE</Text>
 
             {renderBetterMeCards(
-              gender === 'female' ? femaleAgeCards : maleAgeCards,
+              gender === 'male' ? maleAgeCards : femaleAgeCards,
               ageRange,
               (id) => {
                 setAgeRange(id);
@@ -454,117 +498,480 @@ export const QuizScreen: React.FC = () => {
         )}
 
         {/* ══════════════════════════════════════════════════════
-            STEP 4: OSTACOLO PRINCIPALE / FRUSTRAZIONE
+            STEP 4: META DI ELEVAZIONE
            ══════════════════════════════════════════════════════ */}
         {currentStep === 4 && (
-          <View style={styles.stepContainer}>
-            <Text style={styles.mainTitle}>DIAGNOSTICA DEL SALTO</Text>
-            <Text style={styles.mainSubtitle}>QUAL È IL TUO OSTACOLO PRINCIPALE?</Text>
-
-            {renderBetterMeCards(
-              [
-                {
-                  id: 'blocked',
-                  pillTitle: 'Non supero il muro',
-                  imageUri: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=600&q=80',
-                },
-                {
-                  id: 'plateau',
-                  pillTitle: 'Squat senza salto',
-                  imageUri: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80',
-                },
-                {
-                  id: 'knee_fear',
-                  pillTitle: 'Dolori al tendine',
-                  imageUri: 'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?auto=format&fit=crop&w=600&q=80',
-                },
-                {
-                  id: 'no_data',
-                  pillTitle: 'Nessuna misurazione',
-                  imageUri: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80',
-                },
-              ],
-              selectedObstacle,
-              (id) => {
-                setSelectedObstacle(id);
-                setTimeout(() => handleNextStep(), 200);
-              }
-            )}
-          </View>
-        )}
-
-        {/* ══════════════════════════════════════════════════════
-            STEP 5: OBIETTIVO DI SALTO (60 GIORNI)
-           ══════════════════════════════════════════════════════ */}
-        {currentStep === 5 && (
           <View style={styles.stepContainer}>
             <Text style={styles.mainTitle}>POTENZIALE DI ELEVAZIONE</Text>
             <Text style={styles.mainSubtitle}>QUANTO VUOI AUMENTARE IL TUO SALTO?</Text>
 
-            {renderBetterMeCards(
-              [
+            <View style={styles.optionsListWrap}>
+              {[
                 {
                   id: 'gain_5_8',
-                  pillTitle: '+5 a +8 cm',
-                  imageUri: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=600&q=80',
+                  badge: 'BASE SICURA',
+                  title: '+5 a +8 cm',
+                  desc: 'Guadagno rapido di stacco per superare il muro avversario con costanza.',
+                  icon: TrendingUp,
                 },
                 {
                   id: 'gain_8_12',
-                  pillTitle: '+9 a +15 cm (Record)',
-                  imageUri: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=600&q=80',
+                  badge: 'RECORD • TRASFORMAZIONE COMPLETA',
+                  title: '+9 a +15 cm',
+                  desc: 'Il massimo picco di elevazione atletica per dominare sopra la rete.',
+                  icon: Flame,
+                  highlight: true,
                 },
                 {
                   id: 'pain_free',
-                  pillTitle: 'Tendini senza dolore',
-                  imageUri: 'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?auto=format&fit=crop&w=600&q=80',
+                  badge: 'PROTEZIONE TENDINI',
+                  title: 'Massima Esplosività Senza Dolore',
+                  desc: 'Rinforzo del tendine rotuleo, atterraggi morbidi e salto esplosivo continuo.',
+                  icon: ShieldCheck,
                 },
-              ],
-              targetGain,
-              (id) => {
-                setTargetGain(id);
-                setTimeout(() => handleNextStep(), 200);
-              }
-            )}
+              ].map((opt) => {
+                const isSelected = targetGain === opt.id;
+                const IconComponent = opt.icon;
+                return (
+                  <TouchableOpacity
+                    key={opt.id}
+                    style={[
+                      styles.choiceRowCard,
+                      opt.highlight && styles.choiceRowCardHighlight,
+                      isSelected && styles.choiceRowCardSelected,
+                    ]}
+                    activeOpacity={0.85}
+                    onPress={() => {
+                      setTargetGain(opt.id);
+                      setTimeout(() => handleNextStep(), 200);
+                    }}
+                  >
+                    <View style={styles.choiceRowTop}>
+                      <View style={[styles.choiceBadge, opt.highlight && styles.choiceBadgeHighlight]}>
+                        <Text style={[styles.choiceBadgeText, opt.highlight && styles.choiceBadgeTextHighlight]}>
+                          {opt.badge}
+                        </Text>
+                      </View>
+                      <IconComponent
+                        size={22}
+                        color={opt.highlight || isSelected ? Colors.primary : '#FFFFFF'}
+                      />
+                    </View>
+                    <Text style={styles.choiceRowTitle}>{opt.title}</Text>
+                    <Text style={styles.choiceRowDesc}>{opt.desc}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
         )}
 
         {/* ══════════════════════════════════════════════════════
-            STEP 6: PARAMETRI FISICI (ALTEZZA & PESO)
+            STEP 5 (4/1): PROIEZIONE TEMPORALE (GRAFICO EVOLUZIONE)
+           ══════════════════════════════════════════════════════ */}
+        {currentStep === 5 && (
+          <View style={styles.stepContainer}>
+            <View style={styles.aiBadge}>
+              <Target size={13} color={Colors.primary} />
+              <Text style={styles.aiBadgeText}>PROIEZIONE DI TRASFORMAZIONE</Text>
+            </View>
+
+            <Text style={styles.mainTitle}>LA TUA CURVA DI PROGRESSO</Text>
+            <Text style={styles.mainSubtitle}>
+              IN QUANTO TEMPO RAGGIUNGERAI IL TUO OBIETTIVO
+            </Text>
+
+            <View style={styles.timelineCard}>
+              <View style={styles.timelineHeader}>
+                <Flame size={20} color="#FF9100" />
+                <Text style={styles.timelineHeaderText}>
+                  Picco stimato entro il: <Text style={{ color: Colors.primary, fontWeight: '900' }}>{projectedTargetDate}</Text>
+                </Text>
+              </View>
+
+              {/* Grafico Temporale Visuale a 3 Fasi */}
+              <View style={styles.timelineChartContainer}>
+                {/* Fase 1 */}
+                <View style={styles.timelineStageCol}>
+                  <Text style={styles.stageGainText}>+3.5 cm</Text>
+                  <View style={[styles.stageBar, { height: 70, backgroundColor: '#262D3D' }]}>
+                    <View style={styles.stageBarIndicator} />
+                  </View>
+                  <Text style={styles.stageLabelWeeks}>SETT. 2–4</Text>
+                  <Text style={styles.stageTitle}>Adattamento Neurale</Text>
+                  <Text style={styles.stageDesc}>Reattività piedi e rigidità caviglia</Text>
+                </View>
+
+                {/* Fase 2 */}
+                <View style={styles.timelineStageCol}>
+                  <Text style={styles.stageGainText}>+7.2 cm</Text>
+                  <View style={[styles.stageBar, { height: 125, backgroundColor: 'rgba(0, 229, 255, 0.45)' }]}>
+                    <View style={[styles.stageBarIndicator, { backgroundColor: Colors.primary }]} />
+                  </View>
+                  <Text style={styles.stageLabelWeeks}>SETT. 6–8</Text>
+                  <Text style={styles.stageTitle}>Forza Elastica</Text>
+                  <Text style={styles.stageDesc}>Conversione di rincorsa e stacco</Text>
+                </View>
+
+                {/* Fase 3 */}
+                <View style={styles.timelineStageCol}>
+                  <View style={styles.peakFloatingBadge}>
+                    <Text style={styles.peakFloatingBadgeText}>OBIETTIVO 🔥</Text>
+                  </View>
+                  <Text style={[styles.stageGainText, { color: Colors.primary, fontSize: 20 }]}>
+                    +{potentialGain.toFixed(1)} cm
+                  </Text>
+                  <View style={[styles.stageBar, { height: 185, backgroundColor: Colors.primary }]}>
+                    <View style={[styles.stageBarIndicator, { backgroundColor: '#FFFFFF' }]} />
+                  </View>
+                  <Text style={[styles.stageLabelWeeks, { color: Colors.primary, fontWeight: '900' }]}>SETT. 10–12</Text>
+                  <Text style={[styles.stageTitle, { color: '#FFFFFF' }]}>Picco Consolidato</Text>
+                  <Text style={styles.stageDesc}>Salto continuo sopra il muro</Text>
+                </View>
+              </View>
+
+              <View style={styles.timelineScientificNote}>
+                <CheckCircle2 size={16} color={Colors.accentGreen} />
+                <Text style={styles.timelineScientificText}>
+                  Calcolo basato su 420+ atleti con indice pliometrico simile al tuo.
+                </Text>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.continuePillBtn}
+              activeOpacity={0.88}
+              onPress={handleNextStep}
+            >
+              <Text style={styles.continuePillText}>CONTINUA</Text>
+              <ChevronRight size={18} color="#000000" strokeWidth={3} />
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* ══════════════════════════════════════════════════════
+            STEP 6 (5): BENEFICI PERSONAS (COSA CAMBIEREBBE)
            ══════════════════════════════════════════════════════ */}
         {currentStep === 6 && (
           <View style={styles.stepContainer}>
-            <Text style={styles.mainTitle}>PARAMETRI BIOMETRICI</Text>
-            <Text style={styles.mainSubtitle}>INSERISCI I TUOI DATI PER CALCOLARE IL CARICO</Text>
+            <Text style={styles.mainTitle}>IL TUO VANTAGGIO IN CAMPO</Text>
+            <Text style={styles.mainSubtitle}>
+              COSA CAMBIEREBBE DI PIÙ SE RAGGIUNGESSI QUESTA ELEVAZIONE?
+            </Text>
 
-            <View style={styles.inputsWrap}>
-              <View style={styles.inputBox}>
-                <Text style={styles.inputBoxLabel}>ALTEZZA CORPOREA (CM)</Text>
-                <TextInput
-                  value={height}
-                  onChangeText={setHeight}
-                  keyboardType="numeric"
-                  placeholder="192"
-                  placeholderTextColor="#666666"
-                  style={styles.betterMeInput}
+            <View style={styles.optionsListWrap}>
+              {[
+                {
+                  id: 'spike_over_block',
+                  title: 'Schiacciare sopra il muro avversario',
+                  desc: 'Palle imprendibili da posto 4, pipe e diagonali strette senza subire murate.',
+                  tag: 'ATTACCO DOMINANTE',
+                },
+                {
+                  id: 'block_roof',
+                  title: 'Chiudere ogni varco a muro',
+                  desc: 'Invadere lo spazio avversario sopra la rete e murare punto con sicurezza.',
+                  tag: 'MURO INVALICABILE',
+                },
+                {
+                  id: 'explosive_agility',
+                  title: 'Sentirmi agile, leggero ed esplosivo',
+                  desc: 'Piedi reattivi nei cambi di direzione, rincorsa fluida e decollo immediato.',
+                  tag: 'DINAMISMO TOTALE',
+                },
+                {
+                  id: 'pain_free_knees',
+                  title: 'Saltare al massimo senza paura del tendine',
+                  desc: 'Atterraggi morbidi e ginocchia protette senza dover convivere col dolore.',
+                  tag: 'SALVAGUARDIA TENDINEA',
+                },
+              ].map((opt) => {
+                const isSelected = selectedImpact === opt.id;
+                return (
+                  <TouchableOpacity
+                    key={opt.id}
+                    style={[
+                      styles.personaChoiceCard,
+                      isSelected && styles.personaChoiceCardSelected,
+                    ]}
+                    activeOpacity={0.85}
+                    onPress={() => {
+                      setSelectedImpact(opt.id);
+                      setTimeout(() => handleNextStep(), 200);
+                    }}
+                  >
+                    <View style={styles.personaCardHeader}>
+                      <View style={styles.personaTag}>
+                        <Text style={styles.personaTagText}>{opt.tag}</Text>
+                      </View>
+                      <View style={[styles.personaRadioCircle, isSelected && styles.personaRadioCircleActive]}>
+                        {isSelected && <View style={styles.personaRadioInner} />}
+                      </View>
+                    </View>
+                    <Text style={styles.personaCardTitle}>{opt.title}</Text>
+                    <Text style={styles.personaCardDesc}>{opt.desc}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        )}
+
+        {/* ══════════════════════════════════════════════════════
+            STEP 7 (6): CONSAPEVOLEZZA SOLUZIONE (COME FUNZIONA)
+           ══════════════════════════════════════════════════════ */}
+        {currentStep === 7 && (
+          <View style={styles.stepContainer}>
+            <View style={styles.aiBadge}>
+              <Sparkles size={13} color={Colors.primary} />
+              <Text style={styles.aiBadgeText}>TECNOLOGIA ESCLUSIVA VERTICAM</Text>
+            </View>
+
+            <Text style={styles.mainTitle}>COME FUNZIONA VERTICAM</Text>
+            <Text style={styles.mainSubtitle}>
+              INTELLIGENZA ARTIFICIALE + VISIONE COMPUTERIZZATA DALLA FOTOCAMERA
+            </Text>
+
+            <View style={styles.howItWorksCard}>
+              <View style={styles.howItWorksImageWrap}>
+                <Image
+                  source={require('../../assets/proof-jump.webp')}
+                  style={styles.howItWorksImage}
+                  resizeMode="cover"
                 />
               </View>
 
-              <View style={styles.inputBox}>
-                <Text style={styles.inputBoxLabel}>PESO CORPOREO (KG)</Text>
+              <View style={styles.pillarsContainer}>
+                <View style={styles.pillarItem}>
+                  <View style={styles.pillarIconBox}>
+                    <Zap size={18} color={Colors.primary} />
+                  </View>
+                  <View style={styles.pillarTextBox}>
+                    <Text style={styles.pillarTitle}>1. Tracciamento Ottico al Millimetro</Text>
+                    <Text style={styles.pillarDesc}>
+                      Basta posizionare lo smartphone a terra. L'algoritmo rileva il tempo di volo e l'altezza dello stacco istantaneamente.
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.pillarItem}>
+                  <View style={styles.pillarIconBox}>
+                    <Activity size={18} color={Colors.primary} />
+                  </View>
+                  <View style={styles.pillarTextBox}>
+                    <Text style={styles.pillarTitle}>2. Calibrazione Giornaliera con IA</Text>
+                    <Text style={styles.pillarDesc}>
+                      L'algoritmo valuta la freschezza del sistema nervoso e ricalcola i carichi quotidiani per evitare sovraccarichi al tendine.
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.pillarItem}>
+                  <View style={styles.pillarIconBox}>
+                    <Award size={18} color={Colors.primary} />
+                  </View>
+                  <View style={styles.pillarTextBox}>
+                    <Text style={styles.pillarTitle}>3. Risultati Concreti e Dimostrati</Text>
+                    <Text style={styles.pillarDesc}>
+                      +8.4 cm di incremento medio registrati nei primi 60 giorni su giocatori di pallavolo e beach volley.
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.continuePillBtn}
+              activeOpacity={0.88}
+              onPress={handleNextStep}
+            >
+              <Text style={styles.continuePillText}>HO CAPITO, CONTINUA</Text>
+              <ChevronRight size={18} color="#000000" strokeWidth={3} />
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* ══════════════════════════════════════════════════════
+            STEP 8 (6/1): TRANSIZIONE VERSO PARAMETRI BIOMETRICI
+           ══════════════════════════════════════════════════════ */}
+        {currentStep === 8 && (
+          <View style={styles.stepContainer}>
+            <View style={styles.transitionCard}>
+              <View style={styles.transitionIconRing}>
+                <Activity size={36} color={Colors.primary} />
+              </View>
+
+              <Text style={styles.transitionTitle}>ANALISI BIOMETRICA DEL TUO PROFILO</Text>
+              <Text style={styles.transitionSubtitle}>
+                ULTIMI PASSI PER CALIBRARE I CARICHI DEL TUO PROGRAMMA
+              </Text>
+
+              <Text style={styles.transitionBody}>
+                Abbiamo registrato il tuo ruolo, i tuoi obiettivi e le tue priorità. Adesso abbiamo bisogno di due soli parametri fisici fondamentali (peso e altezza) per consentire all'IA di calcolare l'indice potenza-peso e la spanna d'attacco a rete.
+              </Text>
+
+              <View style={styles.transitionCheckList}>
+                <View style={styles.checkListItem}>
+                  <Check size={16} color={Colors.accentGreen} strokeWidth={3} />
+                  <Text style={styles.checkListText}>Calibrazione carichi personalizzata al grammo</Text>
+                </View>
+                <View style={styles.checkListItem}>
+                  <Check size={16} color={Colors.accentGreen} strokeWidth={3} />
+                  <Text style={styles.checkListText}>Zero rischio di tendinite rotulea o infortuni</Text>
+                </View>
+                <View style={styles.checkListItem}>
+                  <Check size={16} color={Colors.accentGreen} strokeWidth={3} />
+                  <Text style={styles.checkListText}>Calcolo esatto del punto d'impatto sopra la rete</Text>
+                </View>
+              </View>
+
+              <TouchableOpacity
+                style={styles.continuePillBtn}
+                activeOpacity={0.88}
+                onPress={handleNextStep}
+              >
+                <Text style={styles.continuePillText}>INSERISCI I TUOI PARAMETRI</Text>
+                <ChevronRight size={18} color="#000000" strokeWidth={3} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {/* ══════════════════════════════════════════════════════
+            STEP 9 (7): QUANTI GIORNI ALLA SETTIMANA VUOI ALLENARTI
+           ══════════════════════════════════════════════════════ */}
+        {currentStep === 9 && (
+          <View style={styles.stepContainer}>
+            <Text style={styles.mainTitle}>LA TUA DISPONIBILITÀ</Text>
+            <Text style={styles.mainSubtitle}>
+              QUANTI GIORNI ALLA SETTIMANA VUOI ALLENARTI?
+            </Text>
+
+            <View style={styles.optionsListWrap}>
+              {[
+                {
+                  id: '2-3',
+                  title: '2–3 Giorni a Settimana',
+                  desc: 'Ideale durante la stagione di campionato per mantenere freschezza in partita.',
+                  badge: 'STAGIONE AGONISTICA',
+                },
+                {
+                  id: '3-4',
+                  title: '3–4 Giorni a Settimana',
+                  desc: 'Il perfetto equilibrio tra stimolo pliometrico e recupero del tendine.',
+                  badge: 'RACCOMANDATO DAL PROTOCOLLO',
+                  highlight: true,
+                },
+                {
+                  id: '4-5',
+                  title: '4–5 Giorni a Settimana',
+                  desc: 'Programma intensivo di trasformazione rapida per periodi fuori stagione.',
+                  badge: 'ALTA INTENSITÀ',
+                },
+              ].map((opt) => {
+                const isSelected = trainingDays === opt.id;
+                return (
+                  <TouchableOpacity
+                    key={opt.id}
+                    style={[
+                      styles.choiceRowCard,
+                      opt.highlight && styles.choiceRowCardHighlight,
+                      isSelected && styles.choiceRowCardSelected,
+                    ]}
+                    activeOpacity={0.85}
+                    onPress={() => {
+                      setTrainingDays(opt.id);
+                      setTimeout(() => handleNextStep(), 200);
+                    }}
+                  >
+                    <View style={styles.choiceRowTop}>
+                      <View style={[styles.choiceBadge, opt.highlight && styles.choiceBadgeHighlight]}>
+                        <Text style={[styles.choiceBadgeText, opt.highlight && styles.choiceBadgeTextHighlight]}>
+                          {opt.badge}
+                        </Text>
+                      </View>
+                      <Clock size={20} color={opt.highlight || isSelected ? Colors.primary : '#888888'} />
+                    </View>
+                    <Text style={styles.choiceRowTitle}>{opt.title}</Text>
+                    <Text style={styles.choiceRowDesc}>{opt.desc}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        )}
+
+        {/* ══════════════════════════════════════════════════════
+            STEP 10 (8): PESO CORPOREO
+           ══════════════════════════════════════════════════════ */}
+        {currentStep === 10 && (
+          <View style={styles.stepContainer}>
+            <Text style={styles.mainTitle}>PESO CORPOREO</Text>
+            <Text style={styles.mainSubtitle}>
+              FONDAMENTALE PER IL RAPPORTO POTENZA-PESO DEL SALTO
+            </Text>
+
+            <View style={styles.biometricInputCard}>
+              <Text style={styles.biometricCardLabel}>INSERISCI IL TUO PESO</Text>
+              <View style={styles.inputWithUnitBox}>
                 <TextInput
                   value={weight}
                   onChangeText={setWeight}
                   keyboardType="numeric"
                   placeholder="84"
-                  placeholderTextColor="#666666"
-                  style={styles.betterMeInput}
+                  placeholderTextColor="#555555"
+                  style={styles.bigHeroInput}
                 />
+                <Text style={styles.bigHeroUnit}>KG</Text>
+              </View>
+
+              <View style={styles.biometricInsightBox}>
+                <Zap size={18} color={Colors.primary} />
+                <Text style={styles.biometricInsightText}>
+                  La forza verticale necessaria allo stacco cresce in modo direttamente proporzionale alla massa corporea. L'algoritmo calcolerà l'impulso newtoniano esatto per te.
+                </Text>
+              </View>
+
+              <TouchableOpacity
+                style={styles.continuePillBtn}
+                activeOpacity={0.88}
+                onPress={handleNextStep}
+              >
+                <Text style={styles.continuePillText}>CONFERMA IL PESO</Text>
+                <ChevronRight size={18} color="#000000" strokeWidth={3} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {/* ══════════════════════════════════════════════════════
+            STEP 11 (9): ALTEZZA CORPOREA
+           ══════════════════════════════════════════════════════ */}
+        {currentStep === 11 && (
+          <View style={styles.stepContainer}>
+            <Text style={styles.mainTitle}>ALTEZZA CORPOREA</Text>
+            <Text style={styles.mainSubtitle}>
+              CALCOLO DEL TUO PUNTO D'IMPATTO SOPRA LA RETE
+            </Text>
+
+            <View style={styles.biometricInputCard}>
+              <Text style={styles.biometricCardLabel}>INSERISCI LA TUA ALTEZZA</Text>
+              <View style={styles.inputWithUnitBox}>
+                <TextInput
+                  value={height}
+                  onChangeText={setHeight}
+                  keyboardType="numeric"
+                  placeholder="192"
+                  placeholderTextColor="#555555"
+                  style={styles.bigHeroInput}
+                />
+                <Text style={styles.bigHeroUnit}>CM</Text>
               </View>
 
               <View style={styles.reachEstimateBox}>
                 <Activity size={18} color={Colors.primary} />
                 <Text style={styles.reachEstimateText}>
-                  Portata da fermo stimata: <Text style={{ color: '#FFFFFF', fontWeight: '900' }}>{estimateStandingReach(heightNum)} cm</Text> • Potenziale in attacco con VertiCam: <Text style={{ color: Colors.primary, fontWeight: '900' }}>{estimateStandingReach(heightNum) + Math.round(potentialJumpProjected)} cm</Text>
+                  Portata da fermo stimata: <Text style={{ color: '#FFFFFF', fontWeight: '900' }}>{standingReach} cm</Text> • Potenziale in attacco a rete con VertiCam: <Text style={{ color: Colors.primary, fontWeight: '900' }}>{totalAttackReach} cm</Text> ({clearanceOverNet > 0 ? `+${clearanceOverNet} cm sopra la rete!` : 'piena altezza a rete'})
                 </Text>
               </View>
 
@@ -573,7 +980,7 @@ export const QuizScreen: React.FC = () => {
                 activeOpacity={0.88}
                 onPress={handleFinishBiometrics}
               >
-                <Text style={styles.continuePillText}>CALCOLA IL MIO PIANO PERSONALIZZATO</Text>
+                <Text style={styles.continuePillText}>GENERA IL MIO PIANO CON L'IA</Text>
                 <ChevronRight size={18} color="#000000" strokeWidth={3} />
               </TouchableOpacity>
             </View>
@@ -581,9 +988,9 @@ export const QuizScreen: React.FC = () => {
         )}
 
         {/* ══════════════════════════════════════════════════════
-            STEP 7: ANALISI ALGORITMO IA (LOADER BETTERME)
+            STEP 12 (10): CARICAMENTO & ANALISI IA (LOADER)
            ══════════════════════════════════════════════════════ */}
-        {currentStep === 7 && (
+        {currentStep === 12 && (
           <View style={styles.loadingContainer}>
             <Text style={styles.mainTitle}>ELABORAZIONE PIANO BIOMECCANICO</Text>
             <Text style={styles.mainSubtitle}>ATTENDI LA CALIBRAZIONE DELLA TUA CURVA DI FORZA</Text>
@@ -603,15 +1010,26 @@ export const QuizScreen: React.FC = () => {
         )}
 
         {/* ══════════════════════════════════════════════════════
-            STEP 8: OFFERTA & DIAGNOSI (PITCH BETTERME)
+            STEP 13 (11): OFFERTA & DIAGNOSTICA (LANDING PAGE)
            ══════════════════════════════════════════════════════ */}
-        {currentStep === 8 && (
+        {currentStep === 13 && (
           <View style={styles.pitchContainer}>
+            {/* Banner Urgenza con Countdown */}
+            <View style={styles.urgencyBanner}>
+              <Flame size={18} color="#FF9100" />
+              <Text style={styles.urgencyBannerText}>
+                OFFERTA DI BENVENUTO RISERVATA • SCONTO -57% VALIDO ANCORA PER:{' '}
+                <Text style={styles.countdownTimer}>{formatCountdown(secondsRemaining)}</Text>
+              </Text>
+            </View>
+
             <Text style={styles.mainTitle}>IL TUO PIANO DI ELEVAZIONE È PRONTO</Text>
-            <Text style={styles.mainSubtitle}>PROIEZIONE BASATA SUI TUOI PARAMETRI FISICI</Text>
+            <Text style={styles.mainSubtitle}>
+              ANALISI COMPLETATA CON SUCCESSO SUI TUOI PARAMETRI BIOMETRICI
+            </Text>
 
             <View style={styles.pitchContentCard}>
-              {/* Gráfico Comparativo */}
+              {/* Gráfico Comparativo do Salto */}
               <View style={styles.pitchGraphRow}>
                 <View style={styles.pitchGraphCol}>
                   <Text style={styles.pitchGraphNumber}>{currentJumpEstimated} cm</Text>
@@ -621,31 +1039,74 @@ export const QuizScreen: React.FC = () => {
 
                 <View style={styles.pitchGraphCol}>
                   <View style={styles.gainTagFloating}>
-                    <Text style={styles.gainTagFloatingText}>+8.5 cm 🔥</Text>
+                    <Text style={styles.gainTagFloatingText}>+{potentialGain.toFixed(1)} cm 🔥</Text>
                   </View>
                   <Text style={[styles.pitchGraphNumber, { color: Colors.primary }]}>
-                    {potentialJumpProjected} cm
+                    {potentialJumpProjected.toFixed(1)} cm
                   </Text>
-                  <View style={[styles.pitchGraphBar, { height: 165, backgroundColor: Colors.primary }]} />
+                  <View style={[styles.pitchGraphBar, { height: 175, backgroundColor: Colors.primary }]} />
                   <Text style={[styles.pitchGraphLabel, { color: Colors.primary, fontWeight: '800' }]}>
                     Con VertiCam
                   </Text>
                 </View>
               </View>
 
-              {/* Box de Preço Ancorado e Garantia */}
+              {/* Box con stima di impatto a rete */}
+              <View style={styles.netImpactBanner}>
+                <Target size={20} color={Colors.primary} />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.netImpactTitle}>PUNTO D'IMPATTO A RETE PREVISTO</Text>
+                  <Text style={styles.netImpactText}>
+                    Altezza totale di attacco stimata: <Text style={{ color: '#FFFFFF', fontWeight: '900' }}>{totalAttackReach} cm</Text> ({clearanceOverNet > 0 ? `+${clearanceOverNet} cm oltre l'asta ufficiale di rete` : 'piena elevazione'}).
+                  </Text>
+                </View>
+              </View>
+
+              {/* I 3 Pilastri del Metodo */}
+              <View style={styles.methodPillarsBox}>
+                <Text style={styles.methodPillarsHeading}>COSA COMPRENDE IL TUO PIANO PERSONALIZZATO:</Text>
+
+                <View style={styles.methodPillarRow}>
+                  <CheckCircle2 size={18} color={Colors.primary} />
+                  <Text style={styles.methodPillarText}>
+                    <Text style={{ fontWeight: '800', color: '#FFFFFF' }}>Pliometria Autoregolata da IA:</Text> Carichi giornalieri calibrati sul tuo stato di freschezza nervosa.
+                  </Text>
+                </View>
+
+                <View style={styles.methodPillarRow}>
+                  <CheckCircle2 size={18} color={Colors.primary} />
+                  <Text style={styles.methodPillarText}>
+                    <Text style={{ fontWeight: '800', color: '#FFFFFF' }}>Protocollo Tendineo Isocinetico:</Text> Rinforzo del tendine rotuleo per saltare al 100% senza dolori.
+                  </Text>
+                </View>
+
+                <View style={styles.methodPillarRow}>
+                  <CheckCircle2 size={18} color={Colors.primary} />
+                  <Text style={styles.methodPillarText}>
+                    <Text style={{ fontWeight: '800', color: '#FFFFFF' }}>Feedback Ottico via Fotocamera:</Text> Misurazione in tempo reale di ogni salto senza sensori esterni.
+                  </Text>
+                </View>
+              </View>
+
+              {/* Box di Prezzo con Ancoraggio e Garanzia */}
               <View style={styles.pitchPricingBox}>
                 <View style={styles.pitchBestBadge}>
-                  <Text style={styles.pitchBestBadgeText}>RISPARMI IL 40% • PIANO ANNUALE</Text>
+                  <Text style={styles.pitchBestBadgeText}>PIÙ SCELTO DAGLI ATLETI • RISPARMI IL 57%</Text>
                 </View>
-                <Text style={styles.pitchPriceBig}>349,00 € <Text style={styles.pitchPeriod}>/ anno</Text></Text>
-                <Text style={styles.pitchPriceSub}>Equivalente a soli ~29 € al mese</Text>
+                <View style={styles.priceComparisonRow}>
+                  <Text style={styles.priceOldStrikethrough}>349,00 €</Text>
+                  <Text style={styles.pitchPriceBig}>149,00 € <Text style={styles.pitchPeriod}>/ anno</Text></Text>
+                </View>
+                <Text style={styles.pitchPriceSub}>Equivalente a soli ~12,40 € al mese (meno di un caffè a settimana)</Text>
 
                 <View style={styles.guaranteeRow}>
-                  <ShieldCheck size={20} color={Colors.accentGreen} />
-                  <Text style={styles.guaranteeText}>
-                    Garanzia 100% Soddisfatti o Rimborsati per 14 giorni.
-                  </Text>
+                  <ShieldCheck size={22} color={Colors.accentGreen} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.guaranteeTitle}>GARANZIA 100% SODDISFATTI O RIMBORSATI</Text>
+                    <Text style={styles.guaranteeText}>
+                      Se nei primi 14 giorni non misuri un aumento concreto del tuo salto o non sei pienamente soddisfatto, ti rimborsiamo l'intero importo. Senza domande.
+                    </Text>
+                  </View>
                 </View>
 
                 <TouchableOpacity
@@ -657,7 +1118,7 @@ export const QuizScreen: React.FC = () => {
                   }}
                 >
                   <Text style={styles.pitchCtaText}>SBLOCCA IL MIO PIANO ORA</Text>
-                  <Lock size={16} color="#000000" />
+                  <Lock size={18} color="#000000" />
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -669,6 +1130,41 @@ export const QuizScreen: React.FC = () => {
                     Oppure prova prima il test del salto con fotocamera →
                   </Text>
                 </TouchableOpacity>
+              </View>
+
+              {/* Recensioni Reali e Prova Sociale */}
+              <View style={styles.socialProofSection}>
+                <Text style={styles.socialProofHeading}>COSA DICONO GLI ATLETI CHE LO USANO:</Text>
+
+                <View style={styles.testimonialCard}>
+                  <View style={styles.testimonialHeader}>
+                    <View style={styles.starsRow}>
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <Star key={s} size={14} color="#FFD700" fill="#FFD700" />
+                      ))}
+                    </View>
+                    <Text style={styles.testimonialGain}>+10.2 cm in 8 settimane</Text>
+                  </View>
+                  <Text style={styles.testimonialText}>
+                    "Ero scettico all'inizio, ma il feedback con la fotocamera cambia tutto. Sapere esattamente quanto stacchi ogni giorno ti costringe a spingere al massimo. Ora passo sopra il muro con facilità."
+                  </Text>
+                  <Text style={styles.testimonialAuthor}>Marco T. • Schiacciatore (Serie B)</Text>
+                </View>
+
+                <View style={styles.testimonialCard}>
+                  <View style={styles.testimonialHeader}>
+                    <View style={styles.starsRow}>
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <Star key={s} size={14} color="#FFD700" fill="#FFD700" />
+                      ))}
+                    </View>
+                    <Text style={styles.testimonialGain}>+7.8 cm • Zero dolori</Text>
+                  </View>
+                  <Text style={styles.testimonialText}>
+                    "Convivovo con la tendinite rotulea da due anni. L'algoritmo di VertiCam mi ha fatto recuperare reattività elastica proteggendo i tendini. Il miglior programma di salto mai provato."
+                  </Text>
+                  <Text style={styles.testimonialAuthor}>Giulia B. • Centrale (Serie C)</Text>
+                </View>
               </View>
             </View>
           </View>
@@ -685,7 +1181,7 @@ export const QuizScreen: React.FC = () => {
         </View>
       </ScrollView>
 
-      {/* Floating Help Button (Bottom-Right, exactly like BetterMe screenshot) */}
+      {/* Floating Help Button */}
       <TouchableOpacity style={styles.floatingHelpBtn} activeOpacity={0.8}>
         <HelpCircle size={15} color="#000000" />
         <Text style={styles.floatingHelpText}>Aiuto</Text>
@@ -740,12 +1236,13 @@ const styles = StyleSheet.create({
     borderColor: '#333333',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
   },
 
-  // ── SCROLL CONTENT ──
   scrollContainer: {
-    paddingVertical: 36,
+    flexGrow: 1,
     paddingHorizontal: 20,
+    paddingVertical: 36,
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
@@ -802,7 +1299,7 @@ const styles = StyleSheet.create({
     marginBottom: 26,
   },
 
-  // ── STEP 0: IMMAGINE DI TRASFORMAZIONE ELEVAZIONE (PRIMA vs DOPO) ──
+  // ── STEP 0: IMMAGINE DI TRASFORMAZIONE ELEVAZIONE ──
   proofImageCard: {
     width: '100%',
     maxWidth: 380,
@@ -831,7 +1328,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 360,
     height: 60,
-    backgroundColor: '#F3F4ED', // O tom creme BetterMe
+    backgroundColor: '#F3F4ED',
     borderRadius: 30,
     flexDirection: 'row',
     alignItems: 'center',
@@ -861,8 +1358,8 @@ const styles = StyleSheet.create({
   startFootnote: {
     color: '#777777',
     fontSize: 13,
-    textAlign: 'center',
     fontWeight: '600',
+    textAlign: 'center',
   },
 
   // ── GRID DE CARDS BETTERME ──
@@ -987,10 +1484,10 @@ const styles = StyleSheet.create({
     height: '100%',
   },
 
-  // ── PÍLULA CLARA EMBAIXO DO CARD COM SETA PRETA (IDÊNTICA À FOTO) ──
+  // ── PÍLULA CLARA EMBAIXO DO CARD ──
   cardBottomPill: {
     height: 52,
-    backgroundColor: '#F3F4ED', // O tom exato off-white / creme do BetterMe
+    backgroundColor: '#F3F4ED',
     borderRadius: 14,
     flexDirection: 'row',
     alignItems: 'center',
@@ -1080,31 +1577,411 @@ const styles = StyleSheet.create({
     borderRadius: 8.5,
   },
 
-  // ── STEP 6: PARAMETRI FISICI ──
-  inputsWrap: {
+  // ── ESTILOS DAS NOVAS OPÇÕES EM LISTA / CARDS HORIZONTAIS ──
+  optionsListWrap: {
     width: '100%',
-    maxWidth: 480,
-    gap: 16,
+    maxWidth: 580,
+    gap: 14,
   },
-  inputBox: {
-    gap: 8,
-  },
-  inputBoxLabel: {
-    color: '#9E9E9E',
-    fontSize: 14,
-    fontWeight: '800',
-    letterSpacing: 1,
-  },
-  betterMeInput: {
-    height: 60,
+  choiceRowCard: {
     backgroundColor: '#161922',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 16,
-    paddingHorizontal: 20,
+    padding: 20,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  choiceRowCardHighlight: {
+    borderColor: 'rgba(0, 229, 255, 0.35)',
+    backgroundColor: 'rgba(0, 229, 255, 0.03)',
+  },
+  choiceRowCardSelected: {
+    borderColor: Colors.primary,
+    backgroundColor: 'rgba(0, 229, 255, 0.08)',
+  },
+  choiceRowTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  choiceBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+  },
+  choiceBadgeHighlight: {
+    backgroundColor: 'rgba(0, 229, 255, 0.2)',
+  },
+  choiceBadgeText: {
+    color: '#AAAAAA',
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+  },
+  choiceBadgeTextHighlight: {
+    color: Colors.primary,
+  },
+  choiceRowTitle: {
     color: '#FFFFFF',
     fontSize: 20,
+    fontWeight: '900',
+    marginBottom: 6,
+  },
+  choiceRowDesc: {
+    color: '#9E9E9E',
+    fontSize: 14,
+    lineHeight: 20,
+  },
+
+  // ── TIMELINE CARD (STEP 5 / 4/1) ──
+  timelineCard: {
+    width: '100%',
+    maxWidth: 620,
+    backgroundColor: '#161922',
+    borderRadius: 22,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    marginBottom: 24,
+  },
+  timelineHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: 'rgba(255, 145, 0, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 145, 0, 0.3)',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginBottom: 24,
+  },
+  timelineHeaderText: {
+    color: '#FFFFFF',
+    fontSize: 14,
     fontWeight: '700',
+  },
+  timelineChartContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    height: 250,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    paddingBottom: 16,
+    marginBottom: 18,
+  },
+  timelineStageCol: {
+    flex: 1,
+    alignItems: 'center',
+    paddingHorizontal: 4,
+  },
+  stageGainText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '900',
+    marginBottom: 8,
+  },
+  stageBar: {
+    width: '75%',
+    maxWidth: 55,
+    borderRadius: 8,
+    overflow: 'hidden',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    paddingTop: 4,
+  },
+  stageBarIndicator: {
+    width: '80%',
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  peakFloatingBadge: {
+    backgroundColor: '#FF9100',
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+    marginBottom: 6,
+  },
+  peakFloatingBadgeText: {
+    color: '#000000',
+    fontSize: 10,
+    fontWeight: '900',
+  },
+  stageLabelWeeks: {
+    color: '#888888',
+    fontSize: 11,
+    fontWeight: '800',
+    marginTop: 10,
+    marginBottom: 4,
+  },
+  stageTitle: {
+    color: '#DDDDDD',
+    fontSize: 12,
+    fontWeight: '800',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  stageDesc: {
+    color: '#777777',
+    fontSize: 10,
+    lineHeight: 13,
+    textAlign: 'center',
+  },
+  timelineScientificNote: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(0, 230, 118, 0.08)',
+    padding: 12,
+    borderRadius: 10,
+  },
+  timelineScientificText: {
+    color: Colors.accentGreen,
+    fontSize: 12,
+    fontWeight: '600',
+    flex: 1,
+  },
+
+  // ── PERSONAS CARD (STEP 6 / 5) ──
+  personaChoiceCard: {
+    backgroundColor: '#161922',
+    borderRadius: 16,
+    padding: 18,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  personaChoiceCardSelected: {
+    borderColor: Colors.primary,
+    backgroundColor: 'rgba(0, 229, 255, 0.08)',
+  },
+  personaCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  personaTag: {
+    backgroundColor: 'rgba(0, 229, 255, 0.12)',
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+  },
+  personaTagText: {
+    color: Colors.primary,
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+  },
+  personaRadioCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#444444',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  personaRadioCircleActive: {
+    borderColor: Colors.primary,
+  },
+  personaRadioInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: Colors.primary,
+  },
+  personaCardTitle: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '800',
+    marginBottom: 4,
+  },
+  personaCardDesc: {
+    color: '#9E9E9E',
+    fontSize: 14,
+    lineHeight: 20,
+  },
+
+  // ── HOW IT WORKS CARD (STEP 7 / 6) ──
+  howItWorksCard: {
+    width: '100%',
+    maxWidth: 620,
+    backgroundColor: '#161922',
+    borderRadius: 22,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    marginBottom: 24,
+  },
+  howItWorksImageWrap: {
+    width: '100%',
+    height: 220,
+    backgroundColor: '#0F121B',
+  },
+  howItWorksImage: {
+    width: '100%',
+    height: '100%',
+  },
+  pillarsContainer: {
+    padding: 20,
+    gap: 16,
+  },
+  pillarItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 14,
+  },
+  pillarIconBox: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: 'rgba(0, 229, 255, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
+  },
+  pillarTextBox: {
+    flex: 1,
+  },
+  pillarTitle: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '800',
+    marginBottom: 4,
+  },
+  pillarDesc: {
+    color: '#9E9E9E',
+    fontSize: 13,
+    lineHeight: 19,
+  },
+
+  // ── TRANSIZIONE BIOMETRICA (STEP 8 / 6-1) ──
+  transitionCard: {
+    width: '100%',
+    maxWidth: 580,
+    backgroundColor: '#161922',
+    borderRadius: 24,
+    padding: 28,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: 'rgba(0, 229, 255, 0.25)',
+  },
+  transitionIconRing: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: 'rgba(0, 229, 255, 0.1)',
+    borderWidth: 2,
+    borderColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  transitionTitle: {
+    color: '#FFFFFF',
+    fontSize: 24,
+    fontWeight: '900',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  transitionSubtitle: {
+    color: Colors.primary,
+    fontSize: 13,
+    fontWeight: '800',
+    letterSpacing: 1,
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  transitionBody: {
+    color: '#CCCCCC',
+    fontSize: 15,
+    lineHeight: 22,
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  transitionCheckList: {
+    width: '100%',
+    gap: 10,
+    marginBottom: 24,
+    backgroundColor: '#0F121B',
+    padding: 16,
+    borderRadius: 14,
+  },
+  checkListItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  checkListText: {
+    color: '#FFFFFF',
+    fontSize: 13.5,
+    fontWeight: '700',
+    flex: 1,
+  },
+
+  // ── BIOMETRIC INPUT CARD (STEPS 10 & 11) ──
+  biometricInputCard: {
+    width: '100%',
+    maxWidth: 520,
+    backgroundColor: '#161922',
+    borderRadius: 22,
+    padding: 26,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  biometricCardLabel: {
+    color: '#888888',
+    fontSize: 12,
+    fontWeight: '800',
+    letterSpacing: 1.2,
+    marginBottom: 16,
+  },
+  inputWithUnitBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#0A0C12',
+    borderWidth: 2,
+    borderColor: Colors.primary,
+    borderRadius: 18,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    marginBottom: 20,
+    minWidth: 220,
+  },
+  bigHeroInput: {
+    fontSize: 48,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    minWidth: 100,
+  },
+  bigHeroUnit: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: Colors.primary,
+    marginLeft: 8,
+  },
+  biometricInsightBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: 'rgba(0, 229, 255, 0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 229, 255, 0.2)',
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 24,
+  },
+  biometricInsightText: {
+    color: '#B0BEC5',
+    fontSize: 13.5,
+    lineHeight: 20,
+    flex: 1,
   },
   reachEstimateBox: {
     flexDirection: 'row',
@@ -1115,14 +1992,16 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 16,
     alignItems: 'center',
+    marginBottom: 24,
   },
   reachEstimateText: {
-    color: Colors.textSecondary,
-    fontSize: 15,
-    lineHeight: 22,
+    color: '#B0BEC5',
+    fontSize: 14,
+    lineHeight: 21,
     flex: 1,
   },
   continuePillBtn: {
+    width: '100%',
     height: 58,
     backgroundColor: '#F3F4ED',
     borderRadius: 29,
@@ -1130,7 +2009,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    marginTop: 10,
+    marginTop: 8,
   },
   continuePillText: {
     color: '#000000',
@@ -1139,7 +2018,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
 
-  // ── STEP 7: LOADER BETTERME ──
+  // ── STEP 12: LOADER BETTERME ──
   loadingContainer: {
     width: '100%',
     maxWidth: 600,
@@ -1182,11 +2061,36 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
   },
 
-  // ── STEP 8: PITCH BETTERME ──
+  // ── STEP 13: LANDING PAGE DI VENDITA & DIAGNOSI ──
   pitchContainer: {
     width: '100%',
     maxWidth: 780,
     alignItems: 'center',
+  },
+  urgencyBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(255, 145, 0, 0.12)',
+    borderWidth: 1,
+    borderColor: '#FF9100',
+    borderRadius: 14,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginBottom: 20,
+    width: '100%',
+    justifyContent: 'center',
+  },
+  urgencyBannerText: {
+    color: '#FFFFFF',
+    fontSize: 12.5,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  countdownTimer: {
+    color: '#FF9100',
+    fontWeight: '900',
+    fontSize: 14,
   },
   pitchContentCard: {
     width: '100%',
@@ -1201,12 +2105,12 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     justifyContent: 'center',
     gap: 40,
-    height: 200,
-    marginBottom: 28,
+    height: 210,
+    marginBottom: 24,
   },
   pitchGraphCol: {
     alignItems: 'center',
-    width: 100,
+    width: 110,
   },
   gainTagFloating: {
     backgroundColor: 'rgba(0, 229, 255, 0.15)',
@@ -1224,147 +2128,264 @@ const styles = StyleSheet.create({
   },
   pitchGraphNumber: {
     color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: '800',
+    fontSize: 22,
+    fontWeight: '900',
     marginBottom: 6,
   },
   pitchGraphBar: {
-    width: 64,
-    borderRadius: 8,
+    width: '100%',
+    borderRadius: 10,
+    marginBottom: 8,
   },
   pitchGraphLabel: {
-    color: '#9E9E9E',
-    fontSize: 14,
-    fontWeight: '600',
-    marginTop: 8,
+    color: '#888888',
+    fontSize: 13,
     textAlign: 'center',
   },
-  pitchPricingBox: {
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.08)',
-    paddingTop: 24,
+  netImpactBanner: {
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: 14,
+    backgroundColor: 'rgba(0, 229, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 229, 255, 0.25)',
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 24,
+  },
+  netImpactTitle: {
+    color: Colors.primary,
+    fontSize: 12,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+    marginBottom: 4,
+  },
+  netImpactText: {
+    color: '#CCCCCC',
+    fontSize: 13.5,
+    lineHeight: 19,
+  },
+  methodPillarsBox: {
+    backgroundColor: '#0F121B',
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 24,
+    gap: 12,
+  },
+  methodPillarsHeading: {
+    color: '#888888',
+    fontSize: 11.5,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+    marginBottom: 2,
+  },
+  methodPillarRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+  },
+  methodPillarText: {
+    color: '#B0BEC5',
+    fontSize: 13.5,
+    lineHeight: 19,
+    flex: 1,
+  },
+  pitchPricingBox: {
+    backgroundColor: '#0D0F17',
+    borderRadius: 18,
+    padding: 22,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
+    marginBottom: 28,
   },
   pitchBestBadge: {
-    backgroundColor: 'rgba(0, 229, 255, 0.15)',
-    borderWidth: 1,
-    borderColor: Colors.primary,
+    backgroundColor: Colors.primary,
     paddingVertical: 5,
-    paddingHorizontal: 14,
-    borderRadius: 14,
+    paddingHorizontal: 12,
+    borderRadius: 12,
     marginBottom: 12,
   },
   pitchBestBadgeText: {
-    color: Colors.primary,
-    fontSize: 13,
+    color: '#000000',
+    fontSize: 11,
     fontWeight: '900',
     letterSpacing: 0.8,
   },
+  priceComparisonRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 12,
+  },
+  priceOldStrikethrough: {
+    color: '#777777',
+    fontSize: 22,
+    fontWeight: '700',
+    textDecorationLine: 'line-through',
+  },
   pitchPriceBig: {
-    fontSize: 44,
-    fontWeight: '900',
     color: '#FFFFFF',
+    fontSize: 42,
+    fontWeight: '900',
   },
   pitchPeriod: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 16,
     color: '#9E9E9E',
+    fontWeight: '600',
   },
   pitchPriceSub: {
-    color: '#9E9E9E',
-    fontSize: 15,
-    marginTop: 6,
-    marginBottom: 18,
+    color: '#AAAAAA',
+    fontSize: 14,
+    marginTop: 4,
+    marginBottom: 16,
+    textAlign: 'center',
   },
   guaranteeRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    alignItems: 'flex-start',
+    gap: 12,
+    backgroundColor: 'rgba(0, 230, 118, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.25)',
-    padding: 12,
-    borderRadius: 14,
-    marginBottom: 22,
+    borderColor: 'rgba(0, 230, 118, 0.25)',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 18,
     width: '100%',
-    justifyContent: 'center',
+  },
+  guaranteeTitle: {
+    color: Colors.accentGreen,
+    fontSize: 12,
+    fontWeight: '900',
+    letterSpacing: 0.8,
+    marginBottom: 4,
   },
   guaranteeText: {
-    color: Colors.accentGreen,
-    fontSize: 14,
-    fontWeight: '700',
+    color: '#C8E6C9',
+    fontSize: 12.5,
+    lineHeight: 18,
   },
   pitchCtaBtn: {
     width: '100%',
-    height: 58,
-    borderRadius: 29,
-    backgroundColor: '#F3F4ED',
+    height: 60,
+    backgroundColor: Colors.primary,
+    borderRadius: 30,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    marginBottom: 12,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 8,
   },
   pitchCtaText: {
     color: '#000000',
     fontSize: 18,
     fontWeight: '900',
-    letterSpacing: 0.6,
+    letterSpacing: 1,
   },
   testCameraFirstBtn: {
-    paddingVertical: 10,
+    marginTop: 14,
+    paddingVertical: 6,
   },
   testCameraFirstText: {
-    color: '#9E9E9E',
-    fontSize: 15,
-    fontWeight: '600',
+    color: '#888888',
+    fontSize: 13.5,
+    textDecorationLine: 'underline',
+  },
+  socialProofSection: {
+    gap: 14,
+  },
+  socialProofHeading: {
+    color: '#888888',
+    fontSize: 12,
+    fontWeight: '800',
+    letterSpacing: 1,
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  testimonialCard: {
+    backgroundColor: '#0F121B',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+  },
+  testimonialHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  starsRow: {
+    flexDirection: 'row',
+    gap: 3,
+  },
+  testimonialGain: {
+    color: Colors.primary,
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  testimonialText: {
+    color: '#DDDDDD',
+    fontSize: 13.5,
+    lineHeight: 19,
+    fontStyle: 'italic',
+    marginBottom: 8,
+  },
+  testimonialAuthor: {
+    color: '#888888',
+    fontSize: 12,
+    fontWeight: '700',
   },
 
-  // ── FOOTER LEGAL BETTERME ──
+  // ── FOOTER BETTERME ──
   betterMeFooter: {
-    marginTop: 48,
+    width: '100%',
+    maxWidth: 620,
     alignItems: 'center',
-    paddingHorizontal: 20,
+    marginTop: 36,
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.06)',
   },
   legalDisclaimer: {
-    color: '#888888',
-    fontSize: 14,
+    color: '#666666',
+    fontSize: 12,
+    lineHeight: 17,
     textAlign: 'center',
-    lineHeight: 20,
+    marginBottom: 4,
   },
   legalLink: {
-    color: '#BBBBBB',
+    color: '#888888',
     textDecorationLine: 'underline',
   },
   readBeforeNotice: {
-    color: '#666666',
-    fontSize: 13,
-    textAlign: 'center',
-    marginTop: 6,
+    color: '#555555',
+    fontSize: 11,
   },
-
-  // ── FLOATING AJUDA BUTTON (BOTÃO DIREITA INFERIOR) ──
   floatingHelpBtn: {
     position: 'absolute',
     bottom: 24,
     right: 24,
     backgroundColor: '#FFFFFF',
-    borderRadius: 22,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 6,
-    zIndex: 999,
+    zIndex: 99,
   },
   floatingHelpText: {
     color: '#000000',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '800',
   },
 });
