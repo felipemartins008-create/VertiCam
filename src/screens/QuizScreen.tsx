@@ -215,12 +215,12 @@ export const QuizScreen: React.FC = () => {
               RISPONDI AL TEST PER INIZIARE IL TUO ALLENAMENTO PERSONALIZZATO
             </Text>
 
-            {/* ── IMMAGINE DI PROVA ELEVAZIONE (PRIMA 31 CM vs DOPO 54 CM) ── */}
+            {/* ── IMMAGINE DI PROVA ELEVAZIONE (PRIMA vs DOPO) ── */}
             <View style={styles.proofImageCard}>
               <Image
-                source={require('../../assets/proof-jump.png')}
+                source={require('../../assets/proof-jump.jpg')}
                 style={styles.proofImage}
-                resizeMode="contain"
+                resizeMode="cover"
               />
             </View>
 
@@ -684,22 +684,22 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
 
-  // ── STEP 0: IMMAGINE DI TRASFORMAZIONE ELEVAZIONE (PRIMA 31 CM vs DOPO 54 CM) ──
+  // ── STEP 0: IMMAGINE DI TRASFORMAZIONE ELEVAZIONE (PRIMA vs DOPO) ──
   proofImageCard: {
     width: '100%',
     maxWidth: 380,
-    height: 350,
+    aspectRatio: 1,
     backgroundColor: '#0F121B',
-    borderWidth: 2,
-    borderColor: 'rgba(0, 229, 255, 0.3)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
     borderRadius: 22,
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 26,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
     shadowRadius: 18,
     elevation: 8,
   },
