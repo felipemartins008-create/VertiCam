@@ -21,6 +21,7 @@ import {
   HelpCircle,
   Menu,
   CheckCircle2,
+  Zap,
 } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
 import { useApp } from '../context/AppContext';
@@ -310,6 +311,12 @@ export const QuizScreen: React.FC = () => {
            ══════════════════════════════════════════════════════ */}
         {currentStep === 0 && (
           <View style={styles.stepContainer}>
+            {/* ── BADGE TECNOLOGICO NO TOPO ── */}
+            <View style={styles.aiBadge}>
+              <Zap size={13} color={Colors.primary} fill={Colors.primary} />
+              <Text style={styles.aiBadgeText}>POTENZIATO DA TECNOLOGIA & IA</Text>
+            </View>
+
             <Text style={styles.mainTitle}>PIANO DI ALLENAMENTO ELEVAZIONE & SALTO</Text>
             <Text style={styles.mainSubtitle}>
               RISPONDI AL TEST PER INIZIARE IL TUO ALLENAMENTO PERSONALIZZATO
@@ -746,6 +753,32 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 1240,
     alignItems: 'center',
+  },
+
+  // ── BADGE IA & TECNOLOGIA NO TOPO ──
+  aiBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    backgroundColor: 'rgba(0, 229, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 229, 255, 0.35)',
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    marginBottom: 16,
+    alignSelf: 'center',
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+  },
+  aiBadgeText: {
+    color: Colors.primary,
+    fontSize: 12,
+    fontWeight: '800',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
   },
 
   // ── TÍTULOS CENTRALIZADOS ──
