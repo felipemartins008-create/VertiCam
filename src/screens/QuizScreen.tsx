@@ -314,7 +314,7 @@ export const QuizScreen: React.FC = () => {
         beforeJump: 31,
         gain: targetGainCm > 0 ? targetGainCm : 15,
         afterJump: 31 + (targetGainCm > 0 ? targetGainCm : 15),
-        image: require('../../assets/proof-jump.webp'),
+        image: require('../../assets/proof-jump-male.png'),
         quote: `Con VertiCam ho aggiunto esattamente +${targetGainCm > 0 ? targetGainCm : 15} cm al mio salto in ${timelineData.weeksCount} settimane. Lo stacco in rincorsa è decollato!`,
       };
 
