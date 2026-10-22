@@ -28,6 +28,8 @@ import {
   Flame,
   Check,
   Sparkles,
+  Plus,
+  Minus,
 } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
 import { useApp } from '../context/AppContext';
@@ -70,6 +72,7 @@ export const QuizScreen: React.FC = () => {
   const [ageRange, setAgeRange] = useState<string>('under_25');
   const [selectedSport, setSelectedSport] = useState<string>('outside');
   const [targetGain, setTargetGain] = useState<string>('gain_8_12');
+  const [targetGainCm, setTargetGainCm] = useState<number>(12);
   const [selectedImpact, setSelectedImpact] = useState<string>('spike_over_block');
   const [trainingDays, setTrainingDays] = useState<string>('3-4');
   const [weight, setWeight] = useState<string>(String(userProfile.weightKg || 84));
@@ -170,9 +173,14 @@ export const QuizScreen: React.FC = () => {
     setCurrentStep(12); // Trigger AI Analysis Loader
   };
 
+  const handleProceedFromGain = () => {
+    setTargetGain(targetGainCm <= 8 ? 'gain_5_8' : targetGainCm <= 15 ? 'gain_8_12' : 'pain_free');
+    handleNextStep();
+  };
+
   const heightNum = parseFloat(height) || 192;
   const currentJumpEstimated = 54;
-  const potentialGain = targetGain === 'gain_5_8' ? 7.5 : targetGain === 'gain_8_12' ? 12.0 : 8.5;
+  const potentialGain = targetGainCm;
   const potentialJumpProjected = currentJumpEstimated + potentialGain;
   const standingReach = estimateStandingReach(heightNum);
   const totalAttackReach = standingReach + Math.round(potentialJumpProjected);
@@ -498,37 +506,183 @@ export const QuizScreen: React.FC = () => {
         )}
 
         {/* ══════════════════════════════════════════════════════
-            STEP 4: META DI ELEVAZIONE
+            STEP 4: OBIETTIVO DI ELEVAZIONE (REGUA 1-60 CM + ATLETA VIVO)
            ══════════════════════════════════════════════════════ */}
         {currentStep === 4 && (
           <View style={styles.stepContainer}>
-            <Text style={styles.mainTitle}>POTENZIALE DI ELEVAZIONE</Text>
+            <Text style={styles.mainTitle}>OBIETTIVO DI ELEVAZIONE</Text>
             <Text style={styles.mainSubtitle}>QUANTO VUOI AUMENTARE IL TUO SALTO?</Text>
 
-            {renderBetterMeCards(
-              [
-                {
-                  id: 'gain_5_8',
-                  pillTitle: '+5 a +8 cm',
-                  imageUri: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=600&q=80',
-                },
-                {
-                  id: 'gain_8_12',
-                  pillTitle: '+9 a +15 cm (Record)',
-                  imageUri: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=600&q=80',
-                },
-                {
-                  id: 'pain_free',
-                  pillTitle: 'Tendini senza dolore',
-                  imageUri: 'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?auto=format&fit=crop&w=600&q=80',
-                },
-              ],
-              targetGain,
-              (id) => {
-                setTargetGain(id);
-                setTimeout(() => handleNextStep(), 200);
-              }
-            )}
+            <View style={[styles.rulerScreenLayout, isDesktop && styles.rulerScreenLayoutDesktop]}>
+              {/* ── PAINEL DA REGUA E CONTROLE (ESQUERDA NO DESKTOP) ── */}
+              <View style={[styles.rulerControlsCard, isDesktop && styles.rulerControlsCardDesktop]}>
+                <Text style={styles.rulerCardSubtitle}>IL TUO ALVO DI AUMENTO</Text>
+
+                {/* Hero Number com botões de ajuste fino (-) e (+) */}
+                <View style={styles.rulerHeroNumberRow}>
+                  <TouchableOpacity
+                    style={styles.rulerStepBtn}
+                    activeOpacity={0.7}
+                    onPress={() => setTargetGainCm((prev) => Math.max(1, prev - 1))}
+                  >
+                    <Minus size={20} color="#FFFFFF" />
+                  </TouchableOpacity>
+
+                  <View style={styles.rulerHeroValueBox}>
+                    <Text style={styles.rulerHeroPlus}>+</Text>
+                    <Text style={styles.rulerHeroDigits}>{targetGainCm}</Text>
+                    <Text style={styles.rulerHeroUnit}>cm</Text>
+                  </View>
+
+                  <TouchableOpacity
+                    style={styles.rulerStepBtn}
+                    activeOpacity={0.7}
+                    onPress={() => setTargetGainCm((prev) => Math.min(60, prev + 1))}
+                  >
+                    <Plus size={20} color="#FFFFFF" />
+                  </TouchableOpacity>
+                </View>
+
+                {/* Dica de Nível do Salto */}
+                <View style={styles.rulerLevelBadge}>
+                  <Flame size={14} color={Colors.primary} />
+                  <Text style={styles.rulerLevelText}>
+                    {targetGainCm <= 8
+                      ? 'Adattamento Base Rapido'
+                      : targetGainCm <= 15
+                      ? 'Trasformazione Balistica (Consigliato)'
+                      : targetGainCm <= 25
+                      ? 'Livello Competitivo / Serie A'
+                      : 'Record di Elevazione Mondiale'}
+                  </Text>
+                </View>
+
+                {/* Régua Interativa (1 a 60 cm) */}
+                <View style={styles.rulerBoxContainer}>
+                  <View style={styles.rulerPointerMarker} pointerEvents="none" />
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.rulerScrollContent}
+                  >
+                    {Array.from({ length: 60 }, (_, i) => i + 1).map((cm) => {
+                      const isMajor = cm % 5 === 0;
+                      const isSelected = cm === targetGainCm;
+                      return (
+                        <TouchableOpacity
+                          key={cm}
+                          activeOpacity={0.7}
+                          onPress={() => setTargetGainCm(cm)}
+                          style={styles.rulerTickCol}
+                        >
+                          <View
+                            style={[
+                              styles.rulerTickLine,
+                              isMajor ? styles.rulerTickMajor : styles.rulerTickMinor,
+                              isSelected && styles.rulerTickActive,
+                            ]}
+                          />
+                          {isMajor && (
+                            <Text style={[styles.rulerTickText, isSelected && styles.rulerTickTextActive]}>
+                              {cm}
+                            </Text>
+                          )}
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </ScrollView>
+                </View>
+
+                {/* Chips / Atalhos Rápidos */}
+                <View style={styles.quickChipsRow}>
+                  {[5, 10, 15, 20, 30, 45].map((preset) => (
+                    <TouchableOpacity
+                      key={preset}
+                      style={[styles.quickChip, targetGainCm === preset && styles.quickChipActive]}
+                      onPress={() => setTargetGainCm(preset)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={[styles.quickChipText, targetGainCm === preset && styles.quickChipTextActive]}>
+                        +{preset}cm
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              {/* ── PALCO DO ATLETA DE VÔLEI COM CHÃO & SALTO DINÂMICO (DIREITA NO DESKTOP) ── */}
+              <View style={[styles.athleteStageCard, isDesktop && styles.athleteStageCardDesktop]}>
+                {/* Linhas de fundo do ginásio / rede */}
+                <View style={styles.stageCourtBackground}>
+                  <View style={styles.stageVolleyNetLine} />
+                  <View style={styles.stageVolleyAntenna} />
+                </View>
+
+                {/* Atleta de Vôlei Dinâmico (Mãos na cintura, pernas estendidas) */}
+                <View
+                  style={[
+                    styles.athleteFigureWrapper,
+                    {
+                      bottom: 42 + Math.round((targetGainCm / 60) * (isDesktop ? 130 : 95)),
+                    },
+                  ]}
+                >
+                  <Image
+                    source={require('../../assets/athlete-jump-transparent.webp')}
+                    style={styles.athleteFigureImage}
+                    resizeMode="contain"
+                  />
+                </View>
+
+                {/* Linha Neon no Nível dos Pés do Atleta */}
+                <View
+                  style={[
+                    styles.feetElevationMarker,
+                    {
+                      bottom: 42 + Math.round((targetGainCm / 60) * (isDesktop ? 130 : 95)),
+                    },
+                  ]}
+                >
+                  <View style={styles.feetElevationLine} />
+                  <View style={styles.feetElevationBadge}>
+                    <Text style={styles.feetElevationBadgeText}>+{targetGainCm} cm</Text>
+                  </View>
+                </View>
+
+                {/* Seta Vertical de Medição (Do Chão aos Pés) */}
+                <View
+                  style={[
+                    styles.measurementArrowTrack,
+                    {
+                      bottom: 42,
+                      height: Math.max(12, Math.round((targetGainCm / 60) * (isDesktop ? 130 : 95))),
+                    },
+                  ]}
+                >
+                  <View style={styles.arrowTopHead} />
+                  <View style={styles.arrowShaft} />
+                  <View style={styles.arrowBottomHead} />
+                </View>
+
+                {/* O Chão (Linha Vermelha de Base + Piso de Quadra de Vôlei) */}
+                <View style={styles.groundBaseContainer}>
+                  <View style={styles.groundRedLine} />
+                  <View style={styles.groundFloorBar}>
+                    <Text style={styles.groundFloorText}>0 cm • LIVELLO DEL SUOLO</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* Botão de Avanço (Estilo BetterMe Prossimo Passo) */}
+            <TouchableOpacity
+              style={styles.continuePillBtn}
+              activeOpacity={0.88}
+              onPress={handleProceedFromGain}
+            >
+              <Text style={styles.continuePillText}>PROSSIMO PASSO</Text>
+              <ChevronRight size={18} color="#000000" strokeWidth={3} />
+            </TouchableOpacity>
           </View>
         )}
 
@@ -1541,6 +1695,329 @@ const styles = StyleSheet.create({
     width: 17,
     height: 17,
     borderRadius: 8.5,
+  },
+
+  // ── STEP 4: RULER & JUMPING ATHLETE STAGE ──
+  rulerScreenLayout: {
+    width: '100%',
+    maxWidth: 860,
+    flexDirection: 'column',
+    gap: 18,
+    marginBottom: 20,
+  },
+  rulerScreenLayoutDesktop: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    gap: 24,
+  },
+  rulerControlsCard: {
+    flex: 1,
+    backgroundColor: '#161922',
+    borderRadius: 22,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  rulerControlsCardDesktop: {
+    minHeight: 400,
+  },
+  rulerCardSubtitle: {
+    color: '#888888',
+    fontSize: 12,
+    fontWeight: '800',
+    letterSpacing: 1.2,
+    marginBottom: 14,
+  },
+  rulerHeroNumberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 16,
+    marginBottom: 12,
+  },
+  rulerStepBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#262D3D',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rulerHeroValueBox: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    backgroundColor: '#0A0C12',
+    borderWidth: 2,
+    borderColor: Colors.primary,
+    borderRadius: 18,
+    paddingHorizontal: 22,
+    paddingVertical: 8,
+  },
+  rulerHeroPlus: {
+    color: Colors.primary,
+    fontSize: 26,
+    fontWeight: '900',
+    marginRight: 2,
+  },
+  rulerHeroDigits: {
+    color: '#FFFFFF',
+    fontSize: 48,
+    fontWeight: '900',
+    minWidth: 60,
+    textAlign: 'center',
+  },
+  rulerHeroUnit: {
+    color: Colors.primary,
+    fontSize: 22,
+    fontWeight: '900',
+    marginLeft: 4,
+  },
+  rulerLevelBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(0, 229, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 229, 255, 0.25)',
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  rulerLevelText: {
+    color: Colors.primary,
+    fontSize: 12.5,
+    fontWeight: '800',
+  },
+  rulerBoxContainer: {
+    width: '100%',
+    height: 72,
+    backgroundColor: '#0F121B',
+    borderRadius: 14,
+    overflow: 'hidden',
+    position: 'relative',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    marginBottom: 18,
+  },
+  rulerPointerMarker: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: '50%',
+    width: 2,
+    marginLeft: -1,
+    backgroundColor: Colors.primary,
+    zIndex: 10,
+  },
+  rulerScrollContent: {
+    paddingHorizontal: 20,
+    alignItems: 'center',
+  },
+  rulerTickCol: {
+    width: 14,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    height: 54,
+  },
+  rulerTickLine: {
+    width: 1.5,
+    backgroundColor: '#444444',
+  },
+  rulerTickMinor: {
+    height: 14,
+  },
+  rulerTickMajor: {
+    height: 24,
+    backgroundColor: '#AAAAAA',
+    width: 2,
+  },
+  rulerTickActive: {
+    backgroundColor: Colors.primary,
+    width: 2.5,
+    height: 28,
+  },
+  rulerTickText: {
+    color: '#777777',
+    fontSize: 10,
+    fontWeight: '700',
+    marginTop: 4,
+  },
+  rulerTickTextActive: {
+    color: Colors.primary,
+    fontWeight: '900',
+  },
+  quickChipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    justifyContent: 'center',
+  },
+  quickChip: {
+    backgroundColor: '#1E2330',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+  },
+  quickChipActive: {
+    backgroundColor: 'rgba(0, 229, 255, 0.15)',
+    borderColor: Colors.primary,
+  },
+  quickChipText: {
+    color: '#AAAAAA',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  quickChipTextActive: {
+    color: Colors.primary,
+    fontWeight: '900',
+  },
+
+  // ── PALCO DO ATLETA ──
+  athleteStageCard: {
+    flex: 1,
+    backgroundColor: '#10131C',
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    position: 'relative',
+    overflow: 'hidden',
+    height: 350,
+    alignItems: 'center',
+  },
+  athleteStageCardDesktop: {
+    height: 420,
+    minHeight: 400,
+  },
+  stageCourtBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  stageVolleyNetLine: {
+    position: 'absolute',
+    top: 50,
+    left: 0,
+    right: 0,
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  stageVolleyAntenna: {
+    position: 'absolute',
+    top: 20,
+    right: 30,
+    width: 2,
+    height: 60,
+    backgroundColor: 'rgba(255, 23, 68, 0.4)',
+  },
+  athleteFigureWrapper: {
+    position: 'absolute',
+    alignSelf: 'center',
+    width: 140,
+    height: 230,
+    zIndex: 5,
+  },
+  athleteFigureImage: {
+    width: '100%',
+    height: '100%',
+  },
+  feetElevationMarker: {
+    position: 'absolute',
+    left: 16,
+    right: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    zIndex: 6,
+  },
+  feetElevationLine: {
+    flex: 1,
+    height: 2,
+    backgroundColor: '#00E676',
+    borderStyle: 'dashed',
+  },
+  feetElevationBadge: {
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    borderWidth: 1,
+    borderColor: '#00E676',
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+    marginLeft: 6,
+  },
+  feetElevationBadgeText: {
+    color: '#00E676',
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  measurementArrowTrack: {
+    position: 'absolute',
+    left: 36,
+    width: 14,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    zIndex: 6,
+  },
+  arrowTopHead: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 4,
+    borderRightWidth: 4,
+    borderBottomWidth: 5,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderBottomColor: '#FFD700',
+  },
+  arrowShaft: {
+    width: 2,
+    flex: 1,
+    backgroundColor: '#FFD700',
+  },
+  arrowBottomHead: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 4,
+    borderRightWidth: 4,
+    borderTopWidth: 5,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderTopColor: '#FFD700',
+  },
+  groundBaseContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 42,
+    justifyContent: 'flex-end',
+    zIndex: 4,
+  },
+  groundRedLine: {
+    height: 2,
+    backgroundColor: '#FF1744',
+    width: '100%',
+  },
+  groundFloorBar: {
+    height: 40,
+    backgroundColor: '#1E140F',
+    borderTopWidth: 1,
+    borderTopColor: '#3E2723',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  groundFloorText: {
+    color: '#8D6E63',
+    fontSize: 10.5,
+    fontWeight: '800',
+    letterSpacing: 1,
   },
 
   // ── ESTILOS DAS NOVAS OPÇÕES EM LISTA / CARDS HORIZONTAIS ──
