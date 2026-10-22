@@ -79,7 +79,7 @@ export const QuizScreen: React.FC = () => {
   const [selectedSport, setSelectedSport] = useState<string>('outside');
   const [targetGain, setTargetGain] = useState<string>('gain_8_12');
   const [targetGainCm, setTargetGainCm] = useState<number>(12);
-  const [selectedImpact, setSelectedImpact] = useState<string>('spike_over_block');
+  const [selectedImpact, setSelectedImpact] = useState<string>('power_spike');
   const [trainingDays, setTrainingDays] = useState<string>('3-4');
   const [weight, setWeight] = useState<string>(String(userProfile.weightKg || 84));
   const [height, setHeight] = useState<string>(String(userProfile.heightCm || 192));
@@ -983,28 +983,28 @@ export const QuizScreen: React.FC = () => {
             <View style={styles.optionsListWrap}>
               {[
                 {
-                  id: 'spike_over_block',
-                  title: 'Schiacciare sopra il muro avversario',
-                  desc: 'Palle imprendibili da posto 4, pipe e diagonali strette senza subire murate.',
-                  tag: 'ATTACCO DOMINANTE',
+                  id: 'power_spike',
+                  title: 'Attaccare con molta più potenza a rete',
+                  desc: 'Colpire la palla nel punto più alto e scaricare tutta la forza del braccio senza subire muri.',
+                  tag: 'ATTACCO & POTENZA',
                 },
                 {
-                  id: 'block_roof',
-                  title: 'Chiudere ogni varco a muro',
-                  desc: 'Invadere lo spazio avversario sopra la rete e murare punto con sicurezza.',
-                  tag: 'MURO INVALICABILE',
+                  id: 'dominant_block',
+                  title: 'Dominare a rete con un muro invalicabile',
+                  desc: 'Invadere lo spazio sopra il nastro, chiudere ogni traiettoria e stampare muri punto decisivi.',
+                  tag: 'DOMINIO A MURO',
                 },
                 {
-                  id: 'explosive_agility',
-                  title: 'Sentirmi agile, leggero ed esplosivo',
-                  desc: 'Piedi reattivi nei cambi di direzione, rincorsa fluida e decollo immediato.',
-                  tag: 'DINAMISMO TOTALE',
+                  id: 'competitive_team',
+                  title: 'Entrare in una squadra per giocare i campionati',
+                  desc: 'Superare i provini, conquistare un posto fisso da titolare e competere ad alto livello agonistico.',
+                  tag: 'LIVELLO AGONISTICO',
                 },
                 {
-                  id: 'pain_free_knees',
-                  title: 'Saltare al massimo senza paura del tendine',
-                  desc: 'Atterraggi morbidi e ginocchia protette senza dover convivere col dolore.',
-                  tag: 'SALVAGUARDIA TENDINEA',
+                  id: 'team_standout',
+                  title: 'Distinguermi ed essere il giocatore decisivo della squadra',
+                  desc: 'Fare la differenza nei momenti caldi del match ed essere il punto di riferimento assoluto in campo.',
+                  tag: 'LEADERSHIP & TALENTO',
                 },
               ].map((opt) => {
                 const isSelected = selectedImpact === opt.id;
