@@ -32,6 +32,8 @@ import {
   Plus,
   Minus,
   Calendar,
+  Cpu,
+  X,
 } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
 import { useApp } from '../context/AppContext';
@@ -604,7 +606,7 @@ export const QuizScreen: React.FC = () => {
       <ScrollView
         contentContainerStyle={[
           styles.scrollContainer,
-          currentStep === 6 && { paddingBottom: 130 },
+          (currentStep === 6 || currentStep === 7) && { paddingBottom: 130 },
         ]}
         showsVerticalScrollIndicator={false}
       >
@@ -1177,78 +1179,179 @@ export const QuizScreen: React.FC = () => {
         )}
 
         {/* ══════════════════════════════════════════════════════
-            STEP 7 (6): CONSAPEVOLEZZA SOLUZIONE (COME FUNZIONA)
+            STEP 7: CONSAPEVOLEZZA SOLUZIONE (TECNOLOGIA & SCIENZA)
            ══════════════════════════════════════════════════════ */}
         {currentStep === 7 && (
-          <View style={styles.stepContainer}>
-            <View style={styles.aiBadge}>
-              <Sparkles size={13} color={Colors.primary} />
-              <Text style={styles.aiBadgeText}>TECNOLOGIA ESCLUSIVA VERTICAM</Text>
+          <View style={styles.solutionScreenContainer}>
+            <View style={[styles.solutionSplitLayout, isDesktop && styles.solutionSplitLayoutRow]}>
+              {/* ── COLONNA SINISTRA: COPY & AUTORITÀ (STILE BETTERME) ── */}
+              <View style={[styles.solutionLeftCol, isDesktop && styles.solutionLeftColDesktop]}>
+                <View style={styles.solutionAiBadge}>
+                  <Sparkles size={13} color={Colors.primary} />
+                  <Text style={styles.solutionAiBadgeText}>TECNOLOGIA DI LIVELLO OLIMPICO</Text>
+                </View>
+
+                <Text style={styles.solutionHeadline}>
+                  La stessa tecnologia delle squadre di Serie A, guidata da oltre 300 studi scientifici.
+                </Text>
+
+                <View style={styles.solutionPointsList}>
+                  {/* Punto 1: Attrezzature d'Élite */}
+                  <View style={styles.solutionPointCard}>
+                    <View style={styles.solutionPointIconBox}>
+                      <Cpu size={18} color={Colors.primary} />
+                    </View>
+                    <View style={styles.solutionPointContent}>
+                      <Text style={styles.solutionPointTitle}>
+                        Tecnologia da oltre €10.000 nel tuo smartphone
+                      </Text>
+                      <Text style={styles.solutionPointDesc}>
+                        I club professionistici investono cifre enormi in pedane di forza e fotocellule per monitorare l'esplosività. <Text style={styles.boldWhite}>VertiCam replica questa precisione millimetrica</Text> tramite la visione artificiale della fotocamera.
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Punto 2: Oltre 300 Studi di Biomeccanica */}
+                  <View style={styles.solutionPointCard}>
+                    <View style={styles.solutionPointIconBox}>
+                      <Award size={18} color={Colors.primary} />
+                    </View>
+                    <View style={styles.solutionPointContent}>
+                      <Text style={styles.solutionPointTitle}>
+                        Controllo scientifico di carico & volume
+                      </Text>
+                      <Text style={styles.solutionPointDesc}>
+                        Addestrata su <Text style={styles.boldWhite}>oltre 300 studi clinici di biomeccanica</Text>, l'IA calcola la dose minima efficace per ogni allenamento: massimo stimolo per saltare più in alto, <Text style={styles.boldWhite}>con zero rischio di tendinite rotulea</Text>.
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Punto 3: Perché supera un Personal Trainer */}
+                  <View style={styles.solutionPointCard}>
+                    <View style={styles.solutionPointIconBox}>
+                      <ShieldCheck size={18} color={Colors.accentGreen} />
+                    </View>
+                    <View style={styles.solutionPointContent}>
+                      <Text style={styles.solutionPointTitle}>
+                        Molto più preciso di un allenatore convenzionale
+                      </Text>
+                      <Text style={styles.solutionPointDesc}>
+                        Un personal trainer va 'a occhio' e applica schede generiche fisse. <Text style={styles.boldWhite}>VertiCam misura la reattività reale del tuo sistema nervoso ogni giorno</Text>, ricalibrando volume e carichi in tempo reale per garantirti progressi continui.
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+
+              {/* ── COLONNA DESTRA: CARD TECNOLOGICA & COMPARATIVA ── */}
+              <View style={[styles.solutionRightCol, isDesktop && styles.solutionRightColDesktop]}>
+                <View style={styles.techDashboardCard}>
+                  {/* Top Bar do Card Tecnológico */}
+                  <View style={styles.techCardHeader}>
+                    <View style={styles.techStatusIndicator}>
+                      <View style={styles.greenPulseDot} />
+                      <Text style={styles.techStatusText}>SISTEMA BIOMECCANICO ATTIVO</Text>
+                    </View>
+                    <View style={styles.techAccuracyBadge}>
+                      <Text style={styles.techAccuracyText}>98.4% PRECISIONE LAB</Text>
+                    </View>
+                  </View>
+
+                  {/* Mini Painel de Métricas da IA */}
+                  <View style={styles.techMetricsRow}>
+                    <View style={styles.techMetricBox}>
+                      <Text style={styles.techMetricVal}>300+</Text>
+                      <Text style={styles.techMetricLbl}>Studi Clinici</Text>
+                    </View>
+                    <View style={styles.techMetricDivider} />
+                    <View style={styles.techMetricBox}>
+                      <Text style={[styles.techMetricVal, { color: Colors.primary }]}>0.01 mm</Text>
+                      <Text style={styles.techMetricLbl}>Tracciamento IA</Text>
+                    </View>
+                    <View style={styles.techMetricDivider} />
+                    <View style={styles.techMetricBox}>
+                      <Text style={[styles.techMetricVal, { color: Colors.accentGreen }]}>100%</Text>
+                      <Text style={styles.techMetricLbl}>Protezione Tendine</Text>
+                    </View>
+                  </View>
+
+                  {/* Comparativo Visual: Coach Tradizionale vs VertiCam IA */}
+                  <View style={styles.compareSection}>
+                    <Text style={styles.compareSectionTitle}>CONFRONTO SCIENTIFICO DIRETTO</Text>
+
+                    <View style={styles.compareTable}>
+                      {/* Linha 1: Metodo di Misura */}
+                      <View style={styles.compareTableRow}>
+                        <Text style={styles.compareFeatureName}>Misurazione Stacco</Text>
+                        <View style={styles.compareColsWrap}>
+                          <View style={styles.compareColOld}>
+                            <X size={12} color="#FF5252" />
+                            <Text style={styles.compareColOldText}>A occhio / stima</Text>
+                          </View>
+                          <View style={styles.compareColNew}>
+                            <Check size={12} color={Colors.accentGreen} strokeWidth={3} />
+                            <Text style={styles.compareColNewText}>Fotocamera IA al mm</Text>
+                          </View>
+                        </View>
+                      </View>
+
+                      {/* Linha 2: Controllo del Carico */}
+                      <View style={styles.compareTableRow}>
+                        <Text style={styles.compareFeatureName}>Controllo del Carico</Text>
+                        <View style={styles.compareColsWrap}>
+                          <View style={styles.compareColOld}>
+                            <X size={12} color="#FF5252" />
+                            <Text style={styles.compareColOldText}>Schede fisse preimpostate</Text>
+                          </View>
+                          <View style={styles.compareColNew}>
+                            <Check size={12} color={Colors.accentGreen} strokeWidth={3} />
+                            <Text style={styles.compareColNewText}>Ricalcolo sul SNC continuo</Text>
+                          </View>
+                        </View>
+                      </View>
+
+                      {/* Linha 3: Rischio Tendinite */}
+                      <View style={styles.compareTableRow}>
+                        <Text style={styles.compareFeatureName}>Rischio Tendinite</Text>
+                        <View style={styles.compareColsWrap}>
+                          <View style={styles.compareColOld}>
+                            <X size={12} color="#FF5252" />
+                            <Text style={styles.compareColOldText}>Elevato per sovraccarico</Text>
+                          </View>
+                          <View style={styles.compareColNew}>
+                            <Check size={12} color={Colors.accentGreen} strokeWidth={3} />
+                            <Text style={styles.compareColNewText}>Volume scientifico protettivo</Text>
+                          </View>
+                        </View>
+                      </View>
+
+                      {/* Linha 4: Costo & Disponibilità */}
+                      <View style={[styles.compareTableRow, { borderBottomWidth: 0 }]}>
+                        <Text style={styles.compareFeatureName}>Disponibilità & Costo</Text>
+                        <View style={styles.compareColsWrap}>
+                          <View style={styles.compareColOld}>
+                            <X size={12} color="#FF5252" />
+                            <Text style={styles.compareColOldText}>€50–80/ora, orari rigidi</Text>
+                          </View>
+                          <View style={styles.compareColNew}>
+                            <Check size={12} color={Colors.accentGreen} strokeWidth={3} />
+                            <Text style={styles.compareColNewText}>24/7 sempre in tasca</Text>
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+
+                  {/* Rodapé do Card */}
+                  <View style={styles.techCardFooter}>
+                    <ShieldCheck size={14} color={Colors.primary} />
+                    <Text style={styles.techCardFooterText}>
+                      Standard di preparazione atletica d'élite per pallavolo & basket
+                    </Text>
+                  </View>
+                </View>
+              </View>
             </View>
-
-            <Text style={styles.mainTitle}>COME FUNZIONA VERTICAM</Text>
-            <Text style={styles.mainSubtitle}>
-              INTELLIGENZA ARTIFICIALE + VISIONE COMPUTERIZZATA DALLA FOTOCAMERA
-            </Text>
-
-            <View style={styles.howItWorksCard}>
-              <View style={styles.howItWorksImageWrap}>
-                <Image
-                  source={require('../../assets/proof-jump.webp')}
-                  style={styles.howItWorksImage}
-                  resizeMode="cover"
-                />
-              </View>
-
-              <View style={styles.pillarsContainer}>
-                <View style={styles.pillarItem}>
-                  <View style={styles.pillarIconBox}>
-                    <Zap size={18} color={Colors.primary} />
-                  </View>
-                  <View style={styles.pillarTextBox}>
-                    <Text style={styles.pillarTitle}>1. Tracciamento Ottico al Millimetro</Text>
-                    <Text style={styles.pillarDesc}>
-                      Basta posizionare lo smartphone a terra. L'algoritmo rileva il tempo di volo e l'altezza dello stacco istantaneamente.
-                    </Text>
-                  </View>
-                </View>
-
-                <View style={styles.pillarItem}>
-                  <View style={styles.pillarIconBox}>
-                    <Activity size={18} color={Colors.primary} />
-                  </View>
-                  <View style={styles.pillarTextBox}>
-                    <Text style={styles.pillarTitle}>2. Calibrazione Giornaliera con IA</Text>
-                    <Text style={styles.pillarDesc}>
-                      L'algoritmo valuta la freschezza del sistema nervoso e ricalcola i carichi quotidiani per evitare sovraccarichi al tendine.
-                    </Text>
-                  </View>
-                </View>
-
-                <View style={styles.pillarItem}>
-                  <View style={styles.pillarIconBox}>
-                    <Award size={18} color={Colors.primary} />
-                  </View>
-                  <View style={styles.pillarTextBox}>
-                    <Text style={styles.pillarTitle}>3. Risultati Concreti e Dimostrati</Text>
-                    <Text style={styles.pillarDesc}>
-                      +8.4 cm di incremento medio registrati nei primi 60 giorni su giocatori di pallavolo e beach volley.
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-
-            <TouchableOpacity
-              style={styles.continuePillBtn}
-              activeOpacity={0.88}
-              onPress={handleNextStep}
-            >
-              <Text style={styles.continuePillText}>HO CAPITO, CONTINUA</Text>
-              <View style={styles.startArrowCircle}>
-                <ChevronRight size={18} color="#FFFFFF" strokeWidth={3} />
-              </View>
-            </TouchableOpacity>
           </View>
         )}
 
@@ -1648,21 +1751,23 @@ export const QuizScreen: React.FC = () => {
         </View>
       </ScrollView>
 
-      {/* ── BARRA FLUTTUANTE INFERIORE (STEP 6: PROSSIMO PASSO ESTILO BETTERME) ── */}
-      {currentStep === 6 && (
+      {/* ── BARRA FLUTTUANTE INFERIORE (STEP 6 & STEP 7: BOTTONE ESTILO BETTERME) ── */}
+      {(currentStep === 6 || currentStep === 7) && (
         <View style={styles.floatingBottomBarContainer}>
           <TouchableOpacity
             style={styles.betterMeFloatingBtn}
             activeOpacity={0.88}
             onPress={handleNextStep}
           >
-            <Text style={styles.betterMeFloatingBtnText}>PROSSIMO PASSO</Text>
+            <Text style={styles.betterMeFloatingBtnText}>
+              {currentStep === 6 ? 'PROSSIMO PASSO' : 'CONTINUA'}
+            </Text>
           </TouchableOpacity>
         </View>
       )}
 
-      {/* Floating Help Button (oculto no Step 6 para dar lugar ao botão flutuante) */}
-      {currentStep !== 6 && (
+      {/* Floating Help Button (oculto nos Steps 6 e 7 para dar lugar ao botão flutuante) */}
+      {currentStep !== 6 && currentStep !== 7 && (
         <TouchableOpacity style={styles.floatingHelpBtn} activeOpacity={0.8}>
           <HelpCircle size={15} color="#000000" />
           <Text style={styles.floatingHelpText}>Aiuto</Text>
@@ -2791,57 +2896,255 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
 
-  // ── HOW IT WORKS CARD (STEP 7 / 6) ──
-  howItWorksCard: {
+  // ── SOLUZIONE & SCIENZA (STEP 7: STILE BETTERME DUAL-PANE) ──
+  solutionScreenContainer: {
     width: '100%',
-    maxWidth: 620,
-    backgroundColor: '#161922',
-    borderRadius: 22,
-    overflow: 'hidden',
+    maxWidth: 1040,
+    alignItems: 'center',
+    paddingHorizontal: 8,
+  },
+  solutionSplitLayout: {
+    width: '100%',
+    flexDirection: 'column',
+    gap: 28,
+    alignItems: 'stretch',
+  },
+  solutionSplitLayoutRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 36,
+  },
+  solutionLeftCol: {
+    flex: 1,
+    alignItems: 'flex-start',
+  },
+  solutionLeftColDesktop: {
+    maxWidth: 520,
+  },
+  solutionAiBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    backgroundColor: 'rgba(0, 229, 255, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(0, 229, 255, 0.35)',
+    paddingVertical: 5,
+    paddingHorizontal: 13,
+    borderRadius: 20,
+    marginBottom: 16,
+  },
+  solutionAiBadgeText: {
+    color: Colors.primary,
+    fontSize: 11.5,
+    fontWeight: '800',
+    letterSpacing: 0.9,
+  },
+  solutionHeadline: {
+    color: '#FFFFFF',
+    fontSize: 27,
+    fontWeight: '900',
+    lineHeight: 35,
+    letterSpacing: -0.5,
     marginBottom: 24,
+    textAlign: 'left',
   },
-  howItWorksImageWrap: {
+  solutionPointsList: {
     width: '100%',
-    height: 220,
-    backgroundColor: '#0F121B',
+    gap: 14,
   },
-  howItWorksImage: {
-    width: '100%',
-    height: '100%',
-  },
-  pillarsContainer: {
-    padding: 20,
-    gap: 16,
-  },
-  pillarItem: {
+  solutionPointCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 14,
+    backgroundColor: '#161922',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.07)',
+    borderRadius: 16,
+    padding: 16,
   },
-  pillarIconBox: {
+  solutionPointIconBox: {
     width: 38,
     height: 38,
-    borderRadius: 19,
-    backgroundColor: 'rgba(0, 229, 255, 0.12)',
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 2,
   },
-  pillarTextBox: {
+  solutionPointContent: {
     flex: 1,
   },
-  pillarTitle: {
+  solutionPointTitle: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 15.5,
     fontWeight: '800',
     marginBottom: 4,
   },
-  pillarDesc: {
+  solutionPointDesc: {
     color: '#9E9E9E',
-    fontSize: 13,
-    lineHeight: 19,
+    fontSize: 13.5,
+    lineHeight: 20,
+  },
+  boldWhite: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+  },
+
+  // ── COLONNA DESTRA: DASHBOARD & COMPARATIVO ──
+  solutionRightCol: {
+    width: '100%',
+  },
+  solutionRightColDesktop: {
+    flex: 1,
+    maxWidth: 480,
+  },
+  techDashboardCard: {
+    backgroundColor: '#12141C',
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: 'rgba(0, 229, 255, 0.25)',
+    padding: 20,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  techCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  techStatusIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+  },
+  greenPulseDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.accentGreen,
+  },
+  techStatusText: {
+    color: Colors.accentGreen,
+    fontSize: 10.5,
+    fontWeight: '800',
+    letterSpacing: 0.6,
+  },
+  techAccuracyBadge: {
+    backgroundColor: 'rgba(0, 229, 255, 0.12)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  techAccuracyText: {
+    color: Colors.primary,
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  techMetricsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  techMetricBox: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  techMetricVal: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '900',
+    marginBottom: 2,
+  },
+  techMetricLbl: {
+    color: '#8A8D9B',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  techMetricDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  compareSection: {
+    paddingTop: 16,
+  },
+  compareSectionTitle: {
+    color: '#8A8D9B',
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 1,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  compareTable: {
+    backgroundColor: '#0C0E14',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+    overflow: 'hidden',
+  },
+  compareTableRow: {
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  compareFeatureName: {
+    color: '#E0E0E0',
+    fontSize: 12.5,
+    fontWeight: '800',
+    marginBottom: 6,
+  },
+  compareColsWrap: {
+    flexDirection: 'column',
+    gap: 6,
+  },
+  compareColOld: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    opacity: 0.65,
+  },
+  compareColOldText: {
+    color: '#B0B0B0',
+    fontSize: 11.5,
+  },
+  compareColNew: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  compareColNewText: {
+    color: Colors.accentGreen,
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  techCardFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    marginTop: 16,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.06)',
+  },
+  techCardFooterText: {
+    color: '#8A8D9B',
+    fontSize: 11,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 
   // ── TRANSIZIONE BIOMETRICA (STEP 8 / 6-1) ──
