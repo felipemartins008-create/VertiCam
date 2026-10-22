@@ -268,9 +268,9 @@ export const QuizScreen: React.FC = () => {
                   ]}
                 >
                   <ChevronRight
-                    size={isDesktop ? (isSix ? 11 : isFive ? 12 : 14) : (isSix ? 9 : 12)}
+                    size={isDesktop ? (isSix ? 13 : isFive ? 12 : 14) : (isSix ? 9 : 12)}
                     color="#FFFFFF"
-                    strokeWidth={isSix ? 2.5 : 3}
+                    strokeWidth={isDesktop ? 3 : (isSix ? 2.5 : 3)}
                   />
                 </View>
               </View>
@@ -852,11 +852,11 @@ const styles = StyleSheet.create({
   },
   cardsGrid6Desktop: {
     flexDirection: 'row',
-    flexWrap: 'nowrap',
+    flexWrap: 'wrap',
     justifyContent: 'center',
-    gap: 10,
+    gap: 20,
     width: '100%',
-    maxWidth: 1060,
+    maxWidth: 750,
   },
   cardsGridMobile: {
     flexDirection: 'row',
@@ -900,11 +900,11 @@ const styles = StyleSheet.create({
     height: 265,
   },
   betterMeCard6Desktop: {
-    width: 154,
-    height: 236,
-    paddingBottom: 6,
-    paddingHorizontal: 6,
-    borderRadius: 14,
+    width: 220,
+    height: 300,
+    paddingBottom: 8,
+    paddingHorizontal: 8,
+    borderRadius: 18,
   },
   betterMeCardMobile: {
     width: '47%',
@@ -938,8 +938,8 @@ const styles = StyleSheet.create({
     height: 198,
   },
   cardImageContainer6Desktop: {
-    height: 172,
-    borderRadius: 10,
+    height: 224,
+    borderRadius: 12,
   },
   cardImageContainerMobile: {
     height: 174,
@@ -970,9 +970,9 @@ const styles = StyleSheet.create({
     borderRadius: 13,
   },
   cardBottomPill6Desktop: {
-    height: 42,
-    paddingHorizontal: 8,
-    borderRadius: 11,
+    height: 50,
+    paddingHorizontal: 12,
+    borderRadius: 13,
   },
   cardBottomPillMobile: {
     height: 44,
@@ -1001,7 +1001,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   cardPillText6Desktop: {
-    fontSize: 12,
+    fontSize: 15,
     fontWeight: '800',
   },
   cardPillTextMobile: {
@@ -1032,9 +1032,9 @@ const styles = StyleSheet.create({
     borderRadius: 11,
   },
   cardArrowCircle6Desktop: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
   },
   cardArrowCircleMobile: {
     width: 22,
