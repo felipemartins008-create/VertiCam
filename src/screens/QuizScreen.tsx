@@ -505,64 +505,30 @@ export const QuizScreen: React.FC = () => {
             <Text style={styles.mainTitle}>POTENZIALE DI ELEVAZIONE</Text>
             <Text style={styles.mainSubtitle}>QUANTO VUOI AUMENTARE IL TUO SALTO?</Text>
 
-            <View style={styles.optionsListWrap}>
-              {[
+            {renderBetterMeCards(
+              [
                 {
                   id: 'gain_5_8',
-                  badge: 'BASE SICURA',
-                  title: '+5 a +8 cm',
-                  desc: 'Guadagno rapido di stacco per superare il muro avversario con costanza.',
-                  icon: TrendingUp,
+                  pillTitle: '+5 a +8 cm',
+                  imageUri: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=600&q=80',
                 },
                 {
                   id: 'gain_8_12',
-                  badge: 'RECORD • TRASFORMAZIONE COMPLETA',
-                  title: '+9 a +15 cm',
-                  desc: 'Il massimo picco di elevazione atletica per dominare sopra la rete.',
-                  icon: Flame,
-                  highlight: true,
+                  pillTitle: '+9 a +15 cm (Record)',
+                  imageUri: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=600&q=80',
                 },
                 {
                   id: 'pain_free',
-                  badge: 'PROTEZIONE TENDINI',
-                  title: 'Massima Esplosività Senza Dolore',
-                  desc: 'Rinforzo del tendine rotuleo, atterraggi morbidi e salto esplosivo continuo.',
-                  icon: ShieldCheck,
+                  pillTitle: 'Tendini senza dolore',
+                  imageUri: 'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?auto=format&fit=crop&w=600&q=80',
                 },
-              ].map((opt) => {
-                const isSelected = targetGain === opt.id;
-                const IconComponent = opt.icon;
-                return (
-                  <TouchableOpacity
-                    key={opt.id}
-                    style={[
-                      styles.choiceRowCard,
-                      opt.highlight && styles.choiceRowCardHighlight,
-                      isSelected && styles.choiceRowCardSelected,
-                    ]}
-                    activeOpacity={0.85}
-                    onPress={() => {
-                      setTargetGain(opt.id);
-                      setTimeout(() => handleNextStep(), 200);
-                    }}
-                  >
-                    <View style={styles.choiceRowTop}>
-                      <View style={[styles.choiceBadge, opt.highlight && styles.choiceBadgeHighlight]}>
-                        <Text style={[styles.choiceBadgeText, opt.highlight && styles.choiceBadgeTextHighlight]}>
-                          {opt.badge}
-                        </Text>
-                      </View>
-                      <IconComponent
-                        size={22}
-                        color={opt.highlight || isSelected ? Colors.primary : '#FFFFFF'}
-                      />
-                    </View>
-                    <Text style={styles.choiceRowTitle}>{opt.title}</Text>
-                    <Text style={styles.choiceRowDesc}>{opt.desc}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+              ],
+              targetGain,
+              (id) => {
+                setTargetGain(id);
+                setTimeout(() => handleNextStep(), 200);
+              }
+            )}
           </View>
         )}
 
