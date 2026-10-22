@@ -41,16 +41,18 @@ export const QuizScreen: React.FC = () => {
 
   // Current Funnel Step:
   // 0: Prova Social embaixo da Headline + Botão COMEÇAR
-  // 1: Scegli la tua età (Fascia d'età BetterMe)
-  // 2: Sport & Ruolo
-  // 3: Ostacolo principale / frustrazione
-  // 4: Obiettivo di salto nei prossimi 60 giorni
-  // 5: Parametri fisici (Altezza, Peso)
-  // 6: Analisi Algoritmo IA (Loader BetterMe)
-  // 7: Offerta / Diagnosi Personalizzata (Sales Pitch)
+  // 1: Genere (Donna vs Uomo)
+  // 2: Scegli la tua età (Fascia d'età BetterMe - Donna o Uomo)
+  // 3: Sport & Ruolo
+  // 4: Ostacolo principale / frustrazione
+  // 5: Obiettivo di salto nei prossimi 60 giorni
+  // 6: Parametri fisici (Altezza, Peso)
+  // 7: Analisi Algoritmo IA (Loader BetterMe)
+  // 8: Offerta / Diagnosi Personalizzata (Sales Pitch)
   const [currentStep, setCurrentStep] = useState<number>(0);
 
   // Form State
+  const [gender, setGender] = useState<'female' | 'male'>('female');
   const [ageRange, setAgeRange] = useState<string>('18-29');
   const [selectedSport, setSelectedSport] = useState<string>('volley_outside');
   const [selectedObstacle, setSelectedObstacle] = useState<string>('plateau');
@@ -71,12 +73,12 @@ export const QuizScreen: React.FC = () => {
   ];
 
   useEffect(() => {
-    if (currentStep === 6) {
+    if (currentStep === 7) {
       const interval = setInterval(() => {
         setAnalysisProgress((prev) => {
           if (prev >= 100) {
             clearInterval(interval);
-            setTimeout(() => setCurrentStep(7), 400);
+            setTimeout(() => setCurrentStep(8), 400);
             return 100;
           }
           const next = prev + 20;
@@ -94,7 +96,7 @@ export const QuizScreen: React.FC = () => {
   };
 
   const handleBack = () => {
-    if (currentStep > 0 && currentStep !== 6) {
+    if (currentStep > 0 && currentStep !== 7) {
       setCurrentStep(currentStep - 1);
     } else {
       navigate('Welcome');
@@ -125,15 +127,72 @@ export const QuizScreen: React.FC = () => {
       heightCm: heightNum,
       weightKg: parseFloat(weight) || 84,
       standingReachCm: calculatedStandingReach,
+      gender: gender,
       goals: ['higher_jump', 'jumper_knee'],
     });
 
-    setCurrentStep(6); // Trigger AI Analysis Loader
+    setCurrentStep(7); // Trigger AI Analysis Loader
   };
 
   const heightNum = parseFloat(height) || 192;
   const currentJumpEstimated = 54;
   const potentialJumpProjected = 62.5;
+
+  const femaleAgeCards: BetterMeCardOption[] = [
+    {
+      id: 'under_18',
+      pillTitle: 'Età: <18',
+      imageSource: require('../../assets/age-under18.webp'),
+    },
+    {
+      id: '18-29',
+      pillTitle: 'Età: 18–29',
+      imageSource: require('../../assets/age-18-29.webp'),
+    },
+    {
+      id: '30-39',
+      pillTitle: 'Età: 30–39',
+      imageSource: require('../../assets/age-30-39.webp'),
+    },
+    {
+      id: '40-49',
+      pillTitle: 'Età: 40–49',
+      imageSource: require('../../assets/age-40-49.webp'),
+    },
+    {
+      id: '50+',
+      pillTitle: 'Età: 50+',
+      imageSource: require('../../assets/age-50plus.webp'),
+    },
+  ];
+
+  const maleAgeCards: BetterMeCardOption[] = [
+    {
+      id: 'under_18',
+      pillTitle: 'Età: <18',
+      imageSource: require('../../assets/male-under18.webp'),
+    },
+    {
+      id: '18-29',
+      pillTitle: 'Età: 18–29',
+      imageSource: require('../../assets/male-18-29.webp'),
+    },
+    {
+      id: '30-39',
+      pillTitle: 'Età: 30–39',
+      imageSource: require('../../assets/male-30-39.webp'),
+    },
+    {
+      id: '40-49',
+      pillTitle: 'Età: 40–49',
+      imageSource: require('../../assets/male-40-49.webp'),
+    },
+    {
+      id: '50+',
+      pillTitle: 'Età: 50+',
+      imageSource: require('../../assets/male-50plus.webp'),
+    },
+  ];
 
   // ── RENDERER DE CARDS NO ESTILO BETTERME (EXATAMENTE COMO NO SCREENSHOT) ──
   const renderBetterMeCards = (
@@ -187,7 +246,7 @@ export const QuizScreen: React.FC = () => {
       {/* ── TOP HEADER (ESTILO BETTERME: LOGO NA ESQUERDA, MENU CIRCULAR NA DIREITA) ── */}
       <View style={styles.headerBar}>
         <View style={styles.headerLeft}>
-          {currentStep > 0 && currentStep !== 6 && (
+          {currentStep > 0 && currentStep !== 7 && (
             <TouchableOpacity onPress={handleBack} style={styles.headerBackBtn} activeOpacity={0.7}>
               <ArrowLeft size={18} color="#FFFFFF" />
             </TouchableOpacity>
@@ -249,41 +308,45 @@ export const QuizScreen: React.FC = () => {
         )}
 
         {/* ══════════════════════════════════════════════════════
-            STEP 1: FAIXA ETÁRIA (EXATAMENTE COMO NO SCREENSHOT BETTERME!)
+            STEP 1: GENERE (DONNA O UOMO)
            ══════════════════════════════════════════════════════ */}
         {currentStep === 1 && (
+          <View style={styles.stepContainer}>
+            <Text style={styles.mainTitle}>PIANO DI ALLENAMENTO ELEVAZIONE & SALTO</Text>
+            <Text style={styles.mainSubtitle}>QUAL È IL TUO GENERE?</Text>
+
+            {renderBetterMeCards(
+              [
+                {
+                  id: 'female',
+                  pillTitle: 'Donna',
+                  imageSource: require('../../assets/age-18-29.webp'),
+                },
+                {
+                  id: 'male',
+                  pillTitle: 'Uomo',
+                  imageSource: require('../../assets/male-18-29.webp'),
+                },
+              ],
+              gender,
+              (id) => {
+                setGender(id as 'female' | 'male');
+                setTimeout(() => handleNextStep(), 200);
+              }
+            )}
+          </View>
+        )}
+
+        {/* ══════════════════════════════════════════════════════
+            STEP 2: FAIXA ETÁRIA (DIRECIONADA POR GÊNERO: DONNA OU UOMO)
+           ══════════════════════════════════════════════════════ */}
+        {currentStep === 2 && (
           <View style={styles.stepContainer}>
             <Text style={styles.mainTitle}>PIANO DI ALLENAMENTO ELEVAZIONE & SALTO</Text>
             <Text style={styles.mainSubtitle}>SCEGLI LA TUA FASCIA D'ETÀ</Text>
 
             {renderBetterMeCards(
-              [
-                {
-                  id: 'under_18',
-                  pillTitle: 'Età: <18',
-                  imageSource: require('../../assets/age-under18.webp'),
-                },
-                {
-                  id: '18-29',
-                  pillTitle: 'Età: 18–29',
-                  imageSource: require('../../assets/age-18-29.webp'),
-                },
-                {
-                  id: '30-39',
-                  pillTitle: 'Età: 30–39',
-                  imageSource: require('../../assets/age-30-39.webp'),
-                },
-                {
-                  id: '40-49',
-                  pillTitle: 'Età: 40–49',
-                  imageSource: require('../../assets/age-40-49.webp'),
-                },
-                {
-                  id: '50+',
-                  pillTitle: 'Età: 50+',
-                  imageSource: require('../../assets/age-50plus.webp'),
-                },
-              ],
+              gender === 'female' ? femaleAgeCards : maleAgeCards,
               ageRange,
               (id) => {
                 setAgeRange(id);
@@ -294,9 +357,9 @@ export const QuizScreen: React.FC = () => {
         )}
 
         {/* ══════════════════════════════════════════════════════
-            STEP 2: SPORT & RUOLO
+            STEP 3: SPORT & RUOLO
            ══════════════════════════════════════════════════════ */}
-        {currentStep === 2 && (
+        {currentStep === 3 && (
           <View style={styles.stepContainer}>
             <Text style={styles.mainTitle}>SPECIFICITÀ DELLO STACCO</Text>
             <Text style={styles.mainSubtitle}>IN QUALE SPORT E RUOLO VUOI DOMINARE?</Text>
@@ -334,9 +397,9 @@ export const QuizScreen: React.FC = () => {
         )}
 
         {/* ══════════════════════════════════════════════════════
-            STEP 3: OSTACOLO PRINCIPALE / FRUSTRAZIONE
+            STEP 4: OSTACOLO PRINCIPALE / FRUSTRAZIONE
            ══════════════════════════════════════════════════════ */}
-        {currentStep === 3 && (
+        {currentStep === 4 && (
           <View style={styles.stepContainer}>
             <Text style={styles.mainTitle}>DIAGNOSTICA DEL SALTO</Text>
             <Text style={styles.mainSubtitle}>QUAL È IL TUO OSTACOLO PRINCIPALE?</Text>
@@ -374,9 +437,9 @@ export const QuizScreen: React.FC = () => {
         )}
 
         {/* ══════════════════════════════════════════════════════
-            STEP 4: OBIETTIVO DI SALTO (60 GIORNI)
+            STEP 5: OBIETTIVO DI SALTO (60 GIORNI)
            ══════════════════════════════════════════════════════ */}
-        {currentStep === 4 && (
+        {currentStep === 5 && (
           <View style={styles.stepContainer}>
             <Text style={styles.mainTitle}>POTENZIALE DI ELEVAZIONE</Text>
             <Text style={styles.mainSubtitle}>QUANTO VUOI AUMENTARE IL TUO SALTO?</Text>
@@ -409,9 +472,9 @@ export const QuizScreen: React.FC = () => {
         )}
 
         {/* ══════════════════════════════════════════════════════
-            STEP 5: PARAMETRI FISICI (ALTEZZA & PESO)
+            STEP 6: PARAMETRI FISICI (ALTEZZA & PESO)
            ══════════════════════════════════════════════════════ */}
-        {currentStep === 5 && (
+        {currentStep === 6 && (
           <View style={styles.stepContainer}>
             <Text style={styles.mainTitle}>PARAMETRI BIOMETRICI</Text>
             <Text style={styles.mainSubtitle}>INSERISCI I TUOI DATI PER CALCOLARE IL CARICO</Text>
@@ -461,9 +524,9 @@ export const QuizScreen: React.FC = () => {
         )}
 
         {/* ══════════════════════════════════════════════════════
-            STEP 6: ANALISI ALGORITMO IA (LOADER BETTERME)
+            STEP 7: ANALISI ALGORITMO IA (LOADER BETTERME)
            ══════════════════════════════════════════════════════ */}
-        {currentStep === 6 && (
+        {currentStep === 7 && (
           <View style={styles.loadingContainer}>
             <Text style={styles.mainTitle}>ELABORAZIONE PIANO BIOMECCANICO</Text>
             <Text style={styles.mainSubtitle}>ATTENDI LA CALIBRAZIONE DELLA TUA CURVA DI FORZA</Text>
@@ -483,9 +546,9 @@ export const QuizScreen: React.FC = () => {
         )}
 
         {/* ══════════════════════════════════════════════════════
-            STEP 7: OFFERTA & DIAGNOSI (PITCH BETTERME)
+            STEP 8: OFFERTA & DIAGNOSI (PITCH BETTERME)
            ══════════════════════════════════════════════════════ */}
-        {currentStep === 7 && (
+        {currentStep === 8 && (
           <View style={styles.pitchContainer}>
             <Text style={styles.mainTitle}>IL TUO PIANO DI ELEVAZIONE È PRONTO</Text>
             <Text style={styles.mainSubtitle}>PROIEZIONE BASATA SUI TUOI PARAMETRI FISICI</Text>

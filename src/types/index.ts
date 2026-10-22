@@ -21,6 +21,7 @@ export interface UserProfile {
   heightCm: number;
   weightKg: number;
   standingReachCm: number;
+  gender?: 'female' | 'male';
   squat1rmKg?: number; // Carga de 1RM no agachamento
   initialJumpCm?: number;
   currentJumpCm?: number;
