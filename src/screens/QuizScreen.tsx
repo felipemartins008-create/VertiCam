@@ -79,7 +79,15 @@ export const QuizScreen: React.FC = () => {
   const [selectedSport, setSelectedSport] = useState<string>('outside');
   const [targetGain, setTargetGain] = useState<string>('gain_8_12');
   const [targetGainCm, setTargetGainCm] = useState<number>(12);
-  const [selectedImpact, setSelectedImpact] = useState<string>('power_spike');
+  const [selectedImpacts, setSelectedImpacts] = useState<string[]>(['power_spike']);
+
+  const toggleImpact = (id: string) => {
+    setSelectedImpacts((prev) =>
+      prev.includes(id)
+        ? (prev.length > 1 ? prev.filter((item) => item !== id) : prev)
+        : [...prev, id]
+    );
+  };
   const [trainingDays, setTrainingDays] = useState<string>('3-4');
   const [weight, setWeight] = useState<string>(String(userProfile.weightKg || 84));
   const [height, setHeight] = useState<string>(String(userProfile.heightCm || 192));
@@ -594,7 +602,10 @@ export const QuizScreen: React.FC = () => {
       </View>
 
       <ScrollView
-        contentContainerStyle={styles.scrollContainer}
+        contentContainerStyle={[
+          styles.scrollContainer,
+          currentStep === 6 && { paddingBottom: 130 },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {/* ══════════════════════════════════════════════════════
@@ -1073,6 +1084,9 @@ export const QuizScreen: React.FC = () => {
             <Text style={styles.mainSubtitle}>
               COSA CAMBIEREBBE DI PIÙ SE RAGGIUNGESSI QUESTA ELEVAZIONE?
             </Text>
+            <Text style={styles.multiSelectInstruction}>
+              Seleziona tutte le opzioni che desideri
+            </Text>
 
             <View style={styles.optionsListWrap}>
               {[
@@ -1101,7 +1115,7 @@ export const QuizScreen: React.FC = () => {
                   tag: 'LEADERSHIP & TALENTO',
                 },
               ].map((opt) => {
-                const isSelected = selectedImpact === opt.id;
+                const isSelected = selectedImpacts.includes(opt.id);
                 return (
                   <TouchableOpacity
                     key={opt.id}
@@ -1110,21 +1124,51 @@ export const QuizScreen: React.FC = () => {
                       isSelected && styles.personaChoiceCardSelected,
                     ]}
                     activeOpacity={0.85}
-                    onPress={() => {
-                      setSelectedImpact(opt.id);
-                      setTimeout(() => handleNextStep(), 200);
-                    }}
+                    onPress={() => toggleImpact(opt.id)}
                   >
                     <View style={styles.personaCardHeader}>
-                      <View style={styles.personaTag}>
-                        <Text style={styles.personaTagText}>{opt.tag}</Text>
+                      <View
+                        style={[
+                          styles.personaTag,
+                          isSelected && styles.personaTagSelected,
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.personaTagText,
+                            isSelected && styles.personaTagTextSelected,
+                          ]}
+                        >
+                          {opt.tag}
+                        </Text>
                       </View>
-                      <View style={[styles.personaRadioCircle, isSelected && styles.personaRadioCircleActive]}>
-                        {isSelected && <View style={styles.personaRadioInner} />}
+                      <View
+                        style={[
+                          styles.personaCheckbox,
+                          isSelected && styles.personaCheckboxActive,
+                        ]}
+                      >
+                        {isSelected && (
+                          <Check size={14} color="#FFFFFF" strokeWidth={3} />
+                        )}
                       </View>
                     </View>
-                    <Text style={styles.personaCardTitle}>{opt.title}</Text>
-                    <Text style={styles.personaCardDesc}>{opt.desc}</Text>
+                    <Text
+                      style={[
+                        styles.personaCardTitle,
+                        isSelected && styles.personaCardTitleSelected,
+                      ]}
+                    >
+                      {opt.title}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.personaCardDesc,
+                        isSelected && styles.personaCardDescSelected,
+                      ]}
+                    >
+                      {opt.desc}
+                    </Text>
                   </TouchableOpacity>
                 );
               })}
@@ -1604,11 +1648,26 @@ export const QuizScreen: React.FC = () => {
         </View>
       </ScrollView>
 
-      {/* Floating Help Button */}
-      <TouchableOpacity style={styles.floatingHelpBtn} activeOpacity={0.8}>
-        <HelpCircle size={15} color="#000000" />
-        <Text style={styles.floatingHelpText}>Aiuto</Text>
-      </TouchableOpacity>
+      {/* ── BARRA FLUTTUANTE INFERIORE (STEP 6: PROSSIMO PASSO ESTILO BETTERME) ── */}
+      {currentStep === 6 && (
+        <View style={styles.floatingBottomBarContainer}>
+          <TouchableOpacity
+            style={styles.betterMeFloatingBtn}
+            activeOpacity={0.88}
+            onPress={handleNextStep}
+          >
+            <Text style={styles.betterMeFloatingBtnText}>PROSSIMO PASSO</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Floating Help Button (oculto no Step 6 para dar lugar ao botão flutuante) */}
+      {currentStep !== 6 && (
+        <TouchableOpacity style={styles.floatingHelpBtn} activeOpacity={0.8}>
+          <HelpCircle size={15} color="#000000" />
+          <Text style={styles.floatingHelpText}>Aiuto</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -2619,29 +2678,43 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
 
-  // ── PERSONAS CARD (STEP 6 / 5) ──
+  // ── MULTI-SELECT INSTRUCTION (STEP 6) ──
+  multiSelectInstruction: {
+    fontSize: 14.5,
+    color: '#9E9E9E',
+    textAlign: 'center',
+    marginTop: 6,
+    marginBottom: 22,
+    fontWeight: '500',
+  },
+
+  // ── PERSONAS CARD (STEP 6 - ESTILO BETTERME) ──
   personaChoiceCard: {
     backgroundColor: '#161922',
-    borderRadius: 16,
+    borderRadius: 18,
     padding: 18,
     borderWidth: 1.5,
     borderColor: 'rgba(255, 255, 255, 0.08)',
+    marginBottom: 12,
   },
   personaChoiceCardSelected: {
-    borderColor: Colors.primary,
-    backgroundColor: 'rgba(0, 229, 255, 0.08)',
+    backgroundColor: '#EBE5D8',
+    borderColor: '#EBE5D8',
   },
   personaCardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   personaTag: {
     backgroundColor: 'rgba(0, 229, 255, 0.12)',
-    paddingVertical: 3,
-    paddingHorizontal: 8,
+    paddingVertical: 3.5,
+    paddingHorizontal: 9,
     borderRadius: 6,
+  },
+  personaTagSelected: {
+    backgroundColor: 'rgba(30, 28, 25, 0.12)',
   },
   personaTagText: {
     color: Colors.primary,
@@ -2649,34 +2722,73 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: 0.8,
   },
-  personaRadioCircle: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: '#444444',
+  personaTagTextSelected: {
+    color: '#2B2620',
+  },
+  personaCheckbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    borderWidth: 1.8,
+    borderColor: '#555866',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'transparent',
   },
-  personaRadioCircleActive: {
-    borderColor: Colors.primary,
-  },
-  personaRadioInner: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: Colors.primary,
+  personaCheckboxActive: {
+    backgroundColor: '#5A4D41',
+    borderColor: '#5A4D41',
   },
   personaCardTitle: {
     color: '#FFFFFF',
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '800',
     marginBottom: 4,
   },
+  personaCardTitleSelected: {
+    color: '#1C1C1E',
+  },
   personaCardDesc: {
     color: '#9E9E9E',
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 13.5,
+    lineHeight: 19,
+  },
+  personaCardDescSelected: {
+    color: '#44413C',
+  },
+
+  // ── BARRA FLUTTUANTE INFERIORE (STEP 6) ──
+  floatingBottomBarContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingTop: 16,
+    paddingBottom: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    zIndex: 999,
+  },
+  betterMeFloatingBtn: {
+    backgroundColor: '#EBE5D8',
+    borderRadius: 30,
+    paddingVertical: 14,
+    paddingHorizontal: 48,
+    minWidth: 280,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  betterMeFloatingBtnText: {
+    color: '#1C1C1E',
+    fontSize: 15,
+    fontWeight: '800',
+    letterSpacing: 0.8,
   },
 
   // ── HOW IT WORKS CARD (STEP 7 / 6) ──
