@@ -200,8 +200,17 @@ export const QuizScreen: React.FC = () => {
     selectedId: string,
     onSelect: (id: string) => void
   ) => {
+    const isFiveCards = options.length === 5;
+
     return (
-      <View style={[styles.cardsGrid, isDesktop ? styles.cardsGridDesktop : styles.cardsGridMobile]}>
+      <View
+        style={[
+          styles.cardsGrid,
+          isDesktop
+            ? (isFiveCards ? styles.cardsGrid5Desktop : styles.cardsGridDesktop)
+            : styles.cardsGridMobile,
+        ]}
+      >
         {options.map((opt) => {
           const isSelected = selectedId === opt.id;
           return (
@@ -210,13 +219,13 @@ export const QuizScreen: React.FC = () => {
               activeOpacity={0.88}
               style={[
                 styles.betterMeCard,
-                isDesktop && styles.betterMeCardDesktop,
+                isDesktop && (isFiveCards ? styles.betterMeCard5Desktop : styles.betterMeCardDesktop),
                 isSelected && styles.betterMeCardSelected,
               ]}
               onPress={() => onSelect(opt.id)}
             >
               {/* Imagem do Atleta com corte suave */}
-              <View style={styles.cardImageContainer}>
+              <View style={[styles.cardImageContainer, isDesktop && isFiveCards && styles.cardImageContainer5]}>
                 <Image
                   source={opt.imageSource || { uri: opt.imageUri }}
                   style={styles.cardImage}
@@ -226,12 +235,21 @@ export const QuizScreen: React.FC = () => {
               </View>
 
               {/* Botão em formato de Pílula Clara com seta preta (IDÊNTICO AO BETTERME) */}
-              <View style={[styles.cardBottomPill, isSelected && styles.cardBottomPillSelected]}>
-                <Text style={styles.cardPillText} numberOfLines={1}>
+              <View
+                style={[
+                  styles.cardBottomPill,
+                  isDesktop && isFiveCards && styles.cardBottomPill5,
+                  isSelected && styles.cardBottomPillSelected,
+                ]}
+              >
+                <Text
+                  style={[styles.cardPillText, isDesktop && isFiveCards && styles.cardPillText5]}
+                  numberOfLines={1}
+                >
                   {opt.pillTitle}
                 </Text>
-                <View style={styles.cardArrowCircle}>
-                  <ChevronRight size={14} color="#FFFFFF" strokeWidth={3} />
+                <View style={[styles.cardArrowCircle, isDesktop && isFiveCards && styles.cardArrowCircle5]}>
+                  <ChevronRight size={isFiveCards ? 12 : 14} color="#FFFFFF" strokeWidth={3} />
                 </View>
               </View>
             </TouchableOpacity>
@@ -694,7 +712,7 @@ const styles = StyleSheet.create({
   },
   stepContainer: {
     width: '100%',
-    maxWidth: 1100,
+    maxWidth: 1240,
     alignItems: 'center',
   },
 
@@ -790,8 +808,15 @@ const styles = StyleSheet.create({
   },
   cardsGridDesktop: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 18,
+    flexWrap: 'nowrap',
+    justifyContent: 'center',
+    gap: 16,
+  },
+  cardsGrid5Desktop: {
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    justifyContent: 'center',
+    gap: 12,
   },
   cardsGridMobile: {
     flexDirection: 'column',
@@ -802,24 +827,28 @@ const styles = StyleSheet.create({
   betterMeCard: {
     width: '100%',
     maxWidth: 320,
-    height: 340,
+    height: 310,
     backgroundColor: '#161922',
-    borderRadius: 20,
+    borderRadius: 18,
     overflow: 'hidden',
     borderWidth: 2,
     borderColor: 'transparent',
     position: 'relative',
     justifyContent: 'space-between',
-    paddingBottom: 10,
-    paddingHorizontal: 10,
+    paddingBottom: 8,
+    paddingHorizontal: 8,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.5,
     shadowRadius: 16,
   },
   betterMeCardDesktop: {
-    width: 245,
-    height: 340,
+    width: 215,
+    height: 305,
+  },
+  betterMeCard5Desktop: {
+    width: 182,
+    height: 265,
   },
   betterMeCardSelected: {
     borderColor: Colors.primary,
@@ -828,9 +857,12 @@ const styles = StyleSheet.create({
   },
   cardImageContainer: {
     width: '100%',
-    height: 255,
-    borderRadius: 14,
+    height: 232,
+    borderRadius: 12,
     overflow: 'hidden',
+  },
+  cardImageContainer5: {
+    height: 198,
   },
   cardImage: {
     width: '100%',
@@ -839,13 +871,18 @@ const styles = StyleSheet.create({
 
   // ── PÍLULA CLARA EMBAIXO DO CARD COM SETA PRETA (IDÊNTICA À FOTO) ──
   cardBottomPill: {
-    height: 54,
+    height: 50,
     backgroundColor: '#F3F4ED', // O tom exato off-white / creme do BetterMe
-    borderRadius: 16,
+    borderRadius: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
+  },
+  cardBottomPill5: {
+    height: 46,
+    paddingHorizontal: 12,
+    borderRadius: 13,
   },
   cardBottomPillSelected: {
     backgroundColor: '#FFFFFF',
@@ -854,18 +891,27 @@ const styles = StyleSheet.create({
   },
   cardPillText: {
     color: '#000000',
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '800',
     flex: 1,
     marginRight: 6,
   },
+  cardPillText5: {
+    fontSize: 15,
+    fontWeight: '800',
+  },
   cardArrowCircle: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     backgroundColor: '#000000',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  cardArrowCircle5: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
   },
 
   // ── STEP 6: PARAMETRI FISICI ──
