@@ -165,8 +165,8 @@ export const QuizScreen: React.FC = () => {
   const [analysisProgress, setAnalysisProgress] = useState<number>(10);
   const [analysisTextIndex, setAnalysisTextIndex] = useState<number>(0);
 
-  // Offerta Plan selection (Step 13)
-  const [selectedPlan, setSelectedPlan] = useState<'4_weeks' | '1_week' | '12_weeks'>('4_weeks');
+  // Offerta Plan selection (Step 13: Mensile, Trimestrale [Più Popolare], Semestrale)
+  const [selectedPlan, setSelectedPlan] = useState<'1_month' | '3_months' | '6_months'>('3_months');
 
   // Countdown timer per offerta (Step 13 - 09:41 stile BetterMe)
   const [secondsRemaining, setSecondsRemaining] = useState<number>(581);
@@ -1850,62 +1850,65 @@ export const QuizScreen: React.FC = () => {
 
               {/* Grid de 3 Planos Estilo BetterMe */}
               <View style={[styles.pricingCardsGrid, isDesktop && styles.pricingCardsGridDesktop]}>
-                {/* Piano 1: Prova 1 settimana */}
+                {/* Piano 1: Mensile (1 Mese) */}
                 <TouchableOpacity
                   style={[
                     styles.pricingCardItem,
                     isDesktop && styles.pricingCardItemDesktop,
-                    selectedPlan === '1_week' && styles.pricingCardItemSelected,
+                    selectedPlan === '1_month' && styles.pricingCardItemSelected,
                   ]}
                   activeOpacity={0.88}
-                  onPress={() => setSelectedPlan('1_week')}
+                  onPress={() => setSelectedPlan('1_month')}
                 >
                   <View style={styles.cardTopContent}>
                     <View style={styles.pricingCardHeader}>
-                      <Text style={styles.pricingPlanName}>Prova di 1 sem</Text>
-                      <View style={[styles.planRadioCircle, selectedPlan === '1_week' && styles.planRadioCircleActive]}>
-                        {selectedPlan === '1_week' && <Check size={13} color="#000000" strokeWidth={3.5} />}
+                      <Text style={styles.pricingPlanName}>Piano 1 Mese</Text>
+                      <View style={[styles.planRadioCircle, selectedPlan === '1_month' && styles.planRadioCircleActive]}>
+                        {selectedPlan === '1_month' && <Check size={13} color="#000000" strokeWidth={3.5} />}
                       </View>
                     </View>
                     <View style={styles.planDurationBadge}>
-                      <Text style={styles.planDurationBadgeText}>PIANO 4-SETTIMANE</Text>
+                      <Text style={styles.planDurationBadgeText}>PIANO 1 MESE</Text>
                     </View>
-                    <Text style={styles.planTotalPriceText}>€40.00</Text>
+                    <Text style={styles.planTotalPriceText}>€19.99</Text>
                   </View>
                   <View style={styles.cardBottomContent}>
                     <View style={styles.planDailyPriceRow}>
-                      <Text style={styles.planDailyPriceDigits}>€5.71</Text>
+                      <Text style={styles.planDailyPriceDigits}>€0.66</Text>
                       <Text style={styles.planDailySubText}>al giorno</Text>
                     </View>
                   </View>
                 </TouchableOpacity>
 
-                {/* Piano 2: Piano di 4 settimane (PIÙ POPOLARE) */}
+                {/* Piano 2: Trimestrale (3 Mesi - PIÙ POPOLARE) */}
                 <TouchableOpacity
                   style={[
                     styles.pricingCardItem,
                     isDesktop && styles.pricingCardItemDesktop,
                     styles.pricingCardPopular,
-                    selectedPlan === '4_weeks' && styles.pricingCardItemSelected,
+                    selectedPlan === '3_months' && styles.pricingCardItemSelected,
                   ]}
                   activeOpacity={0.88}
-                  onPress={() => setSelectedPlan('4_weeks')}
+                  onPress={() => setSelectedPlan('3_months')}
                 >
                   <View style={styles.popularTopBadge}>
                     <Text style={styles.popularTopBadgeText}>PIÙ POPOLARE</Text>
                   </View>
                   <View style={styles.cardTopContent}>
                     <View style={styles.pricingCardHeader}>
-                      <Text style={styles.pricingPlanName}>Piano di 4 sem</Text>
-                      <View style={[styles.planRadioCircle, selectedPlan === '4_weeks' && styles.planRadioCircleActive]}>
-                        {selectedPlan === '4_weeks' && <Check size={13} color="#000000" strokeWidth={3.5} />}
+                      <Text style={styles.pricingPlanName}>Piano 3 Mesi</Text>
+                      <View style={[styles.planRadioCircle, selectedPlan === '3_months' && styles.planRadioCircleActive]}>
+                        {selectedPlan === '3_months' && <Check size={13} color="#000000" strokeWidth={3.5} />}
                       </View>
                     </View>
-                    <Text style={styles.planTotalPriceText}>€99.99</Text>
+                    <View style={[styles.planDurationBadge, { backgroundColor: 'rgba(235, 229, 216, 0.15)' }]}>
+                      <Text style={[styles.planDurationBadgeText, { color: '#EBE5D8' }]}>RISPARMIA 37%</Text>
+                    </View>
+                    <Text style={styles.planTotalPriceText}>€37.99 (€12.66/mese)</Text>
                   </View>
                   <View style={styles.cardBottomContent}>
                     <View style={styles.planDailyPriceRow}>
-                      <Text style={styles.planDailyPriceDigits}>€3.57</Text>
+                      <Text style={styles.planDailyPriceDigits}>€0.42</Text>
                       <Text style={styles.planDailySubText}>al giorno</Text>
                     </View>
                     <View style={styles.planGiftBox}>
@@ -1915,28 +1918,31 @@ export const QuizScreen: React.FC = () => {
                   </View>
                 </TouchableOpacity>
 
-                {/* Piano 3: Piano di 12 settimane */}
+                {/* Piano 3: Semestrale (6 Mesi - MIGLIOR VALORE) */}
                 <TouchableOpacity
                   style={[
                     styles.pricingCardItem,
                     isDesktop && styles.pricingCardItemDesktop,
-                    selectedPlan === '12_weeks' && styles.pricingCardItemSelected,
+                    selectedPlan === '6_months' && styles.pricingCardItemSelected,
                   ]}
                   activeOpacity={0.88}
-                  onPress={() => setSelectedPlan('12_weeks')}
+                  onPress={() => setSelectedPlan('6_months')}
                 >
                   <View style={styles.cardTopContent}>
                     <View style={styles.pricingCardHeader}>
-                      <Text style={styles.pricingPlanName}>Piano di 12 sem</Text>
-                      <View style={[styles.planRadioCircle, selectedPlan === '12_weeks' && styles.planRadioCircleActive]}>
-                        {selectedPlan === '12_weeks' && <Check size={13} color="#000000" strokeWidth={3.5} />}
+                      <Text style={styles.pricingPlanName}>Piano 6 Mesi</Text>
+                      <View style={[styles.planRadioCircle, selectedPlan === '6_months' && styles.planRadioCircleActive]}>
+                        {selectedPlan === '6_months' && <Check size={13} color="#000000" strokeWidth={3.5} />}
                       </View>
                     </View>
-                    <Text style={styles.planTotalPriceText}>€199.99</Text>
+                    <View style={[styles.planDurationBadge, { backgroundColor: 'rgba(0, 230, 118, 0.12)' }]}>
+                      <Text style={[styles.planDurationBadgeText, { color: '#00E676' }]}>50% DI SCONTO</Text>
+                    </View>
+                    <Text style={styles.planTotalPriceText}>€59.99 (€9.99/mese)</Text>
                   </View>
                   <View style={styles.cardBottomContent}>
                     <View style={styles.planDailyPriceRow}>
-                      <Text style={styles.planDailyPriceDigits}>€2.38</Text>
+                      <Text style={styles.planDailyPriceDigits}>€0.33</Text>
                       <Text style={styles.planDailySubText}>al giorno</Text>
                     </View>
                     <View style={styles.planGiftBox}>
@@ -2113,62 +2119,65 @@ export const QuizScreen: React.FC = () => {
 
               {/* Grid Repetido de Planos */}
               <View style={[styles.pricingCardsGrid, isDesktop && styles.pricingCardsGridDesktop]}>
-                {/* Piano 1 */}
+                {/* Piano 1: Mensile */}
                 <TouchableOpacity
                   style={[
                     styles.pricingCardItem,
                     isDesktop && styles.pricingCardItemDesktop,
-                    selectedPlan === '1_week' && styles.pricingCardItemSelected,
+                    selectedPlan === '1_month' && styles.pricingCardItemSelected,
                   ]}
                   activeOpacity={0.88}
-                  onPress={() => setSelectedPlan('1_week')}
+                  onPress={() => setSelectedPlan('1_month')}
                 >
                   <View style={styles.cardTopContent}>
                     <View style={styles.pricingCardHeader}>
-                      <Text style={styles.pricingPlanName}>Prova di 1 sem</Text>
-                      <View style={[styles.planRadioCircle, selectedPlan === '1_week' && styles.planRadioCircleActive]}>
-                        {selectedPlan === '1_week' && <Check size={13} color="#000000" strokeWidth={3.5} />}
+                      <Text style={styles.pricingPlanName}>Piano 1 Mese</Text>
+                      <View style={[styles.planRadioCircle, selectedPlan === '1_month' && styles.planRadioCircleActive]}>
+                        {selectedPlan === '1_month' && <Check size={13} color="#000000" strokeWidth={3.5} />}
                       </View>
                     </View>
                     <View style={styles.planDurationBadge}>
-                      <Text style={styles.planDurationBadgeText}>PIANO 4-SETTIMANE</Text>
+                      <Text style={styles.planDurationBadgeText}>PIANO 1 MESE</Text>
                     </View>
-                    <Text style={styles.planTotalPriceText}>€40.00</Text>
+                    <Text style={styles.planTotalPriceText}>€19.99</Text>
                   </View>
                   <View style={styles.cardBottomContent}>
                     <View style={styles.planDailyPriceRow}>
-                      <Text style={styles.planDailyPriceDigits}>€5.71</Text>
+                      <Text style={styles.planDailyPriceDigits}>€0.66</Text>
                       <Text style={styles.planDailySubText}>al giorno</Text>
                     </View>
                   </View>
                 </TouchableOpacity>
 
-                {/* Piano 2 */}
+                {/* Piano 2: Trimestrale */}
                 <TouchableOpacity
                   style={[
                     styles.pricingCardItem,
                     isDesktop && styles.pricingCardItemDesktop,
                     styles.pricingCardPopular,
-                    selectedPlan === '4_weeks' && styles.pricingCardItemSelected,
+                    selectedPlan === '3_months' && styles.pricingCardItemSelected,
                   ]}
                   activeOpacity={0.88}
-                  onPress={() => setSelectedPlan('4_weeks')}
+                  onPress={() => setSelectedPlan('3_months')}
                 >
                   <View style={styles.popularTopBadge}>
                     <Text style={styles.popularTopBadgeText}>PIÙ POPOLARE</Text>
                   </View>
                   <View style={styles.cardTopContent}>
                     <View style={styles.pricingCardHeader}>
-                      <Text style={styles.pricingPlanName}>Piano di 4 sem</Text>
-                      <View style={[styles.planRadioCircle, selectedPlan === '4_weeks' && styles.planRadioCircleActive]}>
-                        {selectedPlan === '4_weeks' && <Check size={13} color="#000000" strokeWidth={3.5} />}
+                      <Text style={styles.pricingPlanName}>Piano 3 Mesi</Text>
+                      <View style={[styles.planRadioCircle, selectedPlan === '3_months' && styles.planRadioCircleActive]}>
+                        {selectedPlan === '3_months' && <Check size={13} color="#000000" strokeWidth={3.5} />}
                       </View>
                     </View>
-                    <Text style={styles.planTotalPriceText}>€99.99</Text>
+                    <View style={[styles.planDurationBadge, { backgroundColor: 'rgba(235, 229, 216, 0.15)' }]}>
+                      <Text style={[styles.planDurationBadgeText, { color: '#EBE5D8' }]}>RISPARMIA 37%</Text>
+                    </View>
+                    <Text style={styles.planTotalPriceText}>€37.99 (€12.66/mese)</Text>
                   </View>
                   <View style={styles.cardBottomContent}>
                     <View style={styles.planDailyPriceRow}>
-                      <Text style={styles.planDailyPriceDigits}>€3.57</Text>
+                      <Text style={styles.planDailyPriceDigits}>€0.42</Text>
                       <Text style={styles.planDailySubText}>al giorno</Text>
                     </View>
                     <View style={styles.planGiftBox}>
@@ -2178,28 +2187,31 @@ export const QuizScreen: React.FC = () => {
                   </View>
                 </TouchableOpacity>
 
-                {/* Piano 3 */}
+                {/* Piano 3: Semestrale */}
                 <TouchableOpacity
                   style={[
                     styles.pricingCardItem,
                     isDesktop && styles.pricingCardItemDesktop,
-                    selectedPlan === '12_weeks' && styles.pricingCardItemSelected,
+                    selectedPlan === '6_months' && styles.pricingCardItemSelected,
                   ]}
                   activeOpacity={0.88}
-                  onPress={() => setSelectedPlan('12_weeks')}
+                  onPress={() => setSelectedPlan('6_months')}
                 >
                   <View style={styles.cardTopContent}>
                     <View style={styles.pricingCardHeader}>
-                      <Text style={styles.pricingPlanName}>Piano di 12 sem</Text>
-                      <View style={[styles.planRadioCircle, selectedPlan === '12_weeks' && styles.planRadioCircleActive]}>
-                        {selectedPlan === '12_weeks' && <Check size={13} color="#000000" strokeWidth={3.5} />}
+                      <Text style={styles.pricingPlanName}>Piano 6 Mesi</Text>
+                      <View style={[styles.planRadioCircle, selectedPlan === '6_months' && styles.planRadioCircleActive]}>
+                        {selectedPlan === '6_months' && <Check size={13} color="#000000" strokeWidth={3.5} />}
                       </View>
                     </View>
-                    <Text style={styles.planTotalPriceText}>€199.99</Text>
+                    <View style={[styles.planDurationBadge, { backgroundColor: 'rgba(0, 230, 118, 0.12)' }]}>
+                      <Text style={[styles.planDurationBadgeText, { color: '#00E676' }]}>50% DI SCONTO</Text>
+                    </View>
+                    <Text style={styles.planTotalPriceText}>€59.99 (€9.99/mese)</Text>
                   </View>
                   <View style={styles.cardBottomContent}>
                     <View style={styles.planDailyPriceRow}>
-                      <Text style={styles.planDailyPriceDigits}>€2.38</Text>
+                      <Text style={styles.planDailyPriceDigits}>€0.33</Text>
                       <Text style={styles.planDailySubText}>al giorno</Text>
                     </View>
                     <View style={styles.planGiftBox}>
