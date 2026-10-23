@@ -1877,6 +1877,10 @@ export const QuizScreen: React.FC = () => {
                       <Text style={styles.planDailyPriceDigits}>€0.66</Text>
                       <Text style={styles.planDailySubText}>al giorno</Text>
                     </View>
+                    <View style={styles.planGiftBox}>
+                      <Check size={13} color="#00E5FF" strokeWidth={3} />
+                      <Text style={styles.planGiftText}>Accesso completo a VertiCam</Text>
+                    </View>
                   </View>
                 </TouchableOpacity>
 
@@ -1912,8 +1916,8 @@ export const QuizScreen: React.FC = () => {
                       <Text style={styles.planDailySubText}>al giorno</Text>
                     </View>
                     <View style={styles.planGiftBox}>
-                      <Gift size={13} color="#A0A0A5" />
-                      <Text style={styles.planGiftText}>Include un piano di allenamento stampabile per il 2026</Text>
+                      <Check size={13} color="#00E5FF" strokeWidth={3} />
+                      <Text style={styles.planGiftText}>Accesso completo a VertiCam</Text>
                     </View>
                   </View>
                 </TouchableOpacity>
@@ -1946,8 +1950,8 @@ export const QuizScreen: React.FC = () => {
                       <Text style={styles.planDailySubText}>al giorno</Text>
                     </View>
                     <View style={styles.planGiftBox}>
-                      <Gift size={13} color="#A0A0A5" />
-                      <Text style={styles.planGiftText}>Include un piano di allenamento stampabile per il 2026</Text>
+                      <Check size={13} color="#00E5FF" strokeWidth={3} />
+                      <Text style={styles.planGiftText}>Accesso completo a VertiCam</Text>
                     </View>
                   </View>
                 </TouchableOpacity>
@@ -2146,6 +2150,10 @@ export const QuizScreen: React.FC = () => {
                       <Text style={styles.planDailyPriceDigits}>€0.66</Text>
                       <Text style={styles.planDailySubText}>al giorno</Text>
                     </View>
+                    <View style={styles.planGiftBox}>
+                      <Check size={13} color="#00E5FF" strokeWidth={3} />
+                      <Text style={styles.planGiftText}>Accesso completo a VertiCam</Text>
+                    </View>
                   </View>
                 </TouchableOpacity>
 
@@ -2181,8 +2189,8 @@ export const QuizScreen: React.FC = () => {
                       <Text style={styles.planDailySubText}>al giorno</Text>
                     </View>
                     <View style={styles.planGiftBox}>
-                      <Gift size={13} color="#A0A0A5" />
-                      <Text style={styles.planGiftText}>Include un piano di allenamento stampabile per il 2026</Text>
+                      <Check size={13} color="#00E5FF" strokeWidth={3} />
+                      <Text style={styles.planGiftText}>Accesso completo a VertiCam</Text>
                     </View>
                   </View>
                 </TouchableOpacity>
@@ -2215,8 +2223,8 @@ export const QuizScreen: React.FC = () => {
                       <Text style={styles.planDailySubText}>al giorno</Text>
                     </View>
                     <View style={styles.planGiftBox}>
-                      <Gift size={13} color="#A0A0A5" />
-                      <Text style={styles.planGiftText}>Include un piano di allenamento stampabile per il 2026</Text>
+                      <Check size={13} color="#00E5FF" strokeWidth={3} />
+                      <Text style={styles.planGiftText}>Accesso completo a VertiCam</Text>
                     </View>
                   </View>
                 </TouchableOpacity>
