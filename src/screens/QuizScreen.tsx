@@ -1842,46 +1842,9 @@ export const QuizScreen: React.FC = () => {
               </View>
             </View>
 
-            {/* ── 3. SEZIONE: SCEGLI IL TUO PIANO + TICKET COUPON ── */}
+            {/* ── 3. SEZIONE: SCEGLI IL TUO PIANO ── */}
             <View style={styles.offerPricingSection}>
               <Text style={styles.offerSectionTitle}>Scegli il tuo piano</Text>
-
-              {/* Banner Ticket Coupon Sconto Perforato */}
-              <View style={styles.couponTicketBanner}>
-                {/* Recortes de Ticket nas bordas */}
-                <View style={styles.ticketNotchLeft} />
-                <View style={styles.ticketNotchRight} />
-
-                <View style={styles.couponTicketTop}>
-                  <Tag size={16} color="#FFFFFF" />
-                  <Text style={styles.couponTicketTopText}>Il tuo codice promozionale è applicato!</Text>
-                </View>
-
-                <View style={styles.couponDashedLine} />
-
-                <View style={styles.couponTicketBottom}>
-                  <View style={styles.couponCodePill}>
-                    <Check size={14} color="#00E5FF" strokeWidth={3} />
-                    <Text style={styles.couponCodeText}>er_oct26</Text>
-                  </View>
-
-                  <View style={styles.couponTimerBox}>
-                    <View style={styles.betterMeTimerWidget}>
-                      <View style={styles.timerDigitUnitCol}>
-                        <Text style={styles.betterMeTimerDigits}>{countdownMins}</Text>
-                        <Text style={styles.couponTimerUnitText}>minuti</Text>
-                      </View>
-
-                      <Text style={styles.betterMeTimerColon}>:</Text>
-
-                      <View style={styles.timerDigitUnitCol}>
-                        <Text style={styles.betterMeTimerDigits}>{countdownSecs}</Text>
-                        <Text style={styles.couponTimerUnitText}>secondi</Text>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-              </View>
 
               {/* Grid de 3 Planos */}
               <View style={styles.pricingCardsGrid}>
@@ -4033,13 +3996,6 @@ const styles = StyleSheet.create({
     marginTop: 1,
     textTransform: 'lowercase',
   },
-  couponTimerUnitText: {
-    color: '#FFE2CC',
-    fontSize: 9.5,
-    fontWeight: '600',
-    marginTop: 1,
-    textTransform: 'lowercase',
-  },
   headerOfferCtaBtn: {
     backgroundColor: '#EBE5D8',
     borderRadius: 22,
@@ -4172,88 +4128,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     letterSpacing: -0.5,
     marginBottom: 20,
-  },
-  couponTicketBanner: {
-    width: '100%',
-    maxWidth: 620,
-    backgroundColor: '#D47A2A',
-    borderRadius: 18,
-    position: 'relative',
-    overflow: 'hidden',
-    padding: 16,
-    marginBottom: 26,
-    shadowColor: '#D47A2A',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 6,
-  },
-  ticketNotchLeft: {
-    position: 'absolute',
-    left: -10,
-    top: '46%',
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: '#000000',
-    zIndex: 10,
-  },
-  ticketNotchRight: {
-    position: 'absolute',
-    right: -10,
-    top: '46%',
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: '#000000',
-    zIndex: 10,
-  },
-  couponTicketTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingBottom: 10,
-  },
-  couponTicketTopText: {
-    color: '#FFFFFF',
-    fontSize: 14.5,
-    fontWeight: '800',
-    letterSpacing: 0.3,
-  },
-  couponDashedLine: {
-    width: '100%',
-    height: 1,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.35)',
-    borderStyle: 'dashed',
-    marginVertical: 10,
-  },
-  couponTicketBottom: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 4,
-    paddingHorizontal: 8,
-  },
-  couponCodePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#0C0E14',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 10,
-  },
-  couponCodeText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '800',
-    letterSpacing: 0.5,
-  },
-  couponTimerBox: {
-    alignItems: 'flex-end',
-    justifyContent: 'center',
   },
 
   // Grid Planos
