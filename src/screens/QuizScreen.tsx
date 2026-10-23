@@ -2032,6 +2032,7 @@ export const QuizScreen: React.FC = () => {
                   {showcaseFeatures.map((feat, idx) => (
                     <View key={idx} style={styles.screenMockupCard}>
                       <View style={[styles.phoneFrameContainer, feat.isHighlight && styles.phoneFrameHighlight]}>
+                        {feat.isHighlight && <View pointerEvents="none" style={styles.phoneGlowBlob} />}
                         <Image
                           source={feat.image}
                           style={[
@@ -2057,6 +2058,7 @@ export const QuizScreen: React.FC = () => {
                   {showcaseFeatures.map((feat, idx) => (
                     <View key={idx} style={styles.screenMockupCardMobile}>
                       <View style={[styles.phoneFrameContainer, feat.isHighlight && styles.phoneFrameHighlight]}>
+                        {feat.isHighlight && <View pointerEvents="none" style={styles.phoneGlowBlob} />}
                         <Image
                           source={feat.image}
                           style={[
@@ -4387,6 +4389,26 @@ const styles = StyleSheet.create({
   phoneFrameHighlight: {
     zIndex: 2,
   },
+  // Alone morbido e arrotondato dietro al telefono in evidenza
+  phoneGlowBlob: {
+    position: 'absolute',
+    top: '6%',
+    bottom: '6%',
+    left: '4%',
+    right: '4%',
+    borderRadius: 999,
+    backgroundColor: 'rgba(0, 229, 255, 0.45)',
+    ...(Platform.OS === 'web' && {
+      filter: 'blur(38px)',
+    }),
+    ...(Platform.OS !== 'web' && {
+      shadowColor: '#00E5FF',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.8,
+      shadowRadius: 40,
+      backgroundColor: 'rgba(0, 229, 255, 0.18)',
+    }),
+  },
   // Il drop-shadow segue la sagoma trasparente del PNG (niente rettangolo)
   phoneMockupImage: {
     width: 144,
@@ -4400,7 +4422,7 @@ const styles = StyleSheet.create({
     height: 285,
     transform: [{ translateY: -6 }],
     ...(Platform.OS === 'web' && {
-      filter: 'drop-shadow(0px 0px 10px rgba(0, 229, 255, 0.9)) drop-shadow(0px 0px 24px rgba(0, 229, 255, 0.55))',
+      filter: 'drop-shadow(0px 0px 4px rgba(0, 229, 255, 0.35))',
     }),
   },
   phoneMockupImageMobile: {
