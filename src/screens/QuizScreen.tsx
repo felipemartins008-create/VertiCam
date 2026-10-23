@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   useWindowDimensions,
   PanResponder,
+  Platform,
 } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import {
@@ -109,6 +110,9 @@ export const QuizScreen: React.FC = () => {
     setHeight(String(next));
   };
 
+  // Referência do ScrollView principal para reposicionar ao topo em cada transição de etapa
+  const mainScrollRef = useRef<ScrollView>(null);
+
   // Régua interativa Step 4 (0-60 cm com arraste e centralização suave)
   const rulerScrollRef = React.useRef<ScrollView>(null);
   const [rulerContainerWidth, setRulerContainerWidth] = useState<number>(320);
@@ -198,6 +202,16 @@ export const QuizScreen: React.FC = () => {
         });
       }, 70);
       return () => clearInterval(interval);
+    }
+  }, [currentStep]);
+
+  // Sempre que mudar de etapa no quiz, rola imediatamente para o topo da tela
+  useEffect(() => {
+    mainScrollRef.current?.scrollTo({ y: 0, animated: false });
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+      if (document.documentElement) document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
     }
   }, [currentStep]);
 
@@ -675,6 +689,7 @@ export const QuizScreen: React.FC = () => {
       </View>
 
       <ScrollView
+        ref={mainScrollRef}
         contentContainerStyle={[
           styles.scrollContainer,
           (currentStep === 6 || currentStep === 7) && { paddingBottom: 130 },
