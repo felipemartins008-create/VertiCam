@@ -11,8 +11,10 @@ import {
   useWindowDimensions,
   PanResponder,
   Platform,
+  Linking,
 } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
+import { getStripeCheckoutUrl } from '../config/stripe';
 import {
   ChevronRight,
   ArrowLeft,
@@ -420,6 +422,15 @@ export const QuizScreen: React.FC = () => {
     },
   ];
 
+  const handleCheckout = () => {
+    const checkoutUrl = getStripeCheckoutUrl(selectedPlan);
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      window.location.href = checkoutUrl;
+    } else {
+      Linking.openURL(checkoutUrl);
+    }
+  };
+
   const femaleAgeCards: BetterMeCardOption[] = [
     {
       id: 'under_25',
@@ -625,10 +636,7 @@ export const QuizScreen: React.FC = () => {
               <TouchableOpacity
                 style={styles.headerOfferCtaBtn}
                 activeOpacity={0.85}
-                onPress={() => {
-                  setSubscribed(true);
-                  navigate('Dashboard');
-                }}
+                onPress={handleCheckout}
               >
                 <Text style={styles.headerOfferCtaText}>OTTIENI IL MIO PIANO</Text>
               </TouchableOpacity>
@@ -1995,10 +2003,7 @@ export const QuizScreen: React.FC = () => {
               <TouchableOpacity
                 style={styles.offerPrimaryCtaBtn}
                 activeOpacity={0.88}
-                onPress={() => {
-                  setSubscribed(true);
-                  navigate('Dashboard');
-                }}
+                onPress={handleCheckout}
               >
                 <Text style={styles.offerPrimaryCtaText}>OTTIENI IL MIO PIANO</Text>
               </TouchableOpacity>
@@ -2207,10 +2212,7 @@ export const QuizScreen: React.FC = () => {
               <TouchableOpacity
                 style={styles.offerPrimaryCtaBtn}
                 activeOpacity={0.88}
-                onPress={() => {
-                  setSubscribed(true);
-                  navigate('Dashboard');
-                }}
+                onPress={handleCheckout}
               >
                 <Text style={styles.offerPrimaryCtaText}>OTTIENI IL MIO PIANO</Text>
               </TouchableOpacity>
