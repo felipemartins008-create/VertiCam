@@ -1842,11 +1842,13 @@ export const QuizScreen: React.FC = () => {
               </View>
             </View>
 
-            {/* ── 3. SEZIONE: SCEGLI IL TUO PIANO ── */}
+            {/* ── 3. SEZIONE: SCEGLI IL TUO PIANO (MODELLATO SU BETTERME) ── */}
             <View style={styles.offerPricingSection}>
-              <Text style={styles.offerSectionTitle}>Scegli il tuo piano</Text>
+              <Text style={styles.offerHeadline}>
+                Ottieni risultati visibili in 4 settimane!
+              </Text>
 
-              {/* Grid de 3 Planos */}
+              {/* Grid de 3 Planos Estilo BetterMe */}
               <View style={styles.pricingCardsGrid}>
                 {/* Piano 1: Prova 1 settimana */}
                 <TouchableOpacity
@@ -1860,20 +1862,17 @@ export const QuizScreen: React.FC = () => {
                   <View style={styles.pricingCardHeader}>
                     <Text style={styles.pricingPlanName}>Prova di 1 sem</Text>
                     <View style={[styles.planRadioCircle, selectedPlan === '1_week' && styles.planRadioCircleActive]}>
-                      {selectedPlan === '1_week' && <View style={styles.planRadioInner} />}
+                      {selectedPlan === '1_week' && <Check size={13} color="#000000" strokeWidth={3.5} />}
                     </View>
                   </View>
                   <View style={styles.planDurationBadge}>
                     <Text style={styles.planDurationBadgeText}>PIANO 4-SETTIMANE</Text>
                   </View>
-                  <View style={styles.planPriceRow}>
-                    <Text style={styles.planOldPrice}>€40.00</Text>
-                    <Text style={styles.planCurrentPrice}>€19.99</Text>
+                  <Text style={styles.planTotalPriceText}>€40.00</Text>
+                  <View style={styles.planDailyPriceRow}>
+                    <Text style={styles.planDailyPriceDigits}>€5.71</Text>
+                    <Text style={styles.planDailySubText}>al giorno</Text>
                   </View>
-                  <View style={styles.planDivider} />
-                  <Text style={styles.planDailyPrice}>
-                    €2.85 <Text style={styles.planDailySub}>al giorno</Text>
-                  </Text>
                 </TouchableOpacity>
 
                 {/* Piano 2: Piano di 4 settimane (PIÙ POPOLARE) */}
@@ -1892,20 +1891,17 @@ export const QuizScreen: React.FC = () => {
                   <View style={styles.pricingCardHeader}>
                     <Text style={styles.pricingPlanName}>Piano di 4 sem</Text>
                     <View style={[styles.planRadioCircle, selectedPlan === '4_weeks' && styles.planRadioCircleActive]}>
-                      {selectedPlan === '4_weeks' && <Check size={14} color="#000000" strokeWidth={3} />}
+                      {selectedPlan === '4_weeks' && <Check size={13} color="#000000" strokeWidth={3.5} />}
                     </View>
                   </View>
-                  <View style={styles.planPriceRow}>
-                    <Text style={styles.planOldPrice}>€99.99</Text>
-                    <Text style={styles.planCurrentPrice}>€49.99</Text>
+                  <Text style={styles.planTotalPriceText}>€99.99</Text>
+                  <View style={styles.planDailyPriceRow}>
+                    <Text style={styles.planDailyPriceDigits}>€3.57</Text>
+                    <Text style={styles.planDailySubText}>al giorno</Text>
                   </View>
-                  <View style={styles.planDivider} />
-                  <Text style={styles.planDailyPrice}>
-                    €1.79 <Text style={styles.planDailySub}>al giorno</Text>
-                  </Text>
-                  <View style={styles.planGiftRow}>
-                    <Gift size={13} color="#EBE5D8" />
-                    <Text style={styles.planGiftText}>Include il piano di allenamento stampabile per il 2026</Text>
+                  <View style={styles.planGiftBox}>
+                    <Gift size={13} color="#A0A0A5" />
+                    <Text style={styles.planGiftText}>Include un piano di allenamento stampabile per il 2026</Text>
                   </View>
                 </TouchableOpacity>
 
@@ -1921,20 +1917,17 @@ export const QuizScreen: React.FC = () => {
                   <View style={styles.pricingCardHeader}>
                     <Text style={styles.pricingPlanName}>Piano di 12 sem</Text>
                     <View style={[styles.planRadioCircle, selectedPlan === '12_weeks' && styles.planRadioCircleActive]}>
-                      {selectedPlan === '12_weeks' && <View style={styles.planRadioInner} />}
+                      {selectedPlan === '12_weeks' && <Check size={13} color="#000000" strokeWidth={3.5} />}
                     </View>
                   </View>
-                  <View style={styles.planPriceRow}>
-                    <Text style={styles.planOldPrice}>€199.99</Text>
-                    <Text style={styles.planCurrentPrice}>€99.99</Text>
+                  <Text style={styles.planTotalPriceText}>€199.99</Text>
+                  <View style={styles.planDailyPriceRow}>
+                    <Text style={styles.planDailyPriceDigits}>€2.38</Text>
+                    <Text style={styles.planDailySubText}>al giorno</Text>
                   </View>
-                  <View style={styles.planDivider} />
-                  <Text style={styles.planDailyPrice}>
-                    €1.19 <Text style={styles.planDailySub}>al giorno</Text>
-                  </Text>
-                  <View style={styles.planGiftRow}>
+                  <View style={styles.planGiftBox}>
                     <Gift size={13} color="#A0A0A5" />
-                    <Text style={styles.planGiftText}>Include il piano di allenamento stampabile per il 2026</Text>
+                    <Text style={styles.planGiftText}>Include un piano di allenamento stampabile per il 2026</Text>
                   </View>
                 </TouchableOpacity>
               </View>
@@ -2117,20 +2110,17 @@ export const QuizScreen: React.FC = () => {
                   <View style={styles.pricingCardHeader}>
                     <Text style={styles.pricingPlanName}>Prova di 1 sem</Text>
                     <View style={[styles.planRadioCircle, selectedPlan === '1_week' && styles.planRadioCircleActive]}>
-                      {selectedPlan === '1_week' && <View style={styles.planRadioInner} />}
+                      {selectedPlan === '1_week' && <Check size={13} color="#000000" strokeWidth={3.5} />}
                     </View>
                   </View>
                   <View style={styles.planDurationBadge}>
                     <Text style={styles.planDurationBadgeText}>PIANO 4-SETTIMANE</Text>
                   </View>
-                  <View style={styles.planPriceRow}>
-                    <Text style={styles.planOldPrice}>€40.00</Text>
-                    <Text style={styles.planCurrentPrice}>€19.99</Text>
+                  <Text style={styles.planTotalPriceText}>€40.00</Text>
+                  <View style={styles.planDailyPriceRow}>
+                    <Text style={styles.planDailyPriceDigits}>€5.71</Text>
+                    <Text style={styles.planDailySubText}>al giorno</Text>
                   </View>
-                  <View style={styles.planDivider} />
-                  <Text style={styles.planDailyPrice}>
-                    €2.85 <Text style={styles.planDailySub}>al giorno</Text>
-                  </Text>
                 </TouchableOpacity>
 
                 {/* Piano 2 */}
@@ -2149,20 +2139,17 @@ export const QuizScreen: React.FC = () => {
                   <View style={styles.pricingCardHeader}>
                     <Text style={styles.pricingPlanName}>Piano di 4 sem</Text>
                     <View style={[styles.planRadioCircle, selectedPlan === '4_weeks' && styles.planRadioCircleActive]}>
-                      {selectedPlan === '4_weeks' && <Check size={14} color="#000000" strokeWidth={3} />}
+                      {selectedPlan === '4_weeks' && <Check size={13} color="#000000" strokeWidth={3.5} />}
                     </View>
                   </View>
-                  <View style={styles.planPriceRow}>
-                    <Text style={styles.planOldPrice}>€99.99</Text>
-                    <Text style={styles.planCurrentPrice}>€49.99</Text>
+                  <Text style={styles.planTotalPriceText}>€99.99</Text>
+                  <View style={styles.planDailyPriceRow}>
+                    <Text style={styles.planDailyPriceDigits}>€3.57</Text>
+                    <Text style={styles.planDailySubText}>al giorno</Text>
                   </View>
-                  <View style={styles.planDivider} />
-                  <Text style={styles.planDailyPrice}>
-                    €1.79 <Text style={styles.planDailySub}>al giorno</Text>
-                  </Text>
-                  <View style={styles.planGiftRow}>
-                    <Gift size={13} color="#EBE5D8" />
-                    <Text style={styles.planGiftText}>Include il piano di allenamento stampabile per il 2026</Text>
+                  <View style={styles.planGiftBox}>
+                    <Gift size={13} color="#A0A0A5" />
+                    <Text style={styles.planGiftText}>Include un piano di allenamento stampabile per il 2026</Text>
                   </View>
                 </TouchableOpacity>
 
@@ -2178,20 +2165,17 @@ export const QuizScreen: React.FC = () => {
                   <View style={styles.pricingCardHeader}>
                     <Text style={styles.pricingPlanName}>Piano di 12 sem</Text>
                     <View style={[styles.planRadioCircle, selectedPlan === '12_weeks' && styles.planRadioCircleActive]}>
-                      {selectedPlan === '12_weeks' && <View style={styles.planRadioInner} />}
+                      {selectedPlan === '12_weeks' && <Check size={13} color="#000000" strokeWidth={3.5} />}
                     </View>
                   </View>
-                  <View style={styles.planPriceRow}>
-                    <Text style={styles.planOldPrice}>€199.99</Text>
-                    <Text style={styles.planCurrentPrice}>€99.99</Text>
+                  <Text style={styles.planTotalPriceText}>€199.99</Text>
+                  <View style={styles.planDailyPriceRow}>
+                    <Text style={styles.planDailyPriceDigits}>€2.38</Text>
+                    <Text style={styles.planDailySubText}>al giorno</Text>
                   </View>
-                  <View style={styles.planDivider} />
-                  <Text style={styles.planDailyPrice}>
-                    €1.19 <Text style={styles.planDailySub}>al giorno</Text>
-                  </Text>
-                  <View style={styles.planGiftRow}>
+                  <View style={styles.planGiftBox}>
                     <Gift size={13} color="#A0A0A5" />
-                    <Text style={styles.planGiftText}>Include il piano di allenamento stampabile per il 2026</Text>
+                    <Text style={styles.planGiftText}>Include un piano di allenamento stampabile per il 2026</Text>
                   </View>
                 </TouchableOpacity>
               </View>
@@ -4130,48 +4114,52 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
-  // Grid Planos
+  // Grid Planos (Modelado fielmente ao BetterMe)
   pricingCardsGrid: {
     width: '100%',
+    maxWidth: 960,
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    gap: 14,
-    marginBottom: 24,
+    alignItems: 'stretch',
+    gap: 16,
+    marginBottom: 28,
   },
   pricingCardItem: {
     flex: 1,
-    minWidth: 220,
-    maxWidth: 250,
-    backgroundColor: '#161922',
-    borderRadius: 20,
-    padding: 18,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    minWidth: 260,
+    maxWidth: 300,
+    backgroundColor: '#222224',
+    borderRadius: 18,
+    paddingVertical: 24,
+    paddingHorizontal: 20,
+    borderWidth: 2,
+    borderColor: 'transparent',
     position: 'relative',
+    justifyContent: 'space-between',
   },
   pricingCardPopular: {
-    borderColor: 'rgba(235, 229, 216, 0.5)',
+    borderColor: '#EBE5D8',
+    paddingTop: 36,
   },
   pricingCardItemSelected: {
     borderColor: '#EBE5D8',
-    backgroundColor: '#1B1E28',
   },
   popularTopBadge: {
     position: 'absolute',
-    top: -1,
-    left: -1,
-    right: -1,
+    top: -2,
+    left: -2,
+    right: -2,
     backgroundColor: '#EBE5D8',
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 18,
-    paddingVertical: 5,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    paddingVertical: 7,
     alignItems: 'center',
     justifyContent: 'center',
   },
   popularTopBadgeText: {
     color: '#1C1C1E',
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '900',
     letterSpacing: 0.8,
   },
@@ -4179,110 +4167,98 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 18,
     marginBottom: 8,
   },
   pricingPlanName: {
     color: '#FFFFFF',
-    fontSize: 17,
+    fontSize: 22,
     fontWeight: '800',
+    letterSpacing: -0.3,
   },
   planRadioCircle: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 1.8,
-    borderColor: '#555555',
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 1.5,
+    borderColor: '#666666',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'transparent',
   },
   planRadioCircleActive: {
-    borderColor: '#EBE5D8',
-    backgroundColor: '#EBE5D8',
-  },
-  planRadioInner: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#1C1C1E',
+    borderColor: '#FFFFFF',
+    backgroundColor: '#FFFFFF',
   },
   planDurationBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.07)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     paddingVertical: 3,
-    paddingHorizontal: 7,
+    paddingHorizontal: 8,
     borderRadius: 6,
     alignSelf: 'flex-start',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   planDurationBadgeText: {
-    color: '#8A8D9B',
+    color: '#A0A0A5',
     fontSize: 10,
     fontWeight: '800',
+    letterSpacing: 0.3,
   },
-  planPriceRow: {
+  planTotalPriceText: {
+    color: '#8E8E93',
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 16,
+  },
+  planDailyPriceRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    gap: 8,
+    gap: 5,
     marginBottom: 8,
   },
-  planOldPrice: {
-    color: '#777777',
-    fontSize: 13,
-    textDecorationLine: 'line-through',
-  },
-  planCurrentPrice: {
+  planDailyPriceDigits: {
     color: '#FFFFFF',
-    fontSize: 18,
+    fontSize: 32,
     fontWeight: '900',
+    letterSpacing: -0.5,
   },
-  planDivider: {
-    width: '100%',
-    height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-    marginVertical: 8,
+  planDailySubText: {
+    color: '#8E8E93',
+    fontSize: 12,
+    fontWeight: '600',
   },
-  planDailyPrice: {
-    color: '#FFFFFF',
-    fontSize: 22,
-    fontWeight: '900',
-    marginBottom: 10,
-  },
-  planDailySub: {
-    color: '#8A8D9B',
-    fontSize: 11,
-    fontWeight: '500',
-  },
-  planGiftRow: {
+  planGiftBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-    padding: 8,
+    gap: 8,
+    backgroundColor: '#2A2A2E',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     borderRadius: 8,
-    marginTop: 4,
+    marginTop: 14,
   },
   planGiftText: {
-    color: '#C0C0C8',
-    fontSize: 10.5,
-    lineHeight: 14,
+    color: '#B5B5BE',
+    fontSize: 11,
+    lineHeight: 15,
     flex: 1,
   },
 
   offerPrimaryCtaBtn: {
     backgroundColor: '#EBE5D8',
-    borderRadius: 30,
-    paddingVertical: 16,
+    borderRadius: 34,
+    paddingVertical: 18,
     paddingHorizontal: 48,
     width: '100%',
-    maxWidth: 420,
+    maxWidth: 360,
     alignItems: 'center',
     justifyContent: 'center',
+    alignSelf: 'center',
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 10,
     elevation: 8,
-    marginTop: 12,
+    marginTop: 18,
     marginBottom: 16,
   },
   offerPrimaryCtaText: {
