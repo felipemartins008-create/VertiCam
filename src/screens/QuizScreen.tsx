@@ -217,6 +217,9 @@ export const QuizScreen: React.FC = () => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const countdownMins = Math.floor(secondsRemaining / 60).toString().padStart(2, '0');
+  const countdownSecs = (secondsRemaining % 60).toString().padStart(2, '0');
+
   const handleNextStep = () => {
     setCurrentStep((prev) => prev + 1);
   };
@@ -516,7 +519,13 @@ export const QuizScreen: React.FC = () => {
     <View style={styles.screenWrapper}>
       {/* ── TOP HEADER & BARRA DE PROGRESSO (ESTILO BETTERME) ── */}
       <View style={styles.headerContainer}>
-        <View style={[styles.headerBar, currentStep === 12 && { justifyContent: 'center' }]}>
+        <View
+          style={[
+            styles.headerBar,
+            currentStep === 12 && { justifyContent: 'center' },
+            currentStep === 13 && styles.headerBarOffer,
+          ]}
+        >
           <View style={[styles.headerLeft, currentStep === 12 && { justifyContent: 'center', gap: 0 }]}>
             {currentStep > 0 && currentStep !== 12 && currentStep !== 13 && (
               <TouchableOpacity onPress={handleBack} style={styles.headerBackBtn} activeOpacity={0.7}>
@@ -544,10 +553,21 @@ export const QuizScreen: React.FC = () => {
           {/* Timer di Urgenza Header (Step 13 - Offerta BetterMe) */}
           {currentStep === 13 && (
             <View style={styles.headerOfferTimerBox}>
-              <Text style={styles.headerOfferTimerLabel}>Lo sconto è riservato per:</Text>
-              <View style={styles.headerOfferTimerDigitsWrap}>
-                <Text style={styles.headerOfferTimerDigits}>{formatCountdown(secondsRemaining)}</Text>
-                <Text style={styles.headerOfferTimerSub}>minuti secondi</Text>
+              <Text style={styles.headerOfferTimerLabel}>
+                {isDesktop ? 'Lo sconto è riservato per:' : 'Sconto riservato:'}
+              </Text>
+              <View style={styles.betterMeTimerWidget}>
+                <View style={styles.timerDigitUnitCol}>
+                  <Text style={styles.betterMeTimerDigits}>{countdownMins}</Text>
+                  <Text style={styles.betterMeTimerUnitText}>minuti</Text>
+                </View>
+
+                <Text style={styles.betterMeTimerColon}>:</Text>
+
+                <View style={styles.timerDigitUnitCol}>
+                  <Text style={styles.betterMeTimerDigits}>{countdownSecs}</Text>
+                  <Text style={styles.betterMeTimerUnitText}>secondi</Text>
+                </View>
               </View>
             </View>
           )}
@@ -1831,10 +1851,19 @@ export const QuizScreen: React.FC = () => {
                   </View>
 
                   <View style={styles.couponTimerBox}>
-                    <Text style={styles.couponTimerDigits}>
-                      {formatCountdown(secondsRemaining)}
-                    </Text>
-                    <Text style={styles.couponTimerSub}>minuti secondi</Text>
+                    <View style={styles.betterMeTimerWidget}>
+                      <View style={styles.timerDigitUnitCol}>
+                        <Text style={styles.betterMeTimerDigits}>{countdownMins}</Text>
+                        <Text style={styles.couponTimerUnitText}>minuti</Text>
+                      </View>
+
+                      <Text style={styles.betterMeTimerColon}>:</Text>
+
+                      <View style={styles.timerDigitUnitCol}>
+                        <Text style={styles.betterMeTimerDigits}>{countdownSecs}</Text>
+                        <Text style={styles.couponTimerUnitText}>secondi</Text>
+                      </View>
+                    </View>
                   </View>
                 </View>
               </View>
@@ -2283,6 +2312,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 24,
+  },
+  headerBarOffer: {
+    height: 70,
+    paddingHorizontal: 20,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -3943,46 +3976,68 @@ const styles = StyleSheet.create({
     lineHeight: 20.5,
   },
 
-  // ── HEADER OFFERTA (STEP 13) ──
+  // ── HEADER OFFERTA (STEP 13 - ESTILO BETTERME) ──
   headerOfferTimerBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
   },
   headerOfferTimerLabel: {
-    color: '#A0A0A5',
-    fontSize: 12,
-    fontWeight: '600',
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '500',
+    letterSpacing: -0.2,
   },
-  headerOfferTimerDigitsWrap: {
+  betterMeTimerWidget: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'flex-start',
     gap: 4,
   },
-  headerOfferTimerDigits: {
+  timerDigitUnitCol: {
+    alignItems: 'center',
+    minWidth: 32,
+  },
+  betterMeTimerDigits: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 26,
     fontWeight: '900',
+    lineHeight: 28,
     letterSpacing: 0.5,
   },
-  headerOfferTimerSub: {
+  betterMeTimerColon: {
+    color: '#FFFFFF',
+    fontSize: 24,
+    fontWeight: '900',
+    lineHeight: 26,
+    marginHorizontal: 1,
+  },
+  betterMeTimerUnitText: {
     color: '#8A8D9B',
     fontSize: 9.5,
     fontWeight: '600',
+    marginTop: 1,
+    textTransform: 'lowercase',
+  },
+  couponTimerUnitText: {
+    color: '#FFE2CC',
+    fontSize: 9.5,
+    fontWeight: '600',
+    marginTop: 1,
+    textTransform: 'lowercase',
   },
   headerOfferCtaBtn: {
     backgroundColor: '#EBE5D8',
-    borderRadius: 20,
-    paddingVertical: 7,
-    paddingHorizontal: 16,
+    borderRadius: 22,
+    paddingVertical: 9,
+    paddingHorizontal: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerOfferCtaText: {
     color: '#1C1C1E',
-    fontSize: 12,
+    fontSize: 12.5,
     fontWeight: '900',
-    letterSpacing: 0.5,
+    letterSpacing: 0.6,
   },
 
   // ── STEP 13: OFFERTA MODELLATA BETTERME ──
@@ -4182,17 +4237,7 @@ const styles = StyleSheet.create({
   },
   couponTimerBox: {
     alignItems: 'flex-end',
-  },
-  couponTimerDigits: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '900',
-    letterSpacing: 0.8,
-  },
-  couponTimerSub: {
-    color: '#FFE2CC',
-    fontSize: 10,
-    fontWeight: '600',
+    justifyContent: 'center',
   },
 
   // Grid Planos
