@@ -11,6 +11,7 @@ import {
   useWindowDimensions,
   PanResponder,
 } from 'react-native';
+import Svg, { Circle } from 'react-native-svg';
 import {
   ChevronRight,
   ArrowLeft,
@@ -162,30 +163,35 @@ export const QuizScreen: React.FC = () => {
   const [secondsRemaining, setSecondsRemaining] = useState<number>(894);
 
   const analysisSteps = [
-    'Analisi della curva di forza elastica e reattività...',
-    'Valutazione del deficit EUR (Countermovement vs Squat Jump)...',
-    'Calcolo del rischio di sovraccarico del tendine rotuleo...',
-    'Configurazione del protocollo balistico autoregolato...',
-    'Calcolo del potenziale di elevazione: +8.4 cm stimati!',
+    'Creazione del tuo piano di salto personalizzato...',
+    'Analisi dei parametri biometrici e rapporto peso-potenza...',
+    'Calibrazione della curva di forza elastica e reattività...',
+    'Calcolo del volume balistico per la protezione tendinea...',
+    'Finalizzazione del programma e della stima di salto...',
   ];
 
-  // Loader automatico per Step 12
+  // Loader automatico per Step 12 (Progresso fluido stile BetterMe)
   useEffect(() => {
     if (currentStep === 12) {
-      setAnalysisProgress(10);
+      setAnalysisProgress(3);
+      setAnalysisTextIndex(0);
       const interval = setInterval(() => {
         setAnalysisProgress((prev) => {
           if (prev >= 100) {
             clearInterval(interval);
-            setTimeout(() => setCurrentStep(13), 400);
+            setTimeout(() => setCurrentStep(13), 600);
             return 100;
           }
-          const next = prev + 20;
-          const nextIdx = Math.min(Math.floor((next / 100) * (analysisSteps.length - 1)), analysisSteps.length - 1);
+          const increment = prev < 30 ? 2 : prev < 75 ? 1 : prev < 90 ? 2 : 1;
+          const next = Math.min(100, prev + increment);
+          const nextIdx = Math.min(
+            Math.floor((next / 100) * analysisSteps.length),
+            analysisSteps.length - 1
+          );
           setAnalysisTextIndex(nextIdx);
           return next;
         });
-      }, 500);
+      }, 70);
       return () => clearInterval(interval);
     }
   }, [currentStep]);
@@ -505,8 +511,8 @@ export const QuizScreen: React.FC = () => {
     <View style={styles.screenWrapper}>
       {/* ── TOP HEADER & BARRA DE PROGRESSO (ESTILO BETTERME) ── */}
       <View style={styles.headerContainer}>
-        <View style={styles.headerBar}>
-          <View style={styles.headerLeft}>
+        <View style={[styles.headerBar, currentStep === 12 && { justifyContent: 'center' }]}>
+          <View style={[styles.headerLeft, currentStep === 12 && { justifyContent: 'center', gap: 0 }]}>
             {currentStep > 0 && currentStep !== 12 && (
               <TouchableOpacity onPress={handleBack} style={styles.headerBackBtn} activeOpacity={0.7}>
                 <ArrowLeft size={18} color="#FFFFFF" />
@@ -530,9 +536,11 @@ export const QuizScreen: React.FC = () => {
             </Text>
           )}
 
-          <TouchableOpacity style={styles.headerMenuBtn} activeOpacity={0.7}>
-            <Menu size={16} color="#FFFFFF" />
-          </TouchableOpacity>
+          {currentStep !== 12 && (
+            <TouchableOpacity style={styles.headerMenuBtn} activeOpacity={0.7}>
+              <Menu size={16} color="#FFFFFF" />
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* ── BARRA DE PROGRESSO SEGMENTADA EM 4 ETAPAS (ESTILO BETTERME) ── */}
@@ -1610,22 +1618,87 @@ export const QuizScreen: React.FC = () => {
         )}
 
         {/* ══════════════════════════════════════════════════════
-            STEP 12 (10): CARICAMENTO & ANALISI IA (LOADER)
+            STEP 12: LOADER BIOMECCANICO ESTILO BETTERME
            ══════════════════════════════════════════════════════ */}
         {currentStep === 12 && (
-          <View style={styles.loadingContainer}>
-            <Text style={styles.mainTitle}>ELABORAZIONE PIANO BIOMECCANICO</Text>
-            <Text style={styles.mainSubtitle}>ATTENDI LA CALIBRAZIONE DELLA TUA CURVA DI FORZA</Text>
+          <View style={styles.betterMeLoaderWrapper}>
+            {/* ── 1. CIRCULAR PROGRESS RING (ESTILO BETTERME) ── */}
+            <View style={styles.circularLoaderContainer}>
+              <View style={styles.circleSvgWrapper}>
+                <Svg width={140} height={140} viewBox="0 0 140 140">
+                  {/* Trilha do Círculo */}
+                  <Circle
+                    cx="70"
+                    cy="70"
+                    r="56"
+                    stroke="rgba(255, 255, 255, 0.12)"
+                    strokeWidth="7"
+                    fill="none"
+                  />
+                  {/* Arco de Progresso Marfim/Creme */}
+                  <Circle
+                    cx="70"
+                    cy="70"
+                    r="56"
+                    stroke="#EBE5D8"
+                    strokeWidth="7"
+                    strokeDasharray={2 * Math.PI * 56}
+                    strokeDashoffset={
+                      2 * Math.PI * 56 - (2 * Math.PI * 56 * analysisProgress) / 100
+                    }
+                    strokeLinecap="round"
+                    fill="none"
+                    transform="rotate(-90 70 70)"
+                  />
+                </Svg>
 
-            <View style={styles.loadingCard}>
-              <ActivityIndicator size="large" color={Colors.primary} />
-              <Text style={styles.loadingPercentText}>{analysisProgress}%</Text>
-              <Text style={styles.loadingStatusText}>
+                {/* Porcentagem Central */}
+                <View style={styles.circleCenterPercentBox}>
+                  <Text style={styles.circleCenterPercentText}>{analysisProgress}%</Text>
+                </View>
+              </View>
+
+              {/* Texto de Status da IA / Fase */}
+              <Text style={styles.loaderStatusMessage}>
                 {analysisSteps[analysisTextIndex]}
               </Text>
+            </View>
 
-              <View style={styles.trackLoading}>
-                <View style={[styles.fillLoading, { width: `${analysisProgress}%` }]} />
+            {/* ── 2. LINHA DIVISÓRIA SUTIL ── */}
+            <View style={styles.loaderDividerLine} />
+
+            {/* ── 3. PROVA SOCIAL EM GRANDE ESCALA ── */}
+            <View style={styles.loaderSocialProofSection}>
+              <Text style={styles.loaderSocialCount}>
+                {gender === 'female' ? '68.000 atlete.' : '85.000 atleti.'}
+              </Text>
+              <Text style={styles.loaderSocialSub}>
+                hanno scelto VertiCam per aumentare l'elevazione
+              </Text>
+
+              {/* ── 4. CARD DE DEPOIMENTO ESTILO TRUSTPILOT ── */}
+              <View style={styles.loaderTestimonialCard}>
+                <View style={styles.loaderTestimonialHeader}>
+                  <View style={styles.trustpilotStarsRow}>
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <View key={s} style={styles.trustpilotStarBox}>
+                        <Star size={11} color="#FFFFFF" fill="#FFFFFF" />
+                      </View>
+                    ))}
+                  </View>
+                  <Text style={styles.loaderAuthorName}>
+                    {gender === 'female' ? 'Giulia B.' : 'Matteo R.'}
+                  </Text>
+                </View>
+
+                <Text style={styles.loaderReviewHeadline}>
+                  Sento la differenza
+                </Text>
+                <Text style={styles.loaderReviewBody}>
+                  {gender === 'female'
+                    ? 'Fantastico, dopo 20 giorni di allenamento noto già una reattività incredibile nello stacco a muro e non ho più fastidi al ginocchio. Consiglio a tutte le pallavoliste!'
+                    : 'Geniale, dopo 20 giorni di allenamento sento già la differenza: salto molto più in alto sopra il nastro ed è sparito ogni dolore al tendine rotuleo. Top!'}
+                </Text>
               </View>
             </View>
           </View>
@@ -1792,15 +1865,17 @@ export const QuizScreen: React.FC = () => {
           </View>
         )}
 
-        {/* ── FOOTER BETTERME COM DISCLAIMER & SUPPORTO ── */}
-        <View style={styles.betterMeFooter}>
-          <Text style={styles.legalDisclaimer}>
-            Selezionando la tua opzione e continuando, accetti i nostri{' '}
-            <Text style={styles.legalLink}>Termini di Servizio</Text> |{' '}
-            <Text style={styles.legalLink}>Informativa sulla Privacy</Text>
-          </Text>
-          <Text style={styles.readBeforeNotice}>Leggi prima di continuare</Text>
-        </View>
+        {/* ── FOOTER BETTERME COM DISCLAIMER & SUPPORTO (oculto no loader Step 12) ── */}
+        {currentStep !== 12 && (
+          <View style={styles.betterMeFooter}>
+            <Text style={styles.legalDisclaimer}>
+              Selezionando la tua opzione e continuando, accetti i nostri{' '}
+              <Text style={styles.legalLink}>Termini di Servizio</Text> |{' '}
+              <Text style={styles.legalLink}>Informativa sulla Privacy</Text>
+            </Text>
+            <Text style={styles.readBeforeNotice}>Leggi prima di continuare</Text>
+          </View>
+        )}
       </ScrollView>
 
       {/* ── BARRA FLUTTUANTE INFERIORE (STEP 6 & STEP 7: BOTTONE ESTILO BETTERME) ── */}
@@ -1818,8 +1893,8 @@ export const QuizScreen: React.FC = () => {
         </View>
       )}
 
-      {/* Floating Help Button (oculto nos Steps 6 e 7 para dar lugar ao botão flutuante) */}
-      {currentStep !== 6 && currentStep !== 7 && (
+      {/* Floating Help Button (oculto nos Steps 6, 7 e no loader 12) */}
+      {currentStep !== 6 && currentStep !== 7 && currentStep !== 12 && (
         <TouchableOpacity style={styles.floatingHelpBtn} activeOpacity={0.8}>
           <HelpCircle size={15} color="#000000" />
           <Text style={styles.floatingHelpText}>Aiuto</Text>
@@ -3390,47 +3465,125 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
 
-  // ── STEP 12: LOADER BETTERME ──
-  loadingContainer: {
+  // ── BETTERME STEP 12: LOADER BIOMECCANICO ──
+  betterMeLoaderWrapper: {
     width: '100%',
-    maxWidth: 600,
+    maxWidth: 580,
     alignItems: 'center',
-    paddingVertical: 40,
+    paddingVertical: 36,
+    paddingHorizontal: 16,
   },
-  loadingCard: {
-    width: '100%',
-    backgroundColor: '#161922',
-    borderRadius: 20,
-    padding: 32,
+  circularLoaderContainer: {
     alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    paddingVertical: 10,
+  },
+  circleSvgWrapper: {
+    width: 140,
+    height: 140,
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  circleCenterPercentBox: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  circleCenterPercentText: {
+    fontSize: 34,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: -0.5,
+  },
+  loaderStatusMessage: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    fontWeight: '600',
+    textAlign: 'center',
+    maxWidth: 420,
+    lineHeight: 22,
+    minHeight: 44,
+  },
+  loaderDividerLine: {
+    width: '100%',
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    marginVertical: 36,
+  },
+  loaderSocialProofSection: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  loaderSocialCount: {
+    fontSize: 36,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: -0.8,
+    textAlign: 'center',
+    marginBottom: 6,
+  },
+  loaderSocialSub: {
+    fontSize: 16,
+    color: '#A0A0A5',
+    fontWeight: '500',
+    textAlign: 'center',
+    marginBottom: 32,
+  },
+  loaderTestimonialCard: {
+    width: '100%',
+    maxWidth: 460,
+    backgroundColor: '#161922',
+    borderRadius: 18,
+    padding: 22,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.08)',
-    marginTop: 20,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 6,
   },
-  loadingPercentText: {
-    fontSize: 52,
-    fontWeight: '900',
-    color: Colors.primary,
-    marginVertical: 14,
+  loaderTestimonialHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
   },
-  loadingStatusText: {
-    fontSize: 18,
-    fontWeight: '700',
+  trustpilotStarsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  trustpilotStarBox: {
+    width: 20,
+    height: 20,
+    borderRadius: 3,
+    backgroundColor: '#00B67A', // Trustpilot Green
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loaderAuthorName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#8A8D9B',
+  },
+  loaderReviewHeadline: {
+    fontSize: 16.5,
+    fontWeight: '800',
     color: '#FFFFFF',
-    textAlign: 'center',
-    marginBottom: 24,
-    minHeight: 46,
+    marginBottom: 8,
   },
-  trackLoading: {
-    width: '100%',
-    height: 10,
-    backgroundColor: '#0A0C12',
-    borderRadius: 5,
-    overflow: 'hidden',
-  },
-  fillLoading: {
-    height: '100%',
-    backgroundColor: Colors.primary,
+  loaderReviewBody: {
+    fontSize: 14,
+    color: '#D0D0D5',
+    lineHeight: 20.5,
   },
 
   // ── STEP 13: LANDING PAGE DI VENDITA & DIAGNOSI ──
