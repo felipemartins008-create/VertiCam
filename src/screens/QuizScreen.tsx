@@ -4377,38 +4377,31 @@ const styles = StyleSheet.create({
     width: 165,
     alignItems: 'center',
   },
+  // Nessuna ombra sul contenitore: su web shadow* diventa box-shadow rettangolare.
   phoneFrameContainer: {
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 14,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.5,
-    shadowRadius: 18,
-    elevation: 8,
-    ...(Platform.OS === 'web' && {
-      filter: 'drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.6))',
-    }),
+    backgroundColor: 'transparent',
   },
   phoneFrameHighlight: {
-    shadowColor: '#00E5FF',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.9,
-    shadowRadius: 26,
-    elevation: 14,
     zIndex: 2,
-    ...(Platform.OS === 'web' && {
-      filter: 'drop-shadow(0px 0px 24px rgba(0, 229, 255, 0.8)) drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.5))',
-    }),
   },
+  // Il drop-shadow segue la sagoma trasparente del PNG (niente rettangolo)
   phoneMockupImage: {
     width: 144,
     height: 270,
+    ...(Platform.OS === 'web' && {
+      filter: 'drop-shadow(0px 8px 14px rgba(0, 0, 0, 0.55))',
+    }),
   },
   phoneMockupImageHighlight: {
     width: 152,
     height: 285,
     transform: [{ translateY: -6 }],
+    ...(Platform.OS === 'web' && {
+      filter: 'drop-shadow(0px 0px 10px rgba(0, 229, 255, 0.9)) drop-shadow(0px 0px 24px rgba(0, 229, 255, 0.55))',
+    }),
   },
   phoneMockupImageMobile: {
     width: 132,
