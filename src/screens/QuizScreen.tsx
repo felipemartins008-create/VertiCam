@@ -35,6 +35,8 @@ import {
   Calendar,
   Cpu,
   X,
+  Gift,
+  Tag,
 } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
 import { useApp } from '../context/AppContext';
@@ -159,8 +161,11 @@ export const QuizScreen: React.FC = () => {
   const [analysisProgress, setAnalysisProgress] = useState<number>(10);
   const [analysisTextIndex, setAnalysisTextIndex] = useState<number>(0);
 
-  // Countdown timer per offerta (Step 13 - 15 minuti)
-  const [secondsRemaining, setSecondsRemaining] = useState<number>(894);
+  // Offerta Plan selection (Step 13)
+  const [selectedPlan, setSelectedPlan] = useState<'4_weeks' | '1_week' | '12_weeks'>('4_weeks');
+
+  // Countdown timer per offerta (Step 13 - 09:41 stile BetterMe)
+  const [secondsRemaining, setSecondsRemaining] = useState<number>(581);
 
   const analysisSteps = [
     'Creazione del tuo piano di salto personalizzato...',
@@ -513,7 +518,7 @@ export const QuizScreen: React.FC = () => {
       <View style={styles.headerContainer}>
         <View style={[styles.headerBar, currentStep === 12 && { justifyContent: 'center' }]}>
           <View style={[styles.headerLeft, currentStep === 12 && { justifyContent: 'center', gap: 0 }]}>
-            {currentStep > 0 && currentStep !== 12 && (
+            {currentStep > 0 && currentStep !== 12 && currentStep !== 13 && (
               <TouchableOpacity onPress={handleBack} style={styles.headerBackBtn} activeOpacity={0.7}>
                 <ArrowLeft size={18} color="#FFFFFF" />
               </TouchableOpacity>
@@ -523,7 +528,7 @@ export const QuizScreen: React.FC = () => {
             </Text>
           </View>
 
-          {/* Nome da categoria no centro (Estilo BetterMe) */}
+          {/* Nome da categoria no centro (Estilo BetterMe Steps 1 a 11) */}
           {currentStep > 0 && currentStep < 12 && (
             <Text style={styles.headerCategoryText}>
               {currentStep <= 3
@@ -536,11 +541,37 @@ export const QuizScreen: React.FC = () => {
             </Text>
           )}
 
-          {currentStep !== 12 && (
-            <TouchableOpacity style={styles.headerMenuBtn} activeOpacity={0.7}>
-              <Menu size={16} color="#FFFFFF" />
-            </TouchableOpacity>
+          {/* Timer di Urgenza Header (Step 13 - Offerta BetterMe) */}
+          {currentStep === 13 && (
+            <View style={styles.headerOfferTimerBox}>
+              <Text style={styles.headerOfferTimerLabel}>Lo sconto è riservato per:</Text>
+              <View style={styles.headerOfferTimerDigitsWrap}>
+                <Text style={styles.headerOfferTimerDigits}>{formatCountdown(secondsRemaining)}</Text>
+                <Text style={styles.headerOfferTimerSub}>minuti secondi</Text>
+              </View>
+            </View>
           )}
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            {currentStep === 13 && (
+              <TouchableOpacity
+                style={styles.headerOfferCtaBtn}
+                activeOpacity={0.85}
+                onPress={() => {
+                  setSubscribed(true);
+                  navigate('Dashboard');
+                }}
+              >
+                <Text style={styles.headerOfferCtaText}>OTTIENI IL MIO PIANO</Text>
+              </TouchableOpacity>
+            )}
+
+            {currentStep !== 12 && (
+              <TouchableOpacity style={styles.headerMenuBtn} activeOpacity={0.7}>
+                <Menu size={16} color="#FFFFFF" />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
 
         {/* ── BARRA DE PROGRESSO SEGMENTADA EM 4 ETAPAS (ESTILO BETTERME) ── */}
@@ -1705,168 +1736,494 @@ export const QuizScreen: React.FC = () => {
         )}
 
         {/* ══════════════════════════════════════════════════════
-            STEP 13 (11): OFFERTA & DIAGNOSTICA (LANDING PAGE)
+            STEP 13: PAGINA FINALE OFFERTA (MODELLATA BETTERME)
            ══════════════════════════════════════════════════════ */}
         {currentStep === 13 && (
-          <View style={styles.pitchContainer}>
-            {/* Banner Urgenza con Countdown */}
-            <View style={styles.urgencyBanner}>
-              <Flame size={18} color="#FF9100" />
-              <Text style={styles.urgencyBannerText}>
-                OFFERTA DI BENVENUTO RISERVATA • SCONTO -57% VALIDO ANCORA PER:{' '}
-                <Text style={styles.countdownTimer}>{formatCountdown(secondsRemaining)}</Text>
-              </Text>
-            </View>
-
-            <Text style={styles.mainTitle}>IL TUO PIANO DI ELEVAZIONE È PRONTO</Text>
-            <Text style={styles.mainSubtitle}>
-              ANALISI COMPLETATA CON SUCCESSO SUI TUOI PARAMETRI BIOMETRICI
+          <View style={styles.offerPageWrapper}>
+            {/* ── 1. TITOLO PRINCIPALE ── */}
+            <Text style={styles.offerHeadline}>
+              Il tuo piano di salto personalizzato è pronto!
             </Text>
 
-            <View style={styles.pitchContentCard}>
-              {/* Gráfico Comparativo do Salto */}
-              <View style={styles.pitchGraphRow}>
-                <View style={styles.pitchGraphCol}>
-                  <Text style={styles.pitchGraphNumber}>{currentJumpEstimated} cm</Text>
-                  <View style={[styles.pitchGraphBar, { height: 110, backgroundColor: '#333846' }]} />
-                  <Text style={styles.pitchGraphLabel}>Salto Attuale (Stima)</Text>
+            {/* ── 2. CARD COMPARATIVA PRIMA / DOPO (STILE BETTERME) ── */}
+            <View style={styles.offerComparisonCard}>
+              {/* Header Tab: Ora vs Il tuo obiettivo */}
+              <View style={styles.offerComparisonTabsHeader}>
+                <View style={styles.offerTabHalf}>
+                  <Text style={styles.offerTabLabel}>Ora</Text>
                 </View>
+                <View style={styles.offerTabDividerVertical} />
+                <View style={styles.offerTabHalf}>
+                  <Text style={[styles.offerTabLabel, { color: '#EBE5D8' }]}>Il tuo obiettivo</Text>
+                </View>
+              </View>
 
-                <View style={styles.pitchGraphCol}>
-                  <View style={styles.gainTagFloating}>
-                    <Text style={styles.gainTagFloatingText}>+{potentialGain.toFixed(1)} cm 🔥</Text>
+              {/* Immagine Atleta Prima / Dopo */}
+              <View style={styles.offerAthleteImageWrap}>
+                <Image
+                  source={
+                    gender === 'female'
+                      ? require('../../assets/proof-jump-female.png')
+                      : require('../../assets/proof-jump-male.png')
+                  }
+                  style={styles.offerAthleteImage}
+                  resizeMode="cover"
+                />
+              </View>
+
+              {/* Parametri di Confronto in Basso */}
+              <View style={styles.offerMetricsComparisonRow}>
+                {/* Colonna Sinistra (Ora) */}
+                <View style={styles.offerMetricCol}>
+                  <Text style={styles.offerMetricCategory}>Elevazione attuale</Text>
+                  <Text style={styles.offerMetricValue}>{currentJumpEstimated} cm</Text>
+
+                  <Text style={[styles.offerMetricCategory, { marginTop: 14 }]}>Reattività neuromuscolare</Text>
+                  <Text style={styles.offerMetricValue}>Base</Text>
+                  <View style={styles.offerLevelBarRow}>
+                    <View style={[styles.offerLevelSegment, styles.offerLevelSegmentActive]} />
+                    <View style={styles.offerLevelSegment} />
+                    <View style={styles.offerLevelSegment} />
                   </View>
-                  <Text style={[styles.pitchGraphNumber, { color: Colors.primary }]}>
-                    {potentialJumpProjected.toFixed(1)} cm
+                </View>
+
+                <View style={styles.offerMetricColDivider} />
+
+                {/* Colonna Destra (Il tuo obiettivo) */}
+                <View style={styles.offerMetricCol}>
+                  <Text style={styles.offerMetricCategory}>Elevazione obiettivo</Text>
+                  <Text style={[styles.offerMetricValue, { color: '#EBE5D8' }]}>
+                    {potentialJumpProjected.toFixed(0)} cm (+{potentialGain.toFixed(0)} cm)
                   </Text>
-                  <View style={[styles.pitchGraphBar, { height: 175, backgroundColor: Colors.primary }]} />
-                  <Text style={[styles.pitchGraphLabel, { color: Colors.primary, fontWeight: '800' }]}>
-                    Con VertiCam
-                  </Text>
+
+                  <Text style={[styles.offerMetricCategory, { marginTop: 14 }]}>Reattività neuromuscolare</Text>
+                  <Text style={[styles.offerMetricValue, { color: '#EBE5D8' }]}>Avanzato (Serie A)</Text>
+                  <View style={styles.offerLevelBarRow}>
+                    <View style={[styles.offerLevelSegment, styles.offerLevelSegmentActiveCream]} />
+                    <View style={[styles.offerLevelSegment, styles.offerLevelSegmentActiveCream]} />
+                    <View style={[styles.offerLevelSegment, styles.offerLevelSegmentActiveCream]} />
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* ── 3. SEZIONE: SCEGLI IL TUO PIANO + TICKET COUPON ── */}
+            <View style={styles.offerPricingSection}>
+              <Text style={styles.offerSectionTitle}>Scegli il tuo piano</Text>
+
+              {/* Banner Ticket Coupon Sconto Perforato */}
+              <View style={styles.couponTicketBanner}>
+                {/* Recortes de Ticket nas bordas */}
+                <View style={styles.ticketNotchLeft} />
+                <View style={styles.ticketNotchRight} />
+
+                <View style={styles.couponTicketTop}>
+                  <Tag size={16} color="#FFFFFF" />
+                  <Text style={styles.couponTicketTopText}>Il tuo codice promozionale è applicato!</Text>
+                </View>
+
+                <View style={styles.couponDashedLine} />
+
+                <View style={styles.couponTicketBottom}>
+                  <View style={styles.couponCodePill}>
+                    <Check size={14} color="#00E5FF" strokeWidth={3} />
+                    <Text style={styles.couponCodeText}>er_oct26</Text>
+                  </View>
+
+                  <View style={styles.couponTimerBox}>
+                    <Text style={styles.couponTimerDigits}>
+                      {formatCountdown(secondsRemaining)}
+                    </Text>
+                    <Text style={styles.couponTimerSub}>minuti secondi</Text>
+                  </View>
                 </View>
               </View>
 
-              {/* Box con stima di impatto a rete */}
-              <View style={styles.netImpactBanner}>
-                <Target size={20} color={Colors.primary} />
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.netImpactTitle}>PUNTO D'IMPATTO A RETE PREVISTO</Text>
-                  <Text style={styles.netImpactText}>
-                    Altezza totale di attacco stimata: <Text style={{ color: '#FFFFFF', fontWeight: '900' }}>{totalAttackReach} cm</Text> ({clearanceOverNet > 0 ? `+${clearanceOverNet} cm oltre l'asta ufficiale di rete` : 'piena elevazione'}).
+              {/* Grid de 3 Planos */}
+              <View style={styles.pricingCardsGrid}>
+                {/* Piano 1: Prova 1 settimana */}
+                <TouchableOpacity
+                  style={[
+                    styles.pricingCardItem,
+                    selectedPlan === '1_week' && styles.pricingCardItemSelected,
+                  ]}
+                  activeOpacity={0.88}
+                  onPress={() => setSelectedPlan('1_week')}
+                >
+                  <View style={styles.pricingCardHeader}>
+                    <Text style={styles.pricingPlanName}>Prova di 1 sem</Text>
+                    <View style={[styles.planRadioCircle, selectedPlan === '1_week' && styles.planRadioCircleActive]}>
+                      {selectedPlan === '1_week' && <View style={styles.planRadioInner} />}
+                    </View>
+                  </View>
+                  <View style={styles.planDurationBadge}>
+                    <Text style={styles.planDurationBadgeText}>PIANO 4-SETTIMANE</Text>
+                  </View>
+                  <View style={styles.planPriceRow}>
+                    <Text style={styles.planOldPrice}>€40.00</Text>
+                    <Text style={styles.planCurrentPrice}>€19.99</Text>
+                  </View>
+                  <View style={styles.planDivider} />
+                  <Text style={styles.planDailyPrice}>
+                    €2.85 <Text style={styles.planDailySub}>al giorno</Text>
                   </Text>
-                </View>
+                </TouchableOpacity>
+
+                {/* Piano 2: Piano di 4 settimane (PIÙ POPOLARE) */}
+                <TouchableOpacity
+                  style={[
+                    styles.pricingCardItem,
+                    styles.pricingCardPopular,
+                    selectedPlan === '4_weeks' && styles.pricingCardItemSelected,
+                  ]}
+                  activeOpacity={0.88}
+                  onPress={() => setSelectedPlan('4_weeks')}
+                >
+                  <View style={styles.popularTopBadge}>
+                    <Text style={styles.popularTopBadgeText}>PIÙ POPOLARE</Text>
+                  </View>
+                  <View style={styles.pricingCardHeader}>
+                    <Text style={styles.pricingPlanName}>Piano di 4 sem</Text>
+                    <View style={[styles.planRadioCircle, selectedPlan === '4_weeks' && styles.planRadioCircleActive]}>
+                      {selectedPlan === '4_weeks' && <Check size={14} color="#000000" strokeWidth={3} />}
+                    </View>
+                  </View>
+                  <View style={styles.planPriceRow}>
+                    <Text style={styles.planOldPrice}>€99.99</Text>
+                    <Text style={styles.planCurrentPrice}>€49.99</Text>
+                  </View>
+                  <View style={styles.planDivider} />
+                  <Text style={styles.planDailyPrice}>
+                    €1.79 <Text style={styles.planDailySub}>al giorno</Text>
+                  </Text>
+                  <View style={styles.planGiftRow}>
+                    <Gift size={13} color="#EBE5D8" />
+                    <Text style={styles.planGiftText}>Include il piano di allenamento stampabile per il 2026</Text>
+                  </View>
+                </TouchableOpacity>
+
+                {/* Piano 3: Piano di 12 settimane */}
+                <TouchableOpacity
+                  style={[
+                    styles.pricingCardItem,
+                    selectedPlan === '12_weeks' && styles.pricingCardItemSelected,
+                  ]}
+                  activeOpacity={0.88}
+                  onPress={() => setSelectedPlan('12_weeks')}
+                >
+                  <View style={styles.pricingCardHeader}>
+                    <Text style={styles.pricingPlanName}>Piano di 12 sem</Text>
+                    <View style={[styles.planRadioCircle, selectedPlan === '12_weeks' && styles.planRadioCircleActive]}>
+                      {selectedPlan === '12_weeks' && <View style={styles.planRadioInner} />}
+                    </View>
+                  </View>
+                  <View style={styles.planPriceRow}>
+                    <Text style={styles.planOldPrice}>€199.99</Text>
+                    <Text style={styles.planCurrentPrice}>€99.99</Text>
+                  </View>
+                  <View style={styles.planDivider} />
+                  <Text style={styles.planDailyPrice}>
+                    €1.19 <Text style={styles.planDailySub}>al giorno</Text>
+                  </Text>
+                  <View style={styles.planGiftRow}>
+                    <Gift size={13} color="#A0A0A5" />
+                    <Text style={styles.planGiftText}>Include il piano di allenamento stampabile per il 2026</Text>
+                  </View>
+                </TouchableOpacity>
               </View>
 
-              {/* I 3 Pilastri del Metodo */}
-              <View style={styles.methodPillarsBox}>
-                <Text style={styles.methodPillarsHeading}>COSA COMPRENDE IL TUO PIANO PERSONALIZZATO:</Text>
+              {/* Botão Principal CTA */}
+              <TouchableOpacity
+                style={styles.offerPrimaryCtaBtn}
+                activeOpacity={0.88}
+                onPress={() => {
+                  setSubscribed(true);
+                  navigate('Dashboard');
+                }}
+              >
+                <Text style={styles.offerPrimaryCtaText}>OTTIENI IL MIO PIANO</Text>
+              </TouchableOpacity>
 
-                <View style={styles.methodPillarRow}>
-                  <CheckCircle2 size={18} color={Colors.primary} />
-                  <Text style={styles.methodPillarText}>
-                    <Text style={{ fontWeight: '800', color: '#FFFFFF' }}>Pliometria Autoregolata da IA:</Text> Carichi giornalieri calibrati sul tuo stato di freschezza nervosa.
-                  </Text>
-                </View>
-
-                <View style={styles.methodPillarRow}>
-                  <CheckCircle2 size={18} color={Colors.primary} />
-                  <Text style={styles.methodPillarText}>
-                    <Text style={{ fontWeight: '800', color: '#FFFFFF' }}>Protocollo Tendineo Isocinetico:</Text> Rinforzo del tendine rotuleo per saltare al 100% senza dolori.
-                  </Text>
-                </View>
-
-                <View style={styles.methodPillarRow}>
-                  <CheckCircle2 size={18} color={Colors.primary} />
-                  <Text style={styles.methodPillarText}>
-                    <Text style={{ fontWeight: '800', color: '#FFFFFF' }}>Feedback Ottico via Fotocamera:</Text> Misurazione in tempo reale di ogni salto senza sensori esterni.
-                  </Text>
-                </View>
+              {/* Box de Termos e Cancelamento */}
+              <View style={styles.subscriptionTermsBox}>
+                <Text style={styles.subscriptionTermsText}>
+                  Se non annulli prima del termine del piano selezionato, accetti che VertiCam addebiterà automaticamente il rinnovo fino alla cancellazione. Cancella in qualsiasi momento con un clic nel tuo account.
+                </Text>
               </View>
 
-              {/* Box di Prezzo con Ancoraggio e Garanzia */}
-              <View style={styles.pitchPricingBox}>
-                <View style={styles.pitchBestBadge}>
-                  <Text style={styles.pitchBestBadgeText}>PIÙ SCELTO DAGLI ATLETI • RISPARMI IL 57%</Text>
+              {/* Selos de Segurança Bancária */}
+              <View style={styles.securityBadgesRow}>
+                <View style={styles.securityBadgeItem}>
+                  <Lock size={12} color="#00E5FF" />
+                  <Text style={styles.securityBadgeText}>SECURED SSL ENCRYPTION</Text>
                 </View>
-                <View style={styles.priceComparisonRow}>
-                  <Text style={styles.priceOldStrikethrough}>349,00 €</Text>
-                  <Text style={styles.pitchPriceBig}>149,00 € <Text style={styles.pitchPeriod}>/ anno</Text></Text>
-                </View>
-                <Text style={styles.pitchPriceSub}>Equivalente a soli ~12,40 € al mese (meno di un caffè a settimana)</Text>
+                <Text style={styles.securityBrandBadge}>VISA</Text>
+                <Text style={styles.securityBrandBadge}>Mastercard ID Check</Text>
+                <Text style={styles.securityBrandBadge}>PCI DSS</Text>
+              </View>
+            </View>
 
-                <View style={styles.guaranteeRow}>
-                  <ShieldCheck size={22} color={Colors.accentGreen} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.guaranteeTitle}>GARANZIA 100% SODDISFATTI O RIMBORSATI</Text>
-                    <Text style={styles.guaranteeText}>
-                      Se nei primi 14 giorni non misuri un aumento concreto del tuo salto o non sei pienamente soddisfatto, ti rimborsiamo l'intero importo. Senza domande.
+            {/* ── 4. SEZIONE: COSA INCLUDE IL TUO PIANO ── */}
+            <View style={styles.offerWhatIncludesSection}>
+              <Text style={styles.offerSectionTitle}>Cosa include il tuo piano</Text>
+
+              {/* Fileira de 5 Mockups Funcionais */}
+              <View style={styles.screensShowcaseRow}>
+                {[
+                  {
+                    title: 'Tracciamento Ottico IA',
+                    desc: 'Misurazione istantanea via fotocamera',
+                    tag: 'VISIONE COMPUTAZIONALE',
+                  },
+                  {
+                    title: 'Pliometria & Forza Reattiva',
+                    desc: 'Sessioni per stacco e penetrazione a rete',
+                    tag: 'ESPLOSIVITÀ',
+                  },
+                  {
+                    title: 'Programma di Calistenia & Salto',
+                    desc: 'Carico autoregolato su freschezza SNC',
+                    tag: 'PIANO QUOTIDIANO',
+                  },
+                  {
+                    title: 'Video Guidati & Timer 0:20',
+                    desc: 'Esecuzione corretta di ogni esercizio',
+                    tag: 'INTERATTIVO',
+                  },
+                  {
+                    title: 'Nutrizione & Protezione Tendinea',
+                    desc: 'Recupero veloce tra partite e tornei',
+                    tag: 'RECUPERO',
+                  },
+                ].map((item, idx) => (
+                  <View key={idx} style={styles.screenMockupCard}>
+                    <View style={styles.mockupTagBadge}>
+                      <Text style={styles.mockupTagText}>{item.tag}</Text>
+                    </View>
+                    <Text style={styles.mockupCardTitle}>{item.title}</Text>
+                    <Text style={styles.mockupCardDesc}>{item.desc}</Text>
+                    <View style={styles.mockupScreenPhoneBezel}>
+                      <View style={styles.mockupDynamicIsland} />
+                      <View style={styles.mockupInnerScreenPreview}>
+                        <Activity size={24} color={Colors.primary} />
+                        <Text style={styles.mockupScreenMiniText}>VertiCam Pro Active</Text>
+                      </View>
+                    </View>
+                  </View>
+                ))}
+              </View>
+
+              {/* Bullets Informativos Abaixo */}
+              <View style={styles.featureBulletsContainer}>
+                <View style={styles.featureBulletRow}>
+                  <View style={styles.featureBulletIconBox}>
+                    <Flame size={20} color="#FF9100" />
+                  </View>
+                  <View style={styles.featureBulletTextBox}>
+                    <Text style={styles.featureBulletTitle}>Piano di recupero e nutrizione personalizzato</Text>
+                    <Text style={styles.featureBulletDesc}>
+                      Con oltre 100 protocolli facili da seguire per raggiungere il tuo obiettivo più velocemente e proteggere i tendini.
                     </Text>
                   </View>
                 </View>
 
+                <View style={styles.featureBulletRow}>
+                  <View style={styles.featureBulletIconBox}>
+                    <Zap size={20} color={Colors.primary} />
+                  </View>
+                  <View style={styles.featureBulletTextBox}>
+                    <Text style={styles.featureBulletTitle}>Senza palestra, nessun problema</Text>
+                    <Text style={styles.featureBulletDesc}>
+                      Fai pliometria ed elevazione a casa, all'aperto o in campo con pochissima o nessuna attrezzatura.
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* ── 5. SEZIONE: BONUS INCLUSO (GUIA IMPRIMÍVEL 2026) ── */}
+            <View style={styles.bonusGiftSection}>
+              <View style={styles.bonusGiftCard}>
+                <View style={styles.bonusGiftBadge}>
+                  <Gift size={14} color="#FF9100" />
+                  <Text style={styles.bonusGiftBadgeText}>BONUS INCLUSO</Text>
+                </View>
+
+                <View style={[styles.bonusSplitContent, isDesktop && styles.bonusSplitContentRow]}>
+                  <View style={styles.bonusLeftCol}>
+                    <Text style={styles.bonusTitle}>Piano stampabile per il 2026</Text>
+                    <Text style={styles.bonusSubtitle}>
+                      È un regalo con il tuo piano: stampalo e allenati dove vuoi, quando vuoi.
+                    </Text>
+
+                    <View style={styles.bonusCheckList}>
+                      <View style={styles.bonusCheckItem}>
+                        <Check size={14} color={Colors.accentGreen} strokeWidth={3} />
+                        <Text style={styles.bonusCheckText}>15 min di allenamento quotidiano</Text>
+                      </View>
+                      <View style={styles.bonusCheckItem}>
+                        <Check size={14} color={Colors.accentGreen} strokeWidth={3} />
+                        <Text style={styles.bonusCheckText}>Focus sul salto esplosivo e rincorsa</Text>
+                      </View>
+                      <View style={styles.bonusCheckItem}>
+                        <Check size={14} color={Colors.accentGreen} strokeWidth={3} />
+                        <Text style={styles.bonusCheckText}>Senza palestra, risultati reali</Text>
+                      </View>
+                      <View style={styles.bonusCheckItem}>
+                        <Check size={14} color={Colors.accentGreen} strokeWidth={3} />
+                        <Text style={styles.bonusCheckText}>Guida passo a passo per tutto l'anno</Text>
+                      </View>
+                    </View>
+                  </View>
+
+                  {/* Visual do Booklet de Bonus */}
+                  <View style={styles.bonusBookletWrap}>
+                    <View style={styles.bonusBookletMockup}>
+                      <Text style={styles.bonusBookletBrand}>VertiCam</Text>
+                      <Text style={styles.bonusBookletTitle}>PIANO DI ALLENAMENTO AL SALTO 2026</Text>
+                      <View style={styles.bonusBookletPill}>
+                        <Text style={styles.bonusBookletPillText}>EDIZIONE SPECIALE</Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* ── 6. SEZIONE: RE-PITCH RISULTATI IN 4 SETTIMANE ── */}
+            <View style={styles.rePitchSection}>
+              <Text style={styles.offerHeadline}>
+                Ottieni risultati visibili in 4 settimane!
+              </Text>
+
+              {/* Grid Repetido de Planos */}
+              <View style={styles.pricingCardsGrid}>
+                {/* Piano 1 */}
                 <TouchableOpacity
-                  style={styles.pitchCtaBtn}
+                  style={[
+                    styles.pricingCardItem,
+                    selectedPlan === '1_week' && styles.pricingCardItemSelected,
+                  ]}
                   activeOpacity={0.88}
-                  onPress={() => {
-                    setSubscribed(true);
-                    navigate('Dashboard');
-                  }}
+                  onPress={() => setSelectedPlan('1_week')}
                 >
-                  <Text style={styles.pitchCtaText}>SBLOCCA IL MIO PIANO ORA</Text>
-                  <Lock size={18} color="#000000" />
+                  <View style={styles.pricingCardHeader}>
+                    <Text style={styles.pricingPlanName}>Prova di 1 sem</Text>
+                    <View style={[styles.planRadioCircle, selectedPlan === '1_week' && styles.planRadioCircleActive]}>
+                      {selectedPlan === '1_week' && <View style={styles.planRadioInner} />}
+                    </View>
+                  </View>
+                  <View style={styles.planDurationBadge}>
+                    <Text style={styles.planDurationBadgeText}>PIANO 4-SETTIMANE</Text>
+                  </View>
+                  <View style={styles.planPriceRow}>
+                    <Text style={styles.planOldPrice}>€40.00</Text>
+                    <Text style={styles.planCurrentPrice}>€19.99</Text>
+                  </View>
+                  <View style={styles.planDivider} />
+                  <Text style={styles.planDailyPrice}>
+                    €2.85 <Text style={styles.planDailySub}>al giorno</Text>
+                  </Text>
                 </TouchableOpacity>
 
+                {/* Piano 2 */}
                 <TouchableOpacity
-                  style={styles.testCameraFirstBtn}
-                  activeOpacity={0.7}
-                  onPress={() => navigate('CameraIntro')}
+                  style={[
+                    styles.pricingCardItem,
+                    styles.pricingCardPopular,
+                    selectedPlan === '4_weeks' && styles.pricingCardItemSelected,
+                  ]}
+                  activeOpacity={0.88}
+                  onPress={() => setSelectedPlan('4_weeks')}
                 >
-                  <Text style={styles.testCameraFirstText}>
-                    Oppure prova prima il test del salto con fotocamera →
+                  <View style={styles.popularTopBadge}>
+                    <Text style={styles.popularTopBadgeText}>PIÙ POPOLARE</Text>
+                  </View>
+                  <View style={styles.pricingCardHeader}>
+                    <Text style={styles.pricingPlanName}>Piano di 4 sem</Text>
+                    <View style={[styles.planRadioCircle, selectedPlan === '4_weeks' && styles.planRadioCircleActive]}>
+                      {selectedPlan === '4_weeks' && <Check size={14} color="#000000" strokeWidth={3} />}
+                    </View>
+                  </View>
+                  <View style={styles.planPriceRow}>
+                    <Text style={styles.planOldPrice}>€99.99</Text>
+                    <Text style={styles.planCurrentPrice}>€49.99</Text>
+                  </View>
+                  <View style={styles.planDivider} />
+                  <Text style={styles.planDailyPrice}>
+                    €1.79 <Text style={styles.planDailySub}>al giorno</Text>
                   </Text>
+                  <View style={styles.planGiftRow}>
+                    <Gift size={13} color="#EBE5D8" />
+                    <Text style={styles.planGiftText}>Include il piano di allenamento stampabile per il 2026</Text>
+                  </View>
+                </TouchableOpacity>
+
+                {/* Piano 3 */}
+                <TouchableOpacity
+                  style={[
+                    styles.pricingCardItem,
+                    selectedPlan === '12_weeks' && styles.pricingCardItemSelected,
+                  ]}
+                  activeOpacity={0.88}
+                  onPress={() => setSelectedPlan('12_weeks')}
+                >
+                  <View style={styles.pricingCardHeader}>
+                    <Text style={styles.pricingPlanName}>Piano di 12 sem</Text>
+                    <View style={[styles.planRadioCircle, selectedPlan === '12_weeks' && styles.planRadioCircleActive]}>
+                      {selectedPlan === '12_weeks' && <View style={styles.planRadioInner} />}
+                    </View>
+                  </View>
+                  <View style={styles.planPriceRow}>
+                    <Text style={styles.planOldPrice}>€199.99</Text>
+                    <Text style={styles.planCurrentPrice}>€99.99</Text>
+                  </View>
+                  <View style={styles.planDivider} />
+                  <Text style={styles.planDailyPrice}>
+                    €1.19 <Text style={styles.planDailySub}>al giorno</Text>
+                  </Text>
+                  <View style={styles.planGiftRow}>
+                    <Gift size={13} color="#A0A0A5" />
+                    <Text style={styles.planGiftText}>Include il piano di allenamento stampabile per il 2026</Text>
+                  </View>
                 </TouchableOpacity>
               </View>
 
-              {/* Recensioni Reali e Prova Sociale */}
-              <View style={styles.socialProofSection}>
-                <Text style={styles.socialProofHeading}>COSA DICONO GLI ATLETI CHE LO USANO:</Text>
+              {/* Botão Final CTA */}
+              <TouchableOpacity
+                style={styles.offerPrimaryCtaBtn}
+                activeOpacity={0.88}
+                onPress={() => {
+                  setSubscribed(true);
+                  navigate('Dashboard');
+                }}
+              >
+                <Text style={styles.offerPrimaryCtaText}>OTTIENI IL MIO PIANO</Text>
+              </TouchableOpacity>
 
-                <View style={styles.testimonialCard}>
-                  <View style={styles.testimonialHeader}>
-                    <View style={styles.starsRow}>
-                      {[1, 2, 3, 4, 5].map((s) => (
-                        <Star key={s} size={14} color="#FFD700" fill="#FFD700" />
-                      ))}
-                    </View>
-                    <Text style={styles.testimonialGain}>+10.2 cm in 8 settimane</Text>
-                  </View>
-                  <Text style={styles.testimonialText}>
-                    "Ero scettico all'inizio, ma il feedback con la fotocamera cambia tutto. Sapere esattamente quanto stacchi ogni giorno ti costringe a spingere al massimo. Ora passo sopra il muro con facilità."
-                  </Text>
-                  <Text style={styles.testimonialAuthor}>Marco T. • Schiacciatore (Serie B)</Text>
-                </View>
+              {/* Box de Termos e Cancelamento */}
+              <View style={styles.subscriptionTermsBox}>
+                <Text style={styles.subscriptionTermsText}>
+                  Se non annulli prima del termine del piano selezionato, accetti che VertiCam addebiterà automaticamente il rinnovo fino alla cancellazione. Cancella in qualsiasi momento con un clic nel tuo account.
+                </Text>
+              </View>
 
-                <View style={styles.testimonialCard}>
-                  <View style={styles.testimonialHeader}>
-                    <View style={styles.starsRow}>
-                      {[1, 2, 3, 4, 5].map((s) => (
-                        <Star key={s} size={14} color="#FFD700" fill="#FFD700" />
-                      ))}
-                    </View>
-                    <Text style={styles.testimonialGain}>+7.8 cm • Zero dolori</Text>
-                  </View>
-                  <Text style={styles.testimonialText}>
-                    "Convivovo con la tendinite rotulea da due anni. L'algoritmo di VertiCam mi ha fatto recuperare reattività elastica proteggendo i tendini. Il miglior programma di salto mai provato."
+              {/* Garanzia Soddisfatti o Rimborsati */}
+              <View style={styles.guaranteeFinalBox}>
+                <ShieldCheck size={22} color={Colors.accentGreen} />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.guaranteeFinalTitle}>GARANZIA 100% SODDISFATTI O RIMBORSATI</Text>
+                  <Text style={styles.guaranteeFinalText}>
+                    Prova VertiCam per 14 giorni. Se non vedi un incremento concreto del tuo salto verticale o non sei pienamente soddisfatto, ti rimborsiamo ogni singolo centesimo.
                   </Text>
-                  <Text style={styles.testimonialAuthor}>Giulia B. • Centrale (Serie C)</Text>
                 </View>
               </View>
             </View>
           </View>
         )}
 
-        {/* ── FOOTER BETTERME COM DISCLAIMER & SUPPORTO (oculto no loader Step 12) ── */}
-        {currentStep !== 12 && (
+        {/* ── FOOTER BETTERME COM DISCLAIMER & SUPPORTO (oculto no loader Step 12 e na oferta 13) ── */}
+        {currentStep !== 12 && currentStep !== 13 && (
           <View style={styles.betterMeFooter}>
             <Text style={styles.legalDisclaimer}>
               Selezionando la tua opzione e continuando, accetti i nostri{' '}
@@ -1893,8 +2250,8 @@ export const QuizScreen: React.FC = () => {
         </View>
       )}
 
-      {/* Floating Help Button (oculto nos Steps 6, 7 e no loader 12) */}
-      {currentStep !== 6 && currentStep !== 7 && currentStep !== 12 && (
+      {/* Floating Help Button (oculto nos Steps 6, 7, no loader 12 e na oferta 13) */}
+      {currentStep !== 6 && currentStep !== 7 && currentStep !== 12 && currentStep !== 13 && (
         <TouchableOpacity style={styles.floatingHelpBtn} activeOpacity={0.8}>
           <HelpCircle size={15} color="#000000" />
           <Text style={styles.floatingHelpText}>Aiuto</Text>
@@ -3586,283 +3943,720 @@ const styles = StyleSheet.create({
     lineHeight: 20.5,
   },
 
-  // ── STEP 13: LANDING PAGE DI VENDITA & DIAGNOSI ──
-  pitchContainer: {
-    width: '100%',
-    maxWidth: 780,
-    alignItems: 'center',
-  },
-  urgencyBanner: {
+  // ── HEADER OFFERTA (STEP 13) ──
+  headerOfferTimerBox: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'rgba(255, 145, 0, 0.12)',
-    borderWidth: 1,
-    borderColor: '#FF9100',
-    borderRadius: 14,
-    paddingVertical: 10,
+  },
+  headerOfferTimerLabel: {
+    color: '#A0A0A5',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  headerOfferTimerDigitsWrap: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 4,
+  },
+  headerOfferTimerDigits: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+  },
+  headerOfferTimerSub: {
+    color: '#8A8D9B',
+    fontSize: 9.5,
+    fontWeight: '600',
+  },
+  headerOfferCtaBtn: {
+    backgroundColor: '#EBE5D8',
+    borderRadius: 20,
+    paddingVertical: 7,
     paddingHorizontal: 16,
-    marginBottom: 20,
-    width: '100%',
+    alignItems: 'center',
     justifyContent: 'center',
   },
-  urgencyBannerText: {
-    color: '#FFFFFF',
-    fontSize: 12.5,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  countdownTimer: {
-    color: '#FF9100',
+  headerOfferCtaText: {
+    color: '#1C1C1E',
+    fontSize: 12,
     fontWeight: '900',
-    fontSize: 14,
+    letterSpacing: 0.5,
   },
-  pitchContentCard: {
+
+  // ── STEP 13: OFFERTA MODELLATA BETTERME ──
+  offerPageWrapper: {
     width: '100%',
+    maxWidth: 920,
+    alignItems: 'center',
+    paddingVertical: 24,
+    paddingHorizontal: 12,
+  },
+  offerHeadline: {
+    fontSize: 28,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    letterSpacing: -0.5,
+    marginBottom: 24,
+    maxWidth: 620,
+  },
+  offerComparisonCard: {
+    width: '100%',
+    maxWidth: 680,
     backgroundColor: '#161922',
     borderRadius: 24,
-    padding: 24,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.08)',
+    overflow: 'hidden',
+    marginBottom: 36,
   },
-  pitchGraphRow: {
+  offerComparisonTabsHeader: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    gap: 40,
-    height: 210,
-    marginBottom: 24,
-  },
-  pitchGraphCol: {
     alignItems: 'center',
-    width: 110,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.06)',
   },
-  gainTagFloating: {
-    backgroundColor: 'rgba(0, 229, 255, 0.15)',
-    borderWidth: 1,
-    borderColor: Colors.primary,
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    marginBottom: 6,
+  offerTabHalf: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
   },
-  gainTagFloatingText: {
-    color: Colors.primary,
-    fontSize: 13,
-    fontWeight: '900',
+  offerTabLabel: {
+    fontSize: 13.5,
+    fontWeight: '800',
+    color: '#9E9E9E',
+    letterSpacing: 0.5,
   },
-  pitchGraphNumber: {
-    color: '#FFFFFF',
-    fontSize: 22,
-    fontWeight: '900',
-    marginBottom: 6,
+  offerTabDividerVertical: {
+    width: 1,
+    height: '60%',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
-  pitchGraphBar: {
+  offerAthleteImageWrap: {
     width: '100%',
-    borderRadius: 10,
-    marginBottom: 8,
+    height: 280,
+    backgroundColor: '#0F121A',
   },
-  pitchGraphLabel: {
-    color: '#888888',
-    fontSize: 13,
-    textAlign: 'center',
+  offerAthleteImage: {
+    width: '100%',
+    height: '100%',
   },
-  netImpactBanner: {
+  offerMetricsComparisonRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    backgroundColor: 'rgba(0, 229, 255, 0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(0, 229, 255, 0.25)',
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 24,
+    padding: 20,
+    backgroundColor: '#11141C',
   },
-  netImpactTitle: {
-    color: Colors.primary,
-    fontSize: 12,
-    fontWeight: '800',
-    letterSpacing: 0.8,
-    marginBottom: 4,
-  },
-  netImpactText: {
-    color: '#CCCCCC',
-    fontSize: 13.5,
-    lineHeight: 19,
-  },
-  methodPillarsBox: {
-    backgroundColor: '#0F121B',
-    borderRadius: 16,
-    padding: 18,
-    marginBottom: 24,
-    gap: 12,
-  },
-  methodPillarsHeading: {
-    color: '#888888',
-    fontSize: 11.5,
-    fontWeight: '800',
-    letterSpacing: 0.8,
-    marginBottom: 2,
-  },
-  methodPillarRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 10,
-  },
-  methodPillarText: {
-    color: '#B0BEC5',
-    fontSize: 13.5,
-    lineHeight: 19,
+  offerMetricCol: {
     flex: 1,
   },
-  pitchPricingBox: {
-    backgroundColor: '#0D0F17',
-    borderRadius: 18,
-    padding: 22,
+  offerMetricColDivider: {
+    width: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    marginHorizontal: 16,
+  },
+  offerMetricCategory: {
+    color: '#8A8D9B',
+    fontSize: 11.5,
+    fontWeight: '700',
+    marginBottom: 3,
+  },
+  offerMetricValue: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '900',
+    marginBottom: 6,
+  },
+  offerLevelBarRow: {
+    flexDirection: 'row',
+    gap: 4,
+    marginTop: 4,
+  },
+  offerLevelSegment: {
+    flex: 1,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+  },
+  offerLevelSegmentActive: {
+    backgroundColor: '#FFFFFF',
+  },
+  offerLevelSegmentActiveCream: {
+    backgroundColor: '#EBE5D8',
+  },
+
+  // ── SEZIONE PREZZI & COUPON ──
+  offerPricingSection: {
+    width: '100%',
+    maxWidth: 780,
     alignItems: 'center',
+    marginBottom: 44,
+  },
+  offerSectionTitle: {
+    fontSize: 26,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    letterSpacing: -0.5,
+    marginBottom: 20,
+  },
+  couponTicketBanner: {
+    width: '100%',
+    maxWidth: 620,
+    backgroundColor: '#D47A2A',
+    borderRadius: 18,
+    position: 'relative',
+    overflow: 'hidden',
+    padding: 16,
+    marginBottom: 26,
+    shadowColor: '#D47A2A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  ticketNotchLeft: {
+    position: 'absolute',
+    left: -10,
+    top: '46%',
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#000000',
+    zIndex: 10,
+  },
+  ticketNotchRight: {
+    position: 'absolute',
+    right: -10,
+    top: '46%',
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#000000',
+    zIndex: 10,
+  },
+  couponTicketTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingBottom: 10,
+  },
+  couponTicketTopText: {
+    color: '#FFFFFF',
+    fontSize: 14.5,
+    fontWeight: '800',
+    letterSpacing: 0.3,
+  },
+  couponDashedLine: {
+    width: '100%',
+    height: 1,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.35)',
+    borderStyle: 'dashed',
+    marginVertical: 10,
+  },
+  couponTicketBottom: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 4,
+    paddingHorizontal: 8,
+  },
+  couponCodePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#0C0E14',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+  },
+  couponCodeText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  couponTimerBox: {
+    alignItems: 'flex-end',
+  },
+  couponTimerDigits: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '900',
+    letterSpacing: 0.8,
+  },
+  couponTimerSub: {
+    color: '#FFE2CC',
+    fontSize: 10,
+    fontWeight: '600',
+  },
+
+  // Grid Planos
+  pricingCardsGrid: {
+    width: '100%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 14,
+    marginBottom: 24,
+  },
+  pricingCardItem: {
+    flex: 1,
+    minWidth: 220,
+    maxWidth: 250,
+    backgroundColor: '#161922',
+    borderRadius: 20,
+    padding: 18,
     borderWidth: 1.5,
-    borderColor: Colors.primary,
-    marginBottom: 28,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    position: 'relative',
   },
-  pitchBestBadge: {
-    backgroundColor: Colors.primary,
+  pricingCardPopular: {
+    borderColor: 'rgba(235, 229, 216, 0.5)',
+  },
+  pricingCardItemSelected: {
+    borderColor: '#EBE5D8',
+    backgroundColor: '#1B1E28',
+  },
+  popularTopBadge: {
+    position: 'absolute',
+    top: -1,
+    left: -1,
+    right: -1,
+    backgroundColor: '#EBE5D8',
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
     paddingVertical: 5,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    marginBottom: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  pitchBestBadgeText: {
-    color: '#000000',
+  popularTopBadgeText: {
+    color: '#1C1C1E',
     fontSize: 11,
     fontWeight: '900',
     letterSpacing: 0.8,
   },
-  priceComparisonRow: {
+  pricingCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 18,
+    marginBottom: 8,
+  },
+  pricingPlanName: {
+    color: '#FFFFFF',
+    fontSize: 17,
+    fontWeight: '800',
+  },
+  planRadioCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 1.8,
+    borderColor: '#555555',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  planRadioCircleActive: {
+    borderColor: '#EBE5D8',
+    backgroundColor: '#EBE5D8',
+  },
+  planRadioInner: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#1C1C1E',
+  },
+  planDurationBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.07)',
+    paddingVertical: 3,
+    paddingHorizontal: 7,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+    marginBottom: 8,
+  },
+  planDurationBadgeText: {
+    color: '#8A8D9B',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  planPriceRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    gap: 12,
+    gap: 8,
+    marginBottom: 8,
   },
-  priceOldStrikethrough: {
+  planOldPrice: {
     color: '#777777',
-    fontSize: 22,
-    fontWeight: '700',
+    fontSize: 13,
     textDecorationLine: 'line-through',
   },
-  pitchPriceBig: {
+  planCurrentPrice: {
     color: '#FFFFFF',
-    fontSize: 42,
+    fontSize: 18,
     fontWeight: '900',
   },
-  pitchPeriod: {
-    fontSize: 16,
-    color: '#9E9E9E',
-    fontWeight: '600',
+  planDivider: {
+    width: '100%',
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    marginVertical: 8,
   },
-  pitchPriceSub: {
-    color: '#AAAAAA',
-    fontSize: 14,
+  planDailyPrice: {
+    color: '#FFFFFF',
+    fontSize: 22,
+    fontWeight: '900',
+    marginBottom: 10,
+  },
+  planDailySub: {
+    color: '#8A8D9B',
+    fontSize: 11,
+    fontWeight: '500',
+  },
+  planGiftRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    padding: 8,
+    borderRadius: 8,
     marginTop: 4,
+  },
+  planGiftText: {
+    color: '#C0C0C8',
+    fontSize: 10.5,
+    lineHeight: 14,
+    flex: 1,
+  },
+
+  offerPrimaryCtaBtn: {
+    backgroundColor: '#EBE5D8',
+    borderRadius: 30,
+    paddingVertical: 16,
+    paddingHorizontal: 48,
+    width: '100%',
+    maxWidth: 420,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 8,
+    marginTop: 12,
     marginBottom: 16,
+  },
+  offerPrimaryCtaText: {
+    color: '#1C1C1E',
+    fontSize: 16,
+    fontWeight: '900',
+    letterSpacing: 0.8,
+  },
+  subscriptionTermsBox: {
+    width: '100%',
+    maxWidth: 580,
+    backgroundColor: '#0E1017',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 20,
+  },
+  subscriptionTermsText: {
+    color: '#8A8D9B',
+    fontSize: 11.5,
+    lineHeight: 17,
     textAlign: 'center',
   },
-  guaranteeRow: {
+  securityBadgesRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 14,
+  },
+  securityBadgeItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  securityBadgeText: {
+    color: '#8A8D9B',
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  securityBrandBadge: {
+    color: '#C0C0C8',
+    fontSize: 12,
+    fontWeight: '900',
+    letterSpacing: 0.6,
+  },
+
+  // ── SEZIONE: COSA INCLUDE IL TUO PIANO ──
+  offerWhatIncludesSection: {
+    width: '100%',
+    maxWidth: 920,
+    alignItems: 'center',
+    marginBottom: 48,
+  },
+  screensShowcaseRow: {
+    width: '100%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 16,
+    marginBottom: 36,
+  },
+  screenMockupCard: {
+    width: 168,
+    backgroundColor: '#161922',
+    borderRadius: 18,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    alignItems: 'center',
+  },
+  mockupTagBadge: {
+    backgroundColor: 'rgba(0, 229, 255, 0.1)',
+    paddingVertical: 3,
+    paddingHorizontal: 7,
+    borderRadius: 6,
+    marginBottom: 6,
+    alignSelf: 'flex-start',
+  },
+  mockupTagText: {
+    color: Colors.primary,
+    fontSize: 9,
+    fontWeight: '800',
+  },
+  mockupCardTitle: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '800',
+    textAlign: 'center',
+    marginBottom: 3,
+  },
+  mockupCardDesc: {
+    color: '#8A8D9B',
+    fontSize: 10.5,
+    textAlign: 'center',
+    lineHeight: 14,
+    marginBottom: 10,
+  },
+  mockupScreenPhoneBezel: {
+    width: '100%',
+    height: 140,
+    backgroundColor: '#090B10',
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#262933',
+    alignItems: 'center',
+    paddingTop: 6,
+  },
+  mockupDynamicIsland: {
+    width: 32,
+    height: 7,
+    backgroundColor: '#000000',
+    borderRadius: 4,
+    marginBottom: 16,
+  },
+  mockupInnerScreenPreview: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  mockupScreenMiniText: {
+    color: Colors.primary,
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  featureBulletsContainer: {
+    width: '100%',
+    maxWidth: 680,
+    gap: 16,
+  },
+  featureBulletRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 14,
+    backgroundColor: '#141620',
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+  },
+  featureBulletIconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  featureBulletTextBox: {
+    flex: 1,
+  },
+  featureBulletTitle: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '800',
+    marginBottom: 4,
+  },
+  featureBulletDesc: {
+    color: '#9E9E9E',
+    fontSize: 13,
+    lineHeight: 18,
+  },
+
+  // ── SEZIONE: BONUS INCLUSO ──
+  bonusGiftSection: {
+    width: '100%',
+    maxWidth: 780,
+    marginBottom: 48,
+  },
+  bonusGiftCard: {
+    backgroundColor: '#161922',
+    borderRadius: 22,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  bonusGiftBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(255, 145, 0, 0.12)',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    marginBottom: 16,
+  },
+  bonusGiftBadgeText: {
+    color: '#FF9100',
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 0.8,
+  },
+  bonusSplitContent: {
+    flexDirection: 'column',
+    gap: 20,
+  },
+  bonusSplitContentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  bonusLeftCol: {
+    flex: 1,
+  },
+  bonusTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    marginBottom: 6,
+  },
+  bonusSubtitle: {
+    fontSize: 13.5,
+    color: '#9E9E9E',
+    lineHeight: 19,
+    marginBottom: 16,
+  },
+  bonusCheckList: {
+    gap: 8,
+  },
+  bonusCheckItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  bonusCheckText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  bonusBookletWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bonusBookletMockup: {
+    width: 170,
+    height: 220,
+    backgroundColor: '#222530',
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  bonusBookletBrand: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: Colors.primary,
+    marginBottom: 10,
+  },
+  bonusBookletTitle: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    lineHeight: 16,
+    marginBottom: 16,
+  },
+  bonusBookletPill: {
+    backgroundColor: '#FF9100',
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+  },
+  bonusBookletPillText: {
+    color: '#000000',
+    fontSize: 9,
+    fontWeight: '900',
+  },
+
+  // ── SEZIONE: RE-PITCH RISULTATI ──
+  rePitchSection: {
+    width: '100%',
+    maxWidth: 780,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  guaranteeFinalBox: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 12,
     backgroundColor: 'rgba(0, 230, 118, 0.08)',
     borderWidth: 1,
     borderColor: 'rgba(0, 230, 118, 0.25)',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 18,
+    borderRadius: 14,
+    padding: 16,
     width: '100%',
+    maxWidth: 580,
+    marginTop: 8,
   },
-  guaranteeTitle: {
+  guaranteeFinalTitle: {
     color: Colors.accentGreen,
     fontSize: 12,
     fontWeight: '900',
     letterSpacing: 0.8,
     marginBottom: 4,
   },
-  guaranteeText: {
+  guaranteeFinalText: {
     color: '#C8E6C9',
     fontSize: 12.5,
     lineHeight: 18,
-  },
-  pitchCtaBtn: {
-    width: '100%',
-    height: 60,
-    backgroundColor: Colors.primary,
-    borderRadius: 30,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    elevation: 8,
-  },
-  pitchCtaText: {
-    color: '#000000',
-    fontSize: 18,
-    fontWeight: '900',
-    letterSpacing: 1,
-  },
-  testCameraFirstBtn: {
-    marginTop: 14,
-    paddingVertical: 6,
-  },
-  testCameraFirstText: {
-    color: '#888888',
-    fontSize: 13.5,
-    textDecorationLine: 'underline',
-  },
-  socialProofSection: {
-    gap: 14,
-  },
-  socialProofHeading: {
-    color: '#888888',
-    fontSize: 12,
-    fontWeight: '800',
-    letterSpacing: 1,
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  testimonialCard: {
-    backgroundColor: '#0F121B',
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.06)',
-  },
-  testimonialHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  starsRow: {
-    flexDirection: 'row',
-    gap: 3,
-  },
-  testimonialGain: {
-    color: Colors.primary,
-    fontSize: 12,
-    fontWeight: '800',
-  },
-  testimonialText: {
-    color: '#DDDDDD',
-    fontSize: 13.5,
-    lineHeight: 19,
-    fontStyle: 'italic',
-    marginBottom: 8,
-  },
-  testimonialAuthor: {
-    color: '#888888',
-    fontSize: 12,
-    fontWeight: '700',
   },
 
   // ── FOOTER BETTERME ──
