@@ -4107,8 +4107,9 @@ const styles = StyleSheet.create({
   },
   offerAthleteImageWrap: {
     width: '100%',
-    height: 280,
+    aspectRatio: 16 / 9,
     backgroundColor: '#0F121A',
+    overflow: 'hidden',
   },
   offerAthleteImage: {
     width: '100%',
