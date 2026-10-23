@@ -1849,29 +1849,34 @@ export const QuizScreen: React.FC = () => {
               </Text>
 
               {/* Grid de 3 Planos Estilo BetterMe */}
-              <View style={styles.pricingCardsGrid}>
+              <View style={[styles.pricingCardsGrid, isDesktop && styles.pricingCardsGridDesktop]}>
                 {/* Piano 1: Prova 1 settimana */}
                 <TouchableOpacity
                   style={[
                     styles.pricingCardItem,
+                    isDesktop && styles.pricingCardItemDesktop,
                     selectedPlan === '1_week' && styles.pricingCardItemSelected,
                   ]}
                   activeOpacity={0.88}
                   onPress={() => setSelectedPlan('1_week')}
                 >
-                  <View style={styles.pricingCardHeader}>
-                    <Text style={styles.pricingPlanName}>Prova di 1 sem</Text>
-                    <View style={[styles.planRadioCircle, selectedPlan === '1_week' && styles.planRadioCircleActive]}>
-                      {selectedPlan === '1_week' && <Check size={13} color="#000000" strokeWidth={3.5} />}
+                  <View style={styles.cardTopContent}>
+                    <View style={styles.pricingCardHeader}>
+                      <Text style={styles.pricingPlanName}>Prova di 1 sem</Text>
+                      <View style={[styles.planRadioCircle, selectedPlan === '1_week' && styles.planRadioCircleActive]}>
+                        {selectedPlan === '1_week' && <Check size={13} color="#000000" strokeWidth={3.5} />}
+                      </View>
                     </View>
+                    <View style={styles.planDurationBadge}>
+                      <Text style={styles.planDurationBadgeText}>PIANO 4-SETTIMANE</Text>
+                    </View>
+                    <Text style={styles.planTotalPriceText}>€40.00</Text>
                   </View>
-                  <View style={styles.planDurationBadge}>
-                    <Text style={styles.planDurationBadgeText}>PIANO 4-SETTIMANE</Text>
-                  </View>
-                  <Text style={styles.planTotalPriceText}>€40.00</Text>
-                  <View style={styles.planDailyPriceRow}>
-                    <Text style={styles.planDailyPriceDigits}>€5.71</Text>
-                    <Text style={styles.planDailySubText}>al giorno</Text>
+                  <View style={styles.cardBottomContent}>
+                    <View style={styles.planDailyPriceRow}>
+                      <Text style={styles.planDailyPriceDigits}>€5.71</Text>
+                      <Text style={styles.planDailySubText}>al giorno</Text>
+                    </View>
                   </View>
                 </TouchableOpacity>
 
@@ -1879,6 +1884,7 @@ export const QuizScreen: React.FC = () => {
                 <TouchableOpacity
                   style={[
                     styles.pricingCardItem,
+                    isDesktop && styles.pricingCardItemDesktop,
                     styles.pricingCardPopular,
                     selectedPlan === '4_weeks' && styles.pricingCardItemSelected,
                   ]}
@@ -1888,20 +1894,24 @@ export const QuizScreen: React.FC = () => {
                   <View style={styles.popularTopBadge}>
                     <Text style={styles.popularTopBadgeText}>PIÙ POPOLARE</Text>
                   </View>
-                  <View style={styles.pricingCardHeader}>
-                    <Text style={styles.pricingPlanName}>Piano di 4 sem</Text>
-                    <View style={[styles.planRadioCircle, selectedPlan === '4_weeks' && styles.planRadioCircleActive]}>
-                      {selectedPlan === '4_weeks' && <Check size={13} color="#000000" strokeWidth={3.5} />}
+                  <View style={styles.cardTopContent}>
+                    <View style={styles.pricingCardHeader}>
+                      <Text style={styles.pricingPlanName}>Piano di 4 sem</Text>
+                      <View style={[styles.planRadioCircle, selectedPlan === '4_weeks' && styles.planRadioCircleActive]}>
+                        {selectedPlan === '4_weeks' && <Check size={13} color="#000000" strokeWidth={3.5} />}
+                      </View>
                     </View>
+                    <Text style={styles.planTotalPriceText}>€99.99</Text>
                   </View>
-                  <Text style={styles.planTotalPriceText}>€99.99</Text>
-                  <View style={styles.planDailyPriceRow}>
-                    <Text style={styles.planDailyPriceDigits}>€3.57</Text>
-                    <Text style={styles.planDailySubText}>al giorno</Text>
-                  </View>
-                  <View style={styles.planGiftBox}>
-                    <Gift size={13} color="#A0A0A5" />
-                    <Text style={styles.planGiftText}>Include un piano di allenamento stampabile per il 2026</Text>
+                  <View style={styles.cardBottomContent}>
+                    <View style={styles.planDailyPriceRow}>
+                      <Text style={styles.planDailyPriceDigits}>€3.57</Text>
+                      <Text style={styles.planDailySubText}>al giorno</Text>
+                    </View>
+                    <View style={styles.planGiftBox}>
+                      <Gift size={13} color="#A0A0A5" />
+                      <Text style={styles.planGiftText}>Include un piano di allenamento stampabile per il 2026</Text>
+                    </View>
                   </View>
                 </TouchableOpacity>
 
@@ -1909,25 +1919,30 @@ export const QuizScreen: React.FC = () => {
                 <TouchableOpacity
                   style={[
                     styles.pricingCardItem,
+                    isDesktop && styles.pricingCardItemDesktop,
                     selectedPlan === '12_weeks' && styles.pricingCardItemSelected,
                   ]}
                   activeOpacity={0.88}
                   onPress={() => setSelectedPlan('12_weeks')}
                 >
-                  <View style={styles.pricingCardHeader}>
-                    <Text style={styles.pricingPlanName}>Piano di 12 sem</Text>
-                    <View style={[styles.planRadioCircle, selectedPlan === '12_weeks' && styles.planRadioCircleActive]}>
-                      {selectedPlan === '12_weeks' && <Check size={13} color="#000000" strokeWidth={3.5} />}
+                  <View style={styles.cardTopContent}>
+                    <View style={styles.pricingCardHeader}>
+                      <Text style={styles.pricingPlanName}>Piano di 12 sem</Text>
+                      <View style={[styles.planRadioCircle, selectedPlan === '12_weeks' && styles.planRadioCircleActive]}>
+                        {selectedPlan === '12_weeks' && <Check size={13} color="#000000" strokeWidth={3.5} />}
+                      </View>
                     </View>
+                    <Text style={styles.planTotalPriceText}>€199.99</Text>
                   </View>
-                  <Text style={styles.planTotalPriceText}>€199.99</Text>
-                  <View style={styles.planDailyPriceRow}>
-                    <Text style={styles.planDailyPriceDigits}>€2.38</Text>
-                    <Text style={styles.planDailySubText}>al giorno</Text>
-                  </View>
-                  <View style={styles.planGiftBox}>
-                    <Gift size={13} color="#A0A0A5" />
-                    <Text style={styles.planGiftText}>Include un piano di allenamento stampabile per il 2026</Text>
+                  <View style={styles.cardBottomContent}>
+                    <View style={styles.planDailyPriceRow}>
+                      <Text style={styles.planDailyPriceDigits}>€2.38</Text>
+                      <Text style={styles.planDailySubText}>al giorno</Text>
+                    </View>
+                    <View style={styles.planGiftBox}>
+                      <Gift size={13} color="#A0A0A5" />
+                      <Text style={styles.planGiftText}>Include un piano di allenamento stampabile per il 2026</Text>
+                    </View>
                   </View>
                 </TouchableOpacity>
               </View>
@@ -2097,29 +2112,34 @@ export const QuizScreen: React.FC = () => {
               </Text>
 
               {/* Grid Repetido de Planos */}
-              <View style={styles.pricingCardsGrid}>
+              <View style={[styles.pricingCardsGrid, isDesktop && styles.pricingCardsGridDesktop]}>
                 {/* Piano 1 */}
                 <TouchableOpacity
                   style={[
                     styles.pricingCardItem,
+                    isDesktop && styles.pricingCardItemDesktop,
                     selectedPlan === '1_week' && styles.pricingCardItemSelected,
                   ]}
                   activeOpacity={0.88}
                   onPress={() => setSelectedPlan('1_week')}
                 >
-                  <View style={styles.pricingCardHeader}>
-                    <Text style={styles.pricingPlanName}>Prova di 1 sem</Text>
-                    <View style={[styles.planRadioCircle, selectedPlan === '1_week' && styles.planRadioCircleActive]}>
-                      {selectedPlan === '1_week' && <Check size={13} color="#000000" strokeWidth={3.5} />}
+                  <View style={styles.cardTopContent}>
+                    <View style={styles.pricingCardHeader}>
+                      <Text style={styles.pricingPlanName}>Prova di 1 sem</Text>
+                      <View style={[styles.planRadioCircle, selectedPlan === '1_week' && styles.planRadioCircleActive]}>
+                        {selectedPlan === '1_week' && <Check size={13} color="#000000" strokeWidth={3.5} />}
+                      </View>
                     </View>
+                    <View style={styles.planDurationBadge}>
+                      <Text style={styles.planDurationBadgeText}>PIANO 4-SETTIMANE</Text>
+                    </View>
+                    <Text style={styles.planTotalPriceText}>€40.00</Text>
                   </View>
-                  <View style={styles.planDurationBadge}>
-                    <Text style={styles.planDurationBadgeText}>PIANO 4-SETTIMANE</Text>
-                  </View>
-                  <Text style={styles.planTotalPriceText}>€40.00</Text>
-                  <View style={styles.planDailyPriceRow}>
-                    <Text style={styles.planDailyPriceDigits}>€5.71</Text>
-                    <Text style={styles.planDailySubText}>al giorno</Text>
+                  <View style={styles.cardBottomContent}>
+                    <View style={styles.planDailyPriceRow}>
+                      <Text style={styles.planDailyPriceDigits}>€5.71</Text>
+                      <Text style={styles.planDailySubText}>al giorno</Text>
+                    </View>
                   </View>
                 </TouchableOpacity>
 
@@ -2127,6 +2147,7 @@ export const QuizScreen: React.FC = () => {
                 <TouchableOpacity
                   style={[
                     styles.pricingCardItem,
+                    isDesktop && styles.pricingCardItemDesktop,
                     styles.pricingCardPopular,
                     selectedPlan === '4_weeks' && styles.pricingCardItemSelected,
                   ]}
@@ -2136,20 +2157,24 @@ export const QuizScreen: React.FC = () => {
                   <View style={styles.popularTopBadge}>
                     <Text style={styles.popularTopBadgeText}>PIÙ POPOLARE</Text>
                   </View>
-                  <View style={styles.pricingCardHeader}>
-                    <Text style={styles.pricingPlanName}>Piano di 4 sem</Text>
-                    <View style={[styles.planRadioCircle, selectedPlan === '4_weeks' && styles.planRadioCircleActive]}>
-                      {selectedPlan === '4_weeks' && <Check size={13} color="#000000" strokeWidth={3.5} />}
+                  <View style={styles.cardTopContent}>
+                    <View style={styles.pricingCardHeader}>
+                      <Text style={styles.pricingPlanName}>Piano di 4 sem</Text>
+                      <View style={[styles.planRadioCircle, selectedPlan === '4_weeks' && styles.planRadioCircleActive]}>
+                        {selectedPlan === '4_weeks' && <Check size={13} color="#000000" strokeWidth={3.5} />}
+                      </View>
                     </View>
+                    <Text style={styles.planTotalPriceText}>€99.99</Text>
                   </View>
-                  <Text style={styles.planTotalPriceText}>€99.99</Text>
-                  <View style={styles.planDailyPriceRow}>
-                    <Text style={styles.planDailyPriceDigits}>€3.57</Text>
-                    <Text style={styles.planDailySubText}>al giorno</Text>
-                  </View>
-                  <View style={styles.planGiftBox}>
-                    <Gift size={13} color="#A0A0A5" />
-                    <Text style={styles.planGiftText}>Include un piano di allenamento stampabile per il 2026</Text>
+                  <View style={styles.cardBottomContent}>
+                    <View style={styles.planDailyPriceRow}>
+                      <Text style={styles.planDailyPriceDigits}>€3.57</Text>
+                      <Text style={styles.planDailySubText}>al giorno</Text>
+                    </View>
+                    <View style={styles.planGiftBox}>
+                      <Gift size={13} color="#A0A0A5" />
+                      <Text style={styles.planGiftText}>Include un piano di allenamento stampabile per il 2026</Text>
+                    </View>
                   </View>
                 </TouchableOpacity>
 
@@ -2157,25 +2182,30 @@ export const QuizScreen: React.FC = () => {
                 <TouchableOpacity
                   style={[
                     styles.pricingCardItem,
+                    isDesktop && styles.pricingCardItemDesktop,
                     selectedPlan === '12_weeks' && styles.pricingCardItemSelected,
                   ]}
                   activeOpacity={0.88}
                   onPress={() => setSelectedPlan('12_weeks')}
                 >
-                  <View style={styles.pricingCardHeader}>
-                    <Text style={styles.pricingPlanName}>Piano di 12 sem</Text>
-                    <View style={[styles.planRadioCircle, selectedPlan === '12_weeks' && styles.planRadioCircleActive]}>
-                      {selectedPlan === '12_weeks' && <Check size={13} color="#000000" strokeWidth={3.5} />}
+                  <View style={styles.cardTopContent}>
+                    <View style={styles.pricingCardHeader}>
+                      <Text style={styles.pricingPlanName}>Piano di 12 sem</Text>
+                      <View style={[styles.planRadioCircle, selectedPlan === '12_weeks' && styles.planRadioCircleActive]}>
+                        {selectedPlan === '12_weeks' && <Check size={13} color="#000000" strokeWidth={3.5} />}
+                      </View>
                     </View>
+                    <Text style={styles.planTotalPriceText}>€199.99</Text>
                   </View>
-                  <Text style={styles.planTotalPriceText}>€199.99</Text>
-                  <View style={styles.planDailyPriceRow}>
-                    <Text style={styles.planDailyPriceDigits}>€2.38</Text>
-                    <Text style={styles.planDailySubText}>al giorno</Text>
-                  </View>
-                  <View style={styles.planGiftBox}>
-                    <Gift size={13} color="#A0A0A5" />
-                    <Text style={styles.planGiftText}>Include un piano di allenamento stampabile per il 2026</Text>
+                  <View style={styles.cardBottomContent}>
+                    <View style={styles.planDailyPriceRow}>
+                      <Text style={styles.planDailyPriceDigits}>€2.38</Text>
+                      <Text style={styles.planDailySubText}>al giorno</Text>
+                    </View>
+                    <View style={styles.planGiftBox}>
+                      <Gift size={13} color="#A0A0A5" />
+                      <Text style={styles.planGiftText}>Include un piano di allenamento stampabile per il 2026</Text>
+                    </View>
                   </View>
                 </TouchableOpacity>
               </View>
@@ -3998,7 +4028,7 @@ const styles = StyleSheet.create({
   // ── STEP 13: OFFERTA MODELLATA BETTERME ──
   offerPageWrapper: {
     width: '100%',
-    maxWidth: 920,
+    maxWidth: 1040,
     alignItems: 'center',
     paddingVertical: 24,
     paddingHorizontal: 12,
@@ -4098,10 +4128,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#EBE5D8',
   },
 
-  // ── SEZIONE PREZZI & COUPON ──
+  // ── SEZIONE PREZZI & PIANI ──
   offerPricingSection: {
     width: '100%',
-    maxWidth: 780,
+    maxWidth: 1040,
     alignItems: 'center',
     marginBottom: 44,
   },
@@ -4117,18 +4147,21 @@ const styles = StyleSheet.create({
   // Grid Planos (Modelado fielmente ao BetterMe)
   pricingCardsGrid: {
     width: '100%',
-    maxWidth: 960,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: 'stretch',
+    maxWidth: 1000,
+    flexDirection: 'column',
+    alignItems: 'center',
     gap: 16,
     marginBottom: 28,
   },
+  pricingCardsGridDesktop: {
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    alignItems: 'stretch',
+    justifyContent: 'center',
+  },
   pricingCardItem: {
-    flex: 1,
-    minWidth: 260,
-    maxWidth: 300,
+    width: '100%',
+    maxWidth: 380,
     backgroundColor: '#222224',
     borderRadius: 18,
     paddingVertical: 24,
@@ -4137,6 +4170,19 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
     position: 'relative',
     justifyContent: 'space-between',
+    minHeight: 270,
+  },
+  pricingCardItemDesktop: {
+    flex: 1,
+    minWidth: 260,
+    maxWidth: 310,
+  },
+  cardTopContent: {
+    width: '100%',
+  },
+  cardBottomContent: {
+    width: '100%',
+    marginTop: 'auto',
   },
   pricingCardPopular: {
     borderColor: '#EBE5D8',
@@ -4540,7 +4586,7 @@ const styles = StyleSheet.create({
   // ── SEZIONE: RE-PITCH RISULTATI ──
   rePitchSection: {
     width: '100%',
-    maxWidth: 780,
+    maxWidth: 1040,
     alignItems: 'center',
     marginTop: 10,
   },
