@@ -386,6 +386,40 @@ export const QuizScreen: React.FC = () => {
   // Data obiettivo calcolata dinamicamente
   const projectedTargetDate = timelineData.dateFormatted;
 
+  // 5 Telefoni Mockup Showcase (Cosa include il tuo piano - Stile VertiCam)
+  const showcaseFeatures = [
+    {
+      image: require('../../assets/feature-phone-1.png'),
+      title: 'Tracciamento Ottico IA & Impulso',
+      subtitle: 'Visione Artificiale',
+      isHighlight: false,
+    },
+    {
+      image: require('../../assets/feature-phone-2.png'),
+      title: 'Risposta Neurale in Tempo Reale',
+      subtitle: 'Tecnologia Neurale',
+      isHighlight: true,
+    },
+    {
+      image: require('../../assets/feature-phone-3.png'),
+      title: 'Ottimizzazione e Allenamento',
+      subtitle: 'Pliometria e Forza',
+      isHighlight: false,
+    },
+    {
+      image: require('../../assets/feature-phone-4.png'),
+      title: 'Video Guidati & Feedback Istantaneo',
+      subtitle: 'Interattivo',
+      isHighlight: false,
+    },
+    {
+      image: require('../../assets/feature-phone-5.png'),
+      title: 'Recupero & Salute Tendinea',
+      subtitle: 'Prevenzione Infortuni',
+      isHighlight: false,
+    },
+  ];
+
   const femaleAgeCards: BetterMeCardOption[] = [
     {
       id: 'under_25',
@@ -1988,81 +2022,67 @@ export const QuizScreen: React.FC = () => {
               </View>
             </View>
 
-            {/* ── 4. SEZIONE: COSA INCLUDE IL TUO PIANO ── */}
+            {/* ── 4. SEZIONE: COSA INCLUDE IL TUO PIANO (MODELLATO SU VERTICAM) ── */}
             <View style={styles.offerWhatIncludesSection}>
-              <Text style={styles.offerSectionTitle}>Cosa include il tuo piano</Text>
+              <Text style={styles.offerHeadline}>Cosa include il tuo piano</Text>
 
-              {/* Fileira de 5 Mockups Funcionais */}
-              <View style={styles.screensShowcaseRow}>
-                {[
-                  {
-                    title: 'Tracciamento Ottico IA',
-                    desc: 'Misurazione istantanea via fotocamera',
-                    tag: 'VISIONE COMPUTAZIONALE',
-                  },
-                  {
-                    title: 'Pliometria & Forza Reattiva',
-                    desc: 'Sessioni per stacco e penetrazione a rete',
-                    tag: 'ESPLOSIVITÀ',
-                  },
-                  {
-                    title: 'Programma di Calistenia & Salto',
-                    desc: 'Carico autoregolato su freschezza SNC',
-                    tag: 'PIANO QUOTIDIANO',
-                  },
-                  {
-                    title: 'Video Guidati & Timer 0:20',
-                    desc: 'Esecuzione corretta di ogni esercizio',
-                    tag: 'INTERATTIVO',
-                  },
-                  {
-                    title: 'Nutrizione & Protezione Tendinea',
-                    desc: 'Recupero veloce tra partite e tornei',
-                    tag: 'RECUPERO',
-                  },
-                ].map((item, idx) => (
-                  <View key={idx} style={styles.screenMockupCard}>
-                    <View style={styles.mockupTagBadge}>
-                      <Text style={styles.mockupTagText}>{item.tag}</Text>
-                    </View>
-                    <Text style={styles.mockupCardTitle}>{item.title}</Text>
-                    <Text style={styles.mockupCardDesc}>{item.desc}</Text>
-                    <View style={styles.mockupScreenPhoneBezel}>
-                      <View style={styles.mockupDynamicIsland} />
-                      <View style={styles.mockupInnerScreenPreview}>
-                        <Activity size={24} color={Colors.primary} />
-                        <Text style={styles.mockupScreenMiniText}>VertiCam Pro Active</Text>
+              {/* Showcase dei 5 Telefoni VertiCam */}
+              {isDesktop ? (
+                <View style={styles.screensShowcaseRow}>
+                  {showcaseFeatures.map((feat, idx) => (
+                    <View key={idx} style={styles.screenMockupCard}>
+                      <View style={[styles.phoneFrameContainer, feat.isHighlight && styles.phoneFrameHighlight]}>
+                        <Image
+                          source={feat.image}
+                          style={[
+                            styles.phoneMockupImage,
+                            feat.isHighlight && styles.phoneMockupImageHighlight,
+                          ]}
+                          resizeMode="contain"
+                        />
                       </View>
+                      <Text style={[styles.mockupCardTitle, feat.isHighlight && { color: Colors.primary }]}>
+                        {feat.title}
+                      </Text>
+                      <Text style={styles.mockupCardSubtitle}>{feat.subtitle}</Text>
                     </View>
-                  </View>
-                ))}
-              </View>
-
-              {/* Bullets Informativos Abaixo */}
-              <View style={styles.featureBulletsContainer}>
-                <View style={styles.featureBulletRow}>
-                  <View style={styles.featureBulletIconBox}>
-                    <Flame size={20} color="#FF9100" />
-                  </View>
-                  <View style={styles.featureBulletTextBox}>
-                    <Text style={styles.featureBulletTitle}>Piano di recupero e nutrizione personalizzato</Text>
-                    <Text style={styles.featureBulletDesc}>
-                      Con oltre 100 protocolli facili da seguire per raggiungere il tuo obiettivo più velocemente e proteggere i tendini.
-                    </Text>
-                  </View>
+                  ))}
                 </View>
+              ) : (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.screensShowcaseScroll}
+                >
+                  {showcaseFeatures.map((feat, idx) => (
+                    <View key={idx} style={styles.screenMockupCardMobile}>
+                      <View style={[styles.phoneFrameContainer, feat.isHighlight && styles.phoneFrameHighlight]}>
+                        <Image
+                          source={feat.image}
+                          style={[
+                            styles.phoneMockupImageMobile,
+                            feat.isHighlight && styles.phoneMockupImageHighlight,
+                          ]}
+                          resizeMode="contain"
+                        />
+                      </View>
+                      <Text style={[styles.mockupCardTitle, feat.isHighlight && { color: Colors.primary }]}>
+                        {feat.title}
+                      </Text>
+                      <Text style={styles.mockupCardSubtitle}>{feat.subtitle}</Text>
+                    </View>
+                  ))}
+                </ScrollView>
+              )}
 
-                <View style={styles.featureBulletRow}>
-                  <View style={styles.featureBulletIconBox}>
-                    <Zap size={20} color={Colors.primary} />
-                  </View>
-                  <View style={styles.featureBulletTextBox}>
-                    <Text style={styles.featureBulletTitle}>Senza palestra, nessun problema</Text>
-                    <Text style={styles.featureBulletDesc}>
-                      Fai pliometria ed elevazione a casa, all'aperto o in campo con pochissima o nessuna attrezzatura.
-                    </Text>
-                  </View>
-                </View>
+              {/* Banner Inferior: Piano di recupero e nutrizione personalizzato */}
+              <View style={styles.showcaseBottomBanner}>
+                <Text style={styles.showcaseBottomTitle}>
+                  🔥 Piano di recupero e nutrizione personalizzato
+                </Text>
+                <Text style={styles.showcaseBottomDesc}>
+                  Con oltre 100 protocolli facili da seguire per raggiungere il tuo obiettivo più velocemente e proteggere i tendini.
+                </Text>
               </View>
             </View>
 
@@ -4325,120 +4345,103 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
   },
 
-  // ── SEZIONE: COSA INCLUDE IL TUO PIANO ──
+  // ── SEZIONE: COSA INCLUDE IL TUO PIANO (MODELLATO SU VERTICAM) ──
   offerWhatIncludesSection: {
     width: '100%',
-    maxWidth: 920,
+    maxWidth: 1040,
     alignItems: 'center',
     marginBottom: 48,
+    alignSelf: 'center',
   },
   screensShowcaseRow: {
     width: '100%',
     flexDirection: 'row',
-    flexWrap: 'wrap',
     justifyContent: 'center',
+    alignItems: 'flex-start',
     gap: 16,
-    marginBottom: 36,
+    marginTop: 24,
+    marginBottom: 32,
+  },
+  screensShowcaseScroll: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 14,
+    alignItems: 'flex-start',
+    marginBottom: 28,
   },
   screenMockupCard: {
-    width: 168,
-    backgroundColor: '#161922',
-    borderRadius: 18,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    width: 180,
     alignItems: 'center',
   },
-  mockupTagBadge: {
-    backgroundColor: 'rgba(0, 229, 255, 0.1)',
-    paddingVertical: 3,
-    paddingHorizontal: 7,
-    borderRadius: 6,
-    marginBottom: 6,
-    alignSelf: 'flex-start',
+  screenMockupCardMobile: {
+    width: 165,
+    alignItems: 'center',
   },
-  mockupTagText: {
-    color: Colors.primary,
-    fontSize: 9,
-    fontWeight: '800',
+  phoneFrameContainer: {
+    width: 172,
+    height: 286,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+    borderRadius: 22,
+  },
+  phoneFrameHighlight: {
+    shadowColor: '#00E5FF',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.65,
+    shadowRadius: 18,
+    elevation: 10,
+  },
+  phoneMockupImage: {
+    width: 164,
+    height: 270,
+  },
+  phoneMockupImageHighlight: {
+    width: 172,
+    height: 286,
+  },
+  phoneMockupImageMobile: {
+    width: 155,
+    height: 255,
   },
   mockupCardTitle: {
     color: '#FFFFFF',
     fontSize: 13,
     fontWeight: '800',
     textAlign: 'center',
-    marginBottom: 3,
+    lineHeight: 18,
+    marginBottom: 4,
   },
-  mockupCardDesc: {
+  mockupCardSubtitle: {
     color: '#8A8D9B',
-    fontSize: 10.5,
+    fontSize: 11,
+    fontWeight: '600',
     textAlign: 'center',
-    lineHeight: 14,
-    marginBottom: 10,
+    letterSpacing: 0.3,
   },
-  mockupScreenPhoneBezel: {
+  showcaseBottomBanner: {
     width: '100%',
-    height: 140,
-    backgroundColor: '#090B10',
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: '#262933',
-    alignItems: 'center',
-    paddingTop: 6,
-  },
-  mockupDynamicIsland: {
-    width: 32,
-    height: 7,
-    backgroundColor: '#000000',
-    borderRadius: 4,
-    marginBottom: 16,
-  },
-  mockupInnerScreenPreview: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-  },
-  mockupScreenMiniText: {
-    color: Colors.primary,
-    fontSize: 10,
-    fontWeight: '700',
-  },
-  featureBulletsContainer: {
-    width: '100%',
-    maxWidth: 680,
-    gap: 16,
-  },
-  featureBulletRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 14,
-    backgroundColor: '#141620',
-    padding: 16,
-    borderRadius: 16,
+    maxWidth: 760,
+    backgroundColor: '#141721',
+    borderRadius: 18,
+    paddingVertical: 18,
+    paddingHorizontal: 22,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.06)',
+    borderColor: 'rgba(0, 229, 255, 0.28)',
+    marginTop: 8,
   },
-  featureBulletIconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  featureBulletTextBox: {
-    flex: 1,
-  },
-  featureBulletTitle: {
+  showcaseBottomTitle: {
     color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '800',
-    marginBottom: 4,
+    marginBottom: 6,
+    textAlign: 'center',
   },
-  featureBulletDesc: {
-    color: '#9E9E9E',
+  showcaseBottomDesc: {
+    color: '#A0A3BD',
     fontSize: 13,
-    lineHeight: 18,
+    lineHeight: 19,
+    textAlign: 'center',
   },
 
   // ── SEZIONE: RE-PITCH RISULTATI ──
