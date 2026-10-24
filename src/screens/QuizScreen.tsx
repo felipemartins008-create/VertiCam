@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { getStripeCheckoutUrl } from '../config/stripe';
+import { StripeEmbeddedCheckoutModal } from '../components/StripeEmbeddedCheckoutModal';
 import {
   ChevronRight,
   ArrowLeft,
@@ -169,6 +170,7 @@ export const QuizScreen: React.FC = () => {
 
   // Offerta Plan selection (Step 13: Mensile, Trimestrale [Più Popolare], Semestrale)
   const [selectedPlan, setSelectedPlan] = useState<'1_month' | '3_months' | '6_months'>('3_months');
+  const [isCheckoutModalVisible, setIsCheckoutModalVisible] = useState<boolean>(false);
 
   // Countdown timer per offerta (Step 13 - 09:41 stile BetterMe)
   const [secondsRemaining, setSecondsRemaining] = useState<number>(581);
@@ -423,12 +425,12 @@ export const QuizScreen: React.FC = () => {
   ];
 
   const handleCheckout = () => {
-    const checkoutUrl = getStripeCheckoutUrl(selectedPlan);
-    if (Platform.OS === 'web' && typeof window !== 'undefined') {
-      window.location.href = checkoutUrl;
-    } else {
-      Linking.openURL(checkoutUrl);
-    }
+    setIsCheckoutModalVisible(true);
+  };
+
+  const handleSelectPlanAndCheckout = (plan: '1_month' | '3_months' | '6_months') => {
+    setSelectedPlan(plan);
+    setIsCheckoutModalVisible(true);
   };
 
   const femaleAgeCards: BetterMeCardOption[] = [
@@ -1900,7 +1902,7 @@ export const QuizScreen: React.FC = () => {
                     selectedPlan === '1_month' && styles.pricingCardItemSelected,
                   ]}
                   activeOpacity={0.88}
-                  onPress={() => setSelectedPlan('1_month')}
+                  onPress={() => handleSelectPlanAndCheckout('1_month')}
                 >
                   <View style={styles.cardTopContent}>
                     <View style={styles.pricingCardHeader}>
@@ -1935,7 +1937,7 @@ export const QuizScreen: React.FC = () => {
                     selectedPlan === '3_months' && styles.pricingCardItemSelected,
                   ]}
                   activeOpacity={0.88}
-                  onPress={() => setSelectedPlan('3_months')}
+                  onPress={() => handleSelectPlanAndCheckout('3_months')}
                 >
                   <View style={styles.popularTopBadge}>
                     <Text style={styles.popularTopBadgeText}>PIÙ POPOLARE</Text>
@@ -1972,7 +1974,7 @@ export const QuizScreen: React.FC = () => {
                     selectedPlan === '6_months' && styles.pricingCardItemSelected,
                   ]}
                   activeOpacity={0.88}
-                  onPress={() => setSelectedPlan('6_months')}
+                  onPress={() => handleSelectPlanAndCheckout('6_months')}
                 >
                   <View style={styles.cardTopContent}>
                     <View style={styles.pricingCardHeader}>
@@ -2109,7 +2111,7 @@ export const QuizScreen: React.FC = () => {
                     selectedPlan === '1_month' && styles.pricingCardItemSelected,
                   ]}
                   activeOpacity={0.88}
-                  onPress={() => setSelectedPlan('1_month')}
+                  onPress={() => handleSelectPlanAndCheckout('1_month')}
                 >
                   <View style={styles.cardTopContent}>
                     <View style={styles.pricingCardHeader}>
@@ -2144,7 +2146,7 @@ export const QuizScreen: React.FC = () => {
                     selectedPlan === '3_months' && styles.pricingCardItemSelected,
                   ]}
                   activeOpacity={0.88}
-                  onPress={() => setSelectedPlan('3_months')}
+                  onPress={() => handleSelectPlanAndCheckout('3_months')}
                 >
                   <View style={styles.popularTopBadge}>
                     <Text style={styles.popularTopBadgeText}>PIÙ POPOLARE</Text>
@@ -2181,7 +2183,7 @@ export const QuizScreen: React.FC = () => {
                     selectedPlan === '6_months' && styles.pricingCardItemSelected,
                   ]}
                   activeOpacity={0.88}
-                  onPress={() => setSelectedPlan('6_months')}
+                  onPress={() => handleSelectPlanAndCheckout('6_months')}
                 >
                   <View style={styles.cardTopContent}>
                     <View style={styles.pricingCardHeader}>
@@ -2273,6 +2275,27 @@ export const QuizScreen: React.FC = () => {
           <Text style={styles.floatingHelpText}>Aiuto</Text>
         </TouchableOpacity>
       )}
+
+      {/* Modal di Checkout Incorporato Stripe su Pagina */}
+      <StripeEmbeddedCheckoutModal
+        visible={isCheckoutModalVisible}
+        onClose={() => setIsCheckoutModalVisible(false)}
+        planId={selectedPlan}
+        planName={
+          selectedPlan === '1_month'
+            ? 'Piano 1 Mese'
+            : selectedPlan === '3_months'
+            ? 'Piano 3 Mesi (Più Popolare)'
+            : 'Piano 6 Mesi'
+        }
+        planPrice={
+          selectedPlan === '1_month'
+            ? '€ 19,99/mese'
+            : selectedPlan === '3_months'
+            ? '€ 37,99'
+            : '€ 59,99'
+        }
+      />
     </View>
   );
 };

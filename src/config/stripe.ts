@@ -36,3 +36,29 @@ export function getStripeCheckoutUrl(planId: string, email?: string): string {
   
   return plan.paymentLinkUrl;
 }
+
+export const STRIPE_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY || '';
+
+/**
+ * Cria uma sessão do Stripe Embedded Checkout via endpoint serverless da Vercel
+ */
+export async function createEmbeddedCheckoutSession(
+  planId: string, 
+  email?: string
+): Promise<{ clientSecret: string; publishableKey?: string } | null> {
+  try {
+    const res = await fetch('/api/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ planId, email })
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.clientSecret ? { 
+      clientSecret: data.clientSecret, 
+      publishableKey: data.publishableKey || STRIPE_PUBLISHABLE_KEY 
+    } : null;
+  } catch (e) {
+    return null;
+  }
+}
