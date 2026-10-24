@@ -91,10 +91,10 @@ export const StripeEmbeddedCheckoutModal: React.FC<StripeEmbeddedCheckoutModalPr
           throw new Error('Impossibile avviare la sessione di pagamento.');
         }
 
-        const pubKey = session.publishableKey || STRIPE_PUBLISHABLE_KEY;
-        if (!pubKey) {
-          // Fallback al checkout ospitato
-          setErrorMessage('Chiave Stripe pubblica non configurata.');
+        let pubKey = session.publishableKey || STRIPE_PUBLISHABLE_KEY;
+        if (!pubKey || pubKey.startsWith('sk_')) {
+          // A chave configurada é a secret key (sk_...) ou não foi informada a publishable (pk_...)
+          setErrorMessage('Per completare il pagamento, procedi sulla pagina sicura Stripe.');
           setLoading(false);
           return;
         }
