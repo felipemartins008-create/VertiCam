@@ -11,6 +11,7 @@ import { PaywallScreen } from './src/screens/PaywallScreen';
 import { DashboardScreen } from './src/screens/DashboardScreen';
 import { WorkoutPlayerScreen } from './src/screens/WorkoutPlayerScreen';
 import { DailyCheckinScreen } from './src/screens/DailyCheckinScreen';
+import { ActivateAccountScreen } from './src/screens/ActivateAccountScreen';
 import { WebSidebar } from './src/components/WebSidebar';
 import { Colors } from './src/theme/colors';
 
@@ -39,6 +40,7 @@ const RootNavigator: React.FC = () => {
       case 'Paywall':          return <PaywallScreen />;
       case 'WorkoutPlayer':    return <WorkoutPlayerScreen />;
       case 'DailyCheckin':     return <DailyCheckinScreen />;
+      case 'ActivateAccount':  return <ActivateAccountScreen />;
       case 'Dashboard':
       default:                 return <DashboardScreen />;
     }

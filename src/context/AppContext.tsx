@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { Platform } from 'react-native';
 import {
   UserProfile,
   JumpTestResult,
@@ -13,6 +14,7 @@ import { PrescriptionEngine } from '../services/prescriptionEngine';
 export type ScreenName =
   | 'Welcome'
   | 'Quiz'
+  | 'ActivateAccount'
   | 'CameraIntro'
   | 'JumpInstruction'
   | 'JumpCamera'
@@ -71,6 +73,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [dailyPrescription, setDailyPrescription] = useState<PrescriptionOutput | null>(null);
 
   useEffect(() => {
+    // Detecta retorno de pagamento da Stripe (?payment=success, ?session_id=... ou ?activate=true)
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const isPaymentSuccess = params.get('payment') === 'success' || !!params.get('session_id') || params.get('activate') === 'true';
+        if (isPaymentSuccess) {
+          setIsSubscribed(true);
+          setCurrentScreen('ActivateAccount');
+        }
+      } catch (e) {
+        // Ignora se não houver suporte a URLSearchParams
+      }
+    }
+
     // Inicialização de dados
     const initData = async () => {
       const history = await JumpService.getJumpHistory();
