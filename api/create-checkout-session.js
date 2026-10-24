@@ -33,7 +33,7 @@ module.exports = async (req, res) => {
     const returnUrl = `${origin}/?payment=success&session_id={CHECKOUT_SESSION_ID}`;
 
     const params = [
-      `ui_mode=embedded`,
+      `ui_mode=embedded_page`,
       `mode=subscription`,
       `line_items[0][price]=${encodeURIComponent(priceId)}`,
       `line_items[0][quantity]=1`,
