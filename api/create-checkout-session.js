@@ -38,7 +38,8 @@ module.exports = async (req, res) => {
       `line_items[0][price]=${encodeURIComponent(priceId)}`,
       `line_items[0][quantity]=1`,
       `return_url=${encodeURIComponent(returnUrl)}`,
-      `allow_promotion_codes=true`
+      `allow_promotion_codes=true`,
+      `locale=it`
     ];
 
     if (email && email.includes('@')) {
