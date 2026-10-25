@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,13 +7,9 @@ import {
   ScrollView,
   SafeAreaView,
   Dimensions,
-  ActivityIndicator,
-  Animated,
 } from 'react-native';
 import {
-  Camera,
   RotateCcw,
-  Play,
   ArrowRight,
   ShieldCheck,
   Flame,
@@ -24,8 +20,9 @@ import {
 } from 'lucide-react-native';
 import { useApp } from '../context/AppContext';
 import { Colors } from '../theme/colors';
-import { calculateJumpHeight } from '../utils/jumpPhysics';
 import { PrescriptionEngine } from '../services/prescriptionEngine';
+import { BiomechanicalDemonstration } from '../components/BiomechanicalDemonstration';
+import { RealJumpCamera } from '../components/RealJumpCamera';
 
 const { width } = Dimensions.get('window');
 const isDesktop = width >= 768;
@@ -47,25 +44,9 @@ export const BaselineEvaluationScreen: React.FC = () => {
   const [currentJumpType, setCurrentJumpType] = useState<JumpType>('CMJ');
   const [currentAttempt, setCurrentAttempt] = useState<number>(1); // 1, 2, 3
 
-  // Resultados registrados
+  // Resultados registrados (salvos diretamente da câmera real)
   const [cmjScores, setCmjScores] = useState<number[]>([]);
   const [sjScores, setSjScores] = useState<number[]>([]);
-
-  // Estado da Câmera / Gravação
-  const [cameraState, setCameraState] = useState<'ready' | 'countdown' | 'recording' | 'analyzing' | 'scrubbing'>('ready');
-  const [countdown, setCountdown] = useState<number>(3);
-  const [takeoffSec, setTakeoffSec] = useState<number>(1.82);
-  const [touchdownSec, setTouchdownSec] = useState<number>(2.48);
-  const [flightTimeSec, setFlightTimeSec] = useState<number>(0.66);
-  const [jumpHeightCm, setJumpHeightCm] = useState<number>(53.4);
-
-  // Calcula altura pelo tempo de voo
-  useEffect(() => {
-    const flight = Math.max(0, Math.round((touchdownSec - takeoffSec) * 1000) / 1000);
-    setFlightTimeSec(flight);
-    const height = calculateJumpHeight(flight);
-    setJumpHeightCm(height);
-  }, [takeoffSec, touchdownSec]);
 
   // Timer descanso aquecimento
   useEffect(() => {
@@ -85,59 +66,26 @@ export const BaselineEvaluationScreen: React.FC = () => {
     return () => clearInterval(timer);
   }, [isResting, warmupRestSeconds]);
 
-  // Inicia gravação da câmera
-  const startCameraRecording = () => {
-    setCameraState('countdown');
-    setCountdown(3);
-
-    let count = 3;
-    const interval = setInterval(() => {
-      count -= 1;
-      if (count > 0) {
-        setCountdown(count);
-      } else {
-        clearInterval(interval);
-        setCameraState('recording');
-
-        // Simula captura em câmera lenta de 240fps
-        setTimeout(() => {
-          setCameraState('analyzing');
-          setTimeout(() => {
-            const baseTime = currentJumpType === 'CMJ' ? 0.64 + Math.random() * 0.08 : 0.58 + Math.random() * 0.07;
-            const tTakeoff = 1.65;
-            const tLanding = Math.round((tTakeoff + baseTime) * 1000) / 1000;
-            setTakeoffSec(tTakeoff);
-            setTouchdownSec(tLanding);
-            setCameraState('scrubbing');
-          }, 900);
-        }, 2500);
-      }
-    }, 1000);
-  };
-
-  // Confirma salto gravado
-  const handleConfirmJump = () => {
+  // Salto Confirmado diretamente pelo Scrubber da Câmera Real
+  const handleJumpRecorded = (heightCm: number) => {
     if (currentJumpType === 'CMJ') {
-      const nextScores = [...cmjScores, jumpHeightCm];
+      const nextScores = [...cmjScores, heightCm];
       setCmjScores(nextScores);
 
       if (currentAttempt < 3) {
         setCurrentAttempt(currentAttempt + 1);
-        setCameraState('ready');
       } else {
         // Passa para SJ (Squat Jump)
         setCurrentJumpType('SJ');
         setCurrentAttempt(1);
-        setCameraState('ready');
       }
     } else {
       // JumpType === 'SJ'
-      const nextScores = [...sjScores, jumpHeightCm];
+      const nextScores = [...sjScores, heightCm];
       setSjScores(nextScores);
 
       if (currentAttempt < 3) {
         setCurrentAttempt(currentAttempt + 1);
-        setCameraState('ready');
       } else {
         // Avaliação Concluída!
         finishEvaluation(cmjScores, nextScores);
@@ -197,7 +145,7 @@ export const BaselineEvaluationScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* ── FASE 1: TUTORIAL E REGRAS DE EXECUÇÃO ── */}
+      {/* ── FASE 1: TUTORIAL E REGRAS DE EXECUÇÃO COM DEMONSTRAÇÕES ── */}
       {phase === 'tutorial' && (
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <View style={styles.topBadge}>
@@ -234,6 +182,11 @@ export const BaselineEvaluationScreen: React.FC = () => {
               </Text>
             </View>
           </View>
+
+          {/* Demonstrações Interativas dos Saltos */}
+          <BiomechanicalDemonstration type="cmj" />
+          <BiomechanicalDemonstration type="sj" />
+          <BiomechanicalDemonstration type="camera_setup" />
 
           {/* Sequência do Teste */}
           <View style={styles.sequenceCard}>
@@ -278,6 +231,9 @@ export const BaselineEvaluationScreen: React.FC = () => {
             3 séries de 10 repetições de agachamento com peso corporal para ativar os fusos neuromusculares e preparar o tendão patelar.
           </Text>
 
+          {/* Demonstração Biomecânica do Agachamento */}
+          <BiomechanicalDemonstration type="warmup" />
+
           {/* Card Série */}
           <View style={styles.warmupProgressCard}>
             <Text style={styles.warmupCardTitle}>SÉRIE {warmupSet} DE 3</Text>
@@ -298,7 +254,7 @@ export const BaselineEvaluationScreen: React.FC = () => {
               >
                 <Check size={18} color="#000000" strokeWidth={3} />
                 <Text style={styles.warmupCompleteBtnText}>
-                  {warmupSet === 3 ? 'CONCLUIR AQUECIMENTO' : `SÉRIE ${warmupSet} CONCLUÍDA`}
+                  {warmupSet === 3 ? 'CONCLUIR AQUECIMENTO & ABRIR CÂMERA' : `SÉRIE ${warmupSet} CONCLUÍDA`}
                 </Text>
               </TouchableOpacity>
             )}
@@ -327,106 +283,16 @@ export const BaselineEvaluationScreen: React.FC = () => {
         </ScrollView>
       )}
 
-      {/* ── FASE 3: TESTE COM CÂMERA EM 240FPS ── */}
+      {/* ── FASE 3: TESTE COM CÂMERA REAL EM 240FPS & SCRUBBER REAL ── */}
       {phase === 'camera_test' && (
-        <View style={styles.cameraWrapper}>
-          {/* Top Bar da Câmera */}
-          <View style={styles.cameraTopHeader}>
-            <View style={styles.cameraTypePill}>
-              <Text style={styles.cameraTypeLabel}>
-                TESTE: <Text style={{ color: Colors.primary, fontWeight: '900' }}>{currentJumpType}</Text>
-              </Text>
-              <Text style={styles.cameraAttemptLabel}>Tentativa {currentAttempt} de 3</Text>
-            </View>
-
-            <View style={styles.fpsBadge}>
-              <View style={styles.fpsDot} />
-              <Text style={styles.fpsText}>240 FPS CÂMERA LENTA</Text>
-            </View>
-          </View>
-
-          {/* Visor da Câmera */}
-          <View style={styles.cameraViewfinder}>
-            {cameraState === 'ready' && (
-              <View style={styles.cameraCenterInstruction}>
-                <Camera size={48} color={Colors.primary} style={{ marginBottom: 12 }} />
-                <Text style={styles.viewfinderTitle}>Enquadre os pés e pernas</Text>
-                <Text style={styles.viewfinderSub}>
-                  Certifique-se de que o chão e seu corpo estejam visíveis na tela.
-                </Text>
-                <Text style={styles.viewfinderRule}>
-                  {currentJumpType === 'CMJ'
-                    ? '👉 Salto com contramovimento: agache rápido e salte o mais alto possível!'
-                    : '👉 Salto sem contramovimento: agache a 90°, segure 2s imóvel e salte sem tomar impulso!'}
-                </Text>
-                <TouchableOpacity
-                  style={styles.startRecordBtn}
-                  onPress={startCameraRecording}
-                  activeOpacity={0.88}
-                >
-                  <Play size={18} color="#000000" fill="#000000" />
-                  <Text style={styles.startRecordBtnText}>INICIAR SALTO</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-
-            {cameraState === 'countdown' && (
-              <View style={styles.cameraCenterInstruction}>
-                <Text style={styles.countdownNumber}>{countdown}</Text>
-                <Text style={styles.countdownLabel}>Prepare-se para saltar...</Text>
-              </View>
-            )}
-
-            {cameraState === 'recording' && (
-              <View style={styles.cameraCenterInstruction}>
-                <View style={styles.recordingDotPulse} />
-                <Text style={styles.recordingTitle}>SALTE AGORA!</Text>
-                <Text style={styles.recordingSub}>A câmera de 240fps está rastreando a decolagem...</Text>
-              </View>
-            )}
-
-            {cameraState === 'analyzing' && (
-              <View style={styles.cameraCenterInstruction}>
-                <ActivityIndicator size="large" color={Colors.primary} />
-                <Text style={styles.analyzingText}>Detectando Decolagem & Aterrissagem...</Text>
-                <Text style={styles.analyzingSub}>Calculando tempo de voo com precisão de milissegundos</Text>
-              </View>
-            )}
-
-            {cameraState === 'scrubbing' && (
-              <View style={styles.scrubberCard}>
-                <View style={styles.scrubberHeader}>
-                  <Text style={styles.scrubberResultValue}>{jumpHeightCm} cm</Text>
-                  <Text style={styles.scrubberResultSub}>Tempo de voo: {flightTimeSec}s</Text>
-                </View>
-
-                {/* Marcadores Temporais Takeoff / Touchdown */}
-                <View style={styles.timeMarkersRow}>
-                  <View style={styles.timeMarkerBox}>
-                    <Text style={styles.timeMarkerLabel}>DECOLAGEM (Takeoff)</Text>
-                    <Text style={styles.timeMarkerValue}>{takeoffSec.toFixed(2)}s</Text>
-                  </View>
-                  <ArrowRight size={16} color="#64748B" />
-                  <View style={styles.timeMarkerBox}>
-                    <Text style={styles.timeMarkerLabel}>ATERRISSAGEM (Touchdown)</Text>
-                    <Text style={styles.timeMarkerValue}>{touchdownSec.toFixed(2)}s</Text>
-                  </View>
-                </View>
-
-                <TouchableOpacity
-                  style={styles.confirmJumpBtn}
-                  onPress={handleConfirmJump}
-                  activeOpacity={0.88}
-                >
-                  <Check size={18} color="#000000" strokeWidth={3} />
-                  <Text style={styles.confirmJumpBtnText}>
-                    CONFIRMAR SALTO ({jumpHeightCm} cm)
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
-        </View>
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          <RealJumpCamera
+            jumpType={currentJumpType}
+            attemptNumber={currentAttempt}
+            totalAttempts={3}
+            onJumpConfirmed={handleJumpRecorded}
+          />
+        </ScrollView>
       )}
 
       {/* ── FASE 4: RESULTADOS & LINHA DE BASE LOTURCO ── */}

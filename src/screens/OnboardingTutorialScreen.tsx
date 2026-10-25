@@ -7,6 +7,7 @@ import {
   ScrollView,
   SafeAreaView,
   Dimensions,
+  Alert,
 } from 'react-native';
 import {
   Activity,
@@ -17,16 +18,30 @@ import {
   Zap,
   ShieldCheck,
   Sparkles,
+  AlertTriangle,
+  Info,
 } from 'lucide-react-native';
 import { useApp } from '../context/AppContext';
 import { Colors } from '../theme/colors';
 import { VertiCamLogo } from '../components/VertiCamLogo';
+
+const DAY_CYCLE = [1, 2, 3, 4, 5, 6, 0]; // Seg, Ter, Qua, Qui, Sex, Sáb, Dom
+const getCycleIndex = (dayId: number) => DAY_CYCLE.indexOf(dayId);
+
+const areDaysConsecutive = (dayA: number, dayB: number): boolean => {
+  const idxA = getCycleIndex(dayA);
+  const idxB = getCycleIndex(dayB);
+  if (idxA === -1 || idxB === -1) return false;
+  const diff = Math.abs(idxA - idxB);
+  return diff === 1 || diff === 6; // diff === 6 é Dom (idx 6) e Seg (idx 0)
+};
 
 export const OnboardingTutorialScreen: React.FC = () => {
   const { navigate, updateProfile } = useApp();
 
   // Dias de treino selecionados (Padrão: Segunda 1, Quarta 3, Sexta 5)
   const [selectedDays, setSelectedDays] = useState<number[]>([1, 3, 5]);
+  const [consecutiveWarning, setConsecutiveWarning] = useState<string | null>(null);
 
   const daysOfWeek = [
     { id: 1, label: 'SEG', full: 'Segunda-feira' },
@@ -42,10 +57,32 @@ export const OnboardingTutorialScreen: React.FC = () => {
     if (selectedDays.includes(dayId)) {
       if (selectedDays.length > 1) {
         setSelectedDays(selectedDays.filter((d) => d !== dayId));
+        setConsecutiveWarning(null);
+      } else {
+        setConsecutiveWarning('Mantenha pelo menos 1 dia de treino selecionado.');
       }
     } else {
+      // Verifica se o dia clicado é consecutivo a algum dia já selecionado
+      const hasConsecutive = selectedDays.some((existingDay) =>
+        areDaysConsecutive(dayId, existingDay)
+      );
+
+      if (hasConsecutive) {
+        const clickedDayName = daysOfWeek.find((d) => d.id === dayId)?.full || 'este dia';
+        setConsecutiveWarning(
+          `⚠️ Dias seguidos bloqueados! O Sistema Nervoso Central (SNC) necessita de pelo menos 1 dia completo de recuperação entre treinos balísticos (Método Irineu Loturco). Selecione dias alternados para proteger seus tendões.`
+        );
+        return;
+      }
+
+      setConsecutiveWarning(null);
       setSelectedDays([...selectedDays, dayId]);
     }
+  };
+
+  const applyPreset = (presetDays: number[]) => {
+    setSelectedDays(presetDays);
+    setConsecutiveWarning(null);
   };
 
   const handleStartInitialEvaluation = async () => {
@@ -162,10 +199,49 @@ export const OnboardingTutorialScreen: React.FC = () => {
             })}
           </View>
 
+          {/* Alerta de Dias Consecutivos Bloqueados */}
+          {consecutiveWarning && (
+            <View style={styles.consecutiveWarningBox}>
+              <AlertTriangle size={18} color="#F59E0B" style={{ marginTop: 2 }} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.consecutiveWarningTitle}>Descanso Obrigatório de 1 Dia</Text>
+                <Text style={styles.consecutiveWarningText}>{consecutiveWarning}</Text>
+              </View>
+            </View>
+          )}
+
+          {/* Sugestões Rápidas Seguras */}
+          <View style={styles.presetsContainer}>
+            <Text style={styles.presetsLabel}>SUGESTÕES DE PERIODIZAÇÃO LOTURCO:</Text>
+            <View style={styles.presetButtonsRow}>
+              <TouchableOpacity
+                style={[
+                  styles.presetBtn,
+                  selectedDays.length === 3 && selectedDays.includes(1) && selectedDays.includes(3) && selectedDays.includes(5) && styles.presetBtnActive,
+                ]}
+                onPress={() => applyPreset([1, 3, 5])}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.presetBtnText}>Seg / Qua / Sex (Recomendado)</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.presetBtn,
+                  selectedDays.length === 3 && selectedDays.includes(2) && selectedDays.includes(4) && selectedDays.includes(6) && styles.presetBtnActive,
+                ]}
+                onPress={() => applyPreset([2, 4, 6])}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.presetBtnText}>Ter / Qui / Sáb</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
           <View style={styles.daysSummaryRow}>
             <Zap size={13} color="#10B981" />
             <Text style={styles.daysSummaryText}>
-              Frequência: <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>{selectedDays.length} dias na semana</Text> (ideal para recuperação neural)
+              Frequência: <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>{selectedDays.length} dias na semana</Text> (com descanso do SNC entre eles)
             </Text>
           </View>
         </View>
@@ -424,6 +500,58 @@ const styles = StyleSheet.create({
   daysSummaryText: {
     fontSize: 11,
     color: '#94A3B8',
+  },
+  consecutiveWarningBox: {
+    flexDirection: 'row',
+    gap: 10,
+    backgroundColor: 'rgba(245, 158, 11, 0.12)',
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(245, 158, 11, 0.4)',
+    marginVertical: 4,
+  },
+  consecutiveWarningTitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#F59E0B',
+    marginBottom: 2,
+  },
+  consecutiveWarningText: {
+    fontSize: 11,
+    color: '#CBD5E1',
+    lineHeight: 16,
+  },
+  presetsContainer: {
+    gap: 6,
+    marginVertical: 4,
+  },
+  presetsLabel: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#64748B',
+    letterSpacing: 0.5,
+  },
+  presetButtonsRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  presetBtn: {
+    backgroundColor: '#12172A',
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  presetBtnActive: {
+    borderColor: Colors.primary,
+    backgroundColor: 'rgba(0, 229, 255, 0.12)',
+  },
+  presetBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
 
   // Loturco Box

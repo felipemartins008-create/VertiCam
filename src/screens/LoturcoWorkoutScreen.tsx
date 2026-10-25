@@ -23,6 +23,8 @@ import {
 } from 'lucide-react-native';
 import { useApp } from '../context/AppContext';
 import { Colors } from '../theme/colors';
+import { BiomechanicalDemonstration } from '../components/BiomechanicalDemonstration';
+import { RealJumpCamera } from '../components/RealJumpCamera';
 
 type WorkoutStep = 'warmup' | 'readiness_check' | 'loaded_jumps' | 'summary';
 
@@ -84,29 +86,28 @@ export const LoturcoWorkoutScreen: React.FC = () => {
     }
   };
 
-  // Executa o Teste de Prontidão (Readiness Check)
+  // Executa o Teste de Prontidão (Readiness Check) com Câmera Real
   const runReadinessTest = () => {
     setReadinessState('testing');
-    setTimeout(() => {
-      const baseline = athleteBaseline.baseline_cmj_height || 52.0;
-      const variation = (Math.random() * 4 - 1.5);
-      const actualCm = Math.round((baseline + variation) * 10) / 10;
-      const ratio = (actualCm / baseline) * 100;
+  };
 
-      setReadinessJumpCm(actualCm);
-      if (ratio >= 98) {
-        setReadinessZone('GREEN');
-        setPrescribedLoadKg(baseLoadKg);
-      } else if (ratio >= 90) {
-        setReadinessZone('YELLOW');
-        setPrescribedLoadKg(Math.max(4, Math.round(baseLoadKg * 0.85)));
-      } else {
-        setReadinessZone('RED');
-        setPrescribedLoadKg(Math.max(2, Math.round(baseLoadKg * 0.6)));
-      }
+  const handleReadinessJumpResult = (actualCm: number) => {
+    const baseline = athleteBaseline.baseline_cmj_height || 52.0;
+    const ratio = (actualCm / baseline) * 100;
 
-      setReadinessState('done');
-    }, 2000);
+    setReadinessJumpCm(actualCm);
+    if (ratio >= 98) {
+      setReadinessZone('GREEN');
+      setPrescribedLoadKg(baseLoadKg);
+    } else if (ratio >= 90) {
+      setReadinessZone('YELLOW');
+      setPrescribedLoadKg(Math.max(4, Math.round(baseLoadKg * 0.85)));
+    } else {
+      setReadinessZone('RED');
+      setPrescribedLoadKg(Math.max(2, Math.round(baseLoadKg * 0.6)));
+    }
+
+    setReadinessState('done');
   };
 
   // Executa uma repetição de Salto com Carga rastreada pela câmera
@@ -185,6 +186,9 @@ export const LoturcoWorkoutScreen: React.FC = () => {
               Realize 10 repetições de agachamento com peso do corpo para ativar os fusos neuromusculares.
             </Text>
 
+            {/* Demonstração Biomecânica do Agachamento */}
+            <BiomechanicalDemonstration type="warmup" />
+
             <View style={styles.warmupCounterBox}>
               <Text style={styles.warmupCounterLabel}>SÉRIE ATUAL</Text>
               <Text style={styles.warmupCounterValue}>{warmupSet} / 3</Text>
@@ -231,15 +235,17 @@ export const LoturcoWorkoutScreen: React.FC = () => {
                 activeOpacity={0.88}
               >
                 <Camera size={18} color="#000000" strokeWidth={2.5} />
-                <Text style={styles.actionBtnText}>EXECUTAR SALTO DE TESTE</Text>
+                <Text style={styles.actionBtnText}>ABRIR CÂMERA & GRAVAR SALTO DE TESTE</Text>
               </TouchableOpacity>
             )}
 
             {readinessState === 'testing' && (
-              <View style={styles.loadingBox}>
-                <ActivityIndicator size="large" color={Colors.primary} />
-                <Text style={styles.loadingBoxText}>Analisando reatividade neuromuscular...</Text>
-              </View>
+              <RealJumpCamera
+                jumpType="CMJ"
+                attemptNumber={1}
+                totalAttempts={1}
+                onJumpConfirmed={handleReadinessJumpResult}
+              />
             )}
 
             {readinessState === 'done' && (
@@ -292,6 +298,9 @@ export const LoturcoWorkoutScreen: React.FC = () => {
                 <Text style={styles.weightBadgeSub}>Carga OPL</Text>
               </View>
             </View>
+
+            {/* Guia Biomecânico do Salto */}
+            <BiomechanicalDemonstration type="cmj" />
 
             {/* Monitor de Velocidade e Perda */}
             <View style={styles.telemetryCard}>
