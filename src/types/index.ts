@@ -20,6 +20,11 @@ export interface UserProfile {
   age: number;
   heightCm: number;
   weightKg: number;
+  legLengthCm?: number; // Comprimento dos membros inferiores (trocanter ao solo) em cm
+  availableEquipment?: 'dumbbells' | 'barbell' | 'weight_vest' | 'bodyweight';
+  workoutDays?: number[]; // Dias de treino na semana (1 = Seg, 3 = Qua, 5 = Sex, etc.)
+  hasCompletedInitialEvaluation?: boolean;
+  nextEvaluationDate?: string;
   standingReachCm: number;
   gender?: 'female' | 'male';
   squat1rmKg?: number; // Carga de 1RM no agachamento
@@ -83,6 +88,7 @@ export type NeuromuscularTrainingLevel =
 export interface AthleteBaseline {
   user_weight: number;         // kg
   user_height: number;         // cm
+  user_leg_length_cm?: number; // cm (trocanter ao solo)
   user_squat_1rm: number;      // kg
   training_level: NeuromuscularTrainingLevel;
   baseline_cmj_height: number; // cm

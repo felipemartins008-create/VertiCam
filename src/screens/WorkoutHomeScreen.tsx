@@ -1,192 +1,212 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import {
-  View, Text, StyleSheet, ScrollView,
-  TouchableOpacity, Platform, Image,
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 import {
-  Zap, Menu, Play, Clock, Flame, ShieldCheck,
-  Home, Dumbbell, BarChart2, ChevronRight, Activity,
+  Zap,
+  Play,
+  ShieldCheck,
+  Calendar,
+  Sparkles,
+  Flame,
+  Activity,
+  Dumbbell,
+  Check,
+  ArrowRight,
+  TrendingUp,
 } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
 import { useApp } from '../context/AppContext';
-import { WORKOUT_MODULES } from '../data/mockData';
-import { WorkoutModule } from '../types';
 import { VertiCamLogo } from '../components/VertiCamLogo';
 
-const WEEK_DAYS = [
-  { label: 'LUN', day: 28, isSelected: true },
-  { label: 'MAR', day: 29, isSelected: false },
-  { label: 'MER', day: 30, isSelected: false },
-  { label: 'GIO', day: 1, isSelected: false },
-  { label: 'VEN', day: 2, isSelected: false },
-  { label: 'SAB', day: 3, isSelected: false },
-  { label: 'DOM', day: 4, isSelected: false },
-];
-
 export const WorkoutHomeScreen: React.FC = () => {
-  const { startWorkout, navigate, userProfile, jumpHistory, dailyPrescription } = useApp();
-  const todayWorkout = WORKOUT_MODULES[0];
-  const streakDays = jumpHistory.length;
+  const { navigate, userProfile, athleteBaseline } = useApp();
 
-  const athleteName = userProfile?.fullName ? userProfile.fullName.split(' ')[0] : 'Filippo';
+  const athleteName = userProfile?.fullName ? userProfile.fullName.split(' ')[0] : 'Atleta';
+  const workoutDays = userProfile.workoutDays || [1, 3, 5]; // Default: Lunedì, Mercoledì, Venerdì
+
+  // Giorno corrente (0 = Dom, 1 = Lun, 2 = Mar, ...)
+  const todayDayIndex = new Date().getDay();
+  const isTodayWorkoutDay = workoutDays.includes(todayDayIndex);
+
+  const daysList = [
+    { id: 1, label: 'LUN', name: 'Lunedì' },
+    { id: 2, label: 'MAR', name: 'Martedì' },
+    { id: 3, label: 'MER', name: 'Mercoledì' },
+    { id: 4, label: 'GIO', name: 'Giovedì' },
+    { id: 5, label: 'VEN', name: 'Venerdì' },
+    { id: 6, label: 'SAB', name: 'Sabato' },
+    { id: 0, label: 'DOM', name: 'Domenica' },
+  ];
+
+  // Carico OPL stimato
+  const athleteWeight = userProfile.weightKg || athleteBaseline.user_weight || 78;
+  const initialLoadKg = Math.round(athleteWeight * 0.20);
+  const baselineCmj = athleteBaseline.baseline_cmj_height || 52.0;
+
+  const windowWidth = Dimensions.get('window').width;
+  const isDesktop = windowWidth >= 768;
 
   return (
     <View style={styles.container}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, isDesktop && styles.scrollContentDesktop]}
       >
-        {/* ── TOP BAR (VERTICAM BRANDED) ── */}
-        <View style={styles.topBarCard}>
+        {/* ── HEADER BRAND ── */}
+        <View style={styles.topHeader}>
           <VertiCamLogo size="small" variant="badge" />
-
-          {/* Quick Check-in CTA button */}
-          <TouchableOpacity
-            style={styles.checkinQuickBtn}
-            activeOpacity={0.75}
-            onPress={() => navigate('DailyCheckin')}
-          >
-            <Activity size={15} color={Colors.primary} />
-            <Text style={styles.checkinQuickText}>Check-in SNC</Text>
-          </TouchableOpacity>
+          <View style={styles.liveSncBadge}>
+            <Activity size={12} color="#10B981" />
+            <Text style={styles.liveSncText}>SNC PRONTO</Text>
+          </View>
         </View>
 
-        {/* ── SAUDAÇÃO ── */}
-        <View style={styles.greetingContainer}>
-          <Text style={styles.greetingSub}>Ciao, pronto ad allenarti?</Text>
-          <Text style={styles.greetingName}>{athleteName} 👋</Text>
+        {/* ── BENVENUTO ATLETA ── */}
+        <View style={styles.greetingBox}>
+          <Text style={styles.greetingSub}>Bentornato sul campo,</Text>
+          <Text style={styles.greetingTitle}>{athleteName} 👋</Text>
         </View>
 
-        {/* ── CARD DE DIAS / ROTINA (ESTILO BTPRIME) ── */}
-        <View style={styles.daysCard}>
-          <View style={styles.daysHeader}>
-            <View style={styles.daysCounterRow}>
-              <Text style={styles.daysCountBig}>{streakDays}</Text>
-              <Text style={styles.daysUnit}> {streakDays === 1 ? 'giorno' : 'giorni'}</Text>
+        {/* ── ROTINA SETTIMANALE DEGLI ALLENAMENTI ── */}
+        <View style={styles.routineCard}>
+          <View style={styles.routineHeaderRow}>
+            <View>
+              <Text style={styles.routineCategory}>LA TUA SETTIMANA</Text>
+              <Text style={styles.routineTitle}>Rotina di Potenza Neurale</Text>
             </View>
-            <Text style={styles.daysSubtext}>Allenati e guadagna una palla</Text>
+            <View style={styles.routineDaysPill}>
+              <Text style={styles.routineDaysPillText}>{workoutDays.length}x a settimana</Text>
+            </View>
           </View>
 
-          {/* Calendário Semanal */}
-          <View style={styles.weekCalendarRow}>
-            {WEEK_DAYS.map((item, idx) => (
-              <View key={idx} style={styles.weekDayCol}>
-                <Text style={styles.weekDayLabel}>{item.label}</Text>
+          {/* Griglia Giorni Settimana */}
+          <View style={styles.weekGrid}>
+            {daysList.map((day) => {
+              const isWorkout = workoutDays.includes(day.id);
+              const isToday = day.id === todayDayIndex;
+
+              return (
                 <View
+                  key={day.id}
                   style={[
-                    styles.weekDayCircle,
-                    item.isSelected && styles.weekDayCircleSelected,
+                    styles.dayColItem,
+                    isWorkout && styles.dayColItemWorkout,
+                    isToday && styles.dayColItemToday,
                   ]}
                 >
-                  <Text
+                  <Text style={[styles.dayColLabel, isToday && styles.dayColLabelToday]}>
+                    {day.label}
+                  </Text>
+                  <View
                     style={[
-                      styles.weekDayNumber,
-                      item.isSelected && styles.weekDayNumberSelected,
+                      styles.dayColCircle,
+                      isWorkout && styles.dayColCircleWorkout,
+                      isToday && styles.dayColCircleToday,
                     ]}
                   >
-                    {item.day}
+                    {isWorkout ? (
+                      <Dumbbell size={13} color={isToday ? '#000000' : Colors.primary} strokeWidth={2.5} />
+                    ) : (
+                      <View style={styles.restDash} />
+                    )}
+                  </View>
+                  <Text style={[styles.dayColSub, isToday && styles.dayColSubToday]}>
+                    {isWorkout ? 'Allenamento' : 'Recupero'}
                   </Text>
                 </View>
-              </View>
-            ))}
+              );
+            })}
           </View>
         </View>
 
-        {/* ── CARD CTA: MONTE SUA ROTINA PERSONALIZADA ── */}
-        <View style={styles.ctaCard}>
-          {/* Brilho de fundo sutil */}
-          <View style={styles.ctaGlow} />
-
-          {/* Dois ícones circulares no topo */}
-          <View style={styles.ctaIconsRow}>
-            <View style={styles.iconCircleGreen}>
-              <Zap size={22} color="#A3E635" />
-            </View>
-            <View style={styles.iconCircleOrange}>
-              <Activity size={22} color="#F97316" />
+        {/* ── CARD PRINCIPALE ALLENAMENTO DEL GIORNO ── */}
+        <View style={styles.todayCard}>
+          <View style={styles.todayCardHeader}>
+            <View style={[styles.statusBadge, isTodayWorkoutDay ? styles.statusBadgeGreen : styles.statusBadgeBlue]}>
+              <Text style={styles.statusBadgeText}>
+                {isTodayWorkoutDay ? '🟢 OGGI: GIORNATA DI ALLENAMENTO' : '🔵 OGGI: RECUPERO NEURALE SNC'}
+              </Text>
             </View>
           </View>
 
-          {/* Título e descrição centralizados */}
-          <Text style={styles.ctaTitle}>Crea la tua routine personalizzata</Text>
-          <Text style={styles.ctaDescription}>
-            Rispondi a poche domande rapide e genereremo un programma di allenamento su misura per te.
+          <Text style={styles.exerciseMainName}>Salto con Carico (Loaded Jump)</Text>
+          <Text style={styles.exerciseSubtitle}>
+            Metodo Scientifico Prof. Irineu Loturco • Autoregolazione simultanea della velocità
           </Text>
 
-          {/* Botão de ação Laranja vibrante */}
+          {/* Dettagli della Sessione */}
+          <View style={styles.exerciseSpecsGrid}>
+            <View style={styles.specBox}>
+              <Text style={styles.specLabel}>RISCALDAMENTO</Text>
+              <Text style={styles.specValue}>3x10 Squat</Text>
+            </View>
+
+            <View style={styles.specBox}>
+              <Text style={styles.specLabel}>CHECK NEURALE</Text>
+              <Text style={styles.specValue}>1x CMJ Camera</Text>
+            </View>
+
+            <View style={styles.specBox}>
+              <Text style={styles.specLabel}>CARICO OPL</Text>
+              <Text style={[styles.specValue, { color: Colors.primary }]}>{initialLoadKg} kg</Text>
+            </View>
+          </View>
+
+          {/* Banner Metodo Loturco */}
+          <View style={styles.loturcoBanner}>
+            <ShieldCheck size={14} color={Colors.primary} />
+            <Text style={styles.loturcoBannerText}>
+              La telecamera monitorerà ogni ripetizione. Se l'altezza cala oltre il 10%, la serie viene conclusa automaticamente per proteggere la reattività del sistema nervoso.
+            </Text>
+          </View>
+
+          {/* Bottone Unico Inizia Allenamento */}
           <TouchableOpacity
-            style={styles.ctaButton}
-            activeOpacity={0.85}
-            onPress={() => navigate('DailyCheckin')}
+            style={styles.startWorkoutButton}
+            onPress={() => navigate('LoturcoWorkout')}
+            activeOpacity={0.88}
           >
-            <Text style={styles.ctaButtonText}>
-              {dailyPrescription ? `Vedi Check-in (Zona ${dailyPrescription.readiness.zone}) →` : 'Crea la Mia Routine →'}
+            <Play size={18} color="#000000" fill="#000000" />
+            <Text style={styles.startWorkoutButtonText}>
+              {isTodayWorkoutDay ? 'INIZIA ALLENAMENTO' : 'AVVIA SESSIONE COMUNQUE'}
             </Text>
           </TouchableOpacity>
-
-          {/* Avatar flutuante no canto inferior direito com aro brilhante */}
-          <View style={styles.floatingAvatarWrap}>
-            <Image
-              source={{ uri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80' }}
-              style={styles.floatingAvatarImg}
-            />
-          </View>
         </View>
 
-        {/* ── SEÇÃO DE PROGRAMAS / TREINOS ── */}
-        <View style={styles.sectionHeadingRow}>
-          <Text style={styles.sectionHeadingText}>PROGRAMMI DI ALLENAMENTO</Text>
+        {/* ── CARD STATUS BASELINE ATTUALE ── */}
+        <View style={styles.baselineStatusCard}>
+          <View style={styles.baselineHeader}>
+            <TrendingUp size={16} color={Colors.primary} />
+            <Text style={styles.baselineTitle}>La tua Baseline Attuale</Text>
+          </View>
+
+          <View style={styles.baselineMetricsRow}>
+            <View style={styles.baselineMetricItem}>
+              <Text style={styles.baselineMetricLabel}>ELEVAZIONE CMJ</Text>
+              <Text style={styles.baselineMetricValue}>{baselineCmj} cm</Text>
+            </View>
+
+            <View style={styles.baselineDivider} />
+
+            <View style={styles.baselineMetricItem}>
+              <Text style={styles.baselineMetricLabel}>INDICE EUR</Text>
+              <Text style={styles.baselineMetricValue}>{athleteBaseline.eur_ratio?.toFixed(2) || '1.08'}</Text>
+            </View>
+
+            <View style={styles.baselineDivider} />
+
+            <View style={styles.baselineMetricItem}>
+              <Text style={styles.baselineMetricLabel}>PROSSIMO TEST</Text>
+              <Text style={styles.baselineMetricValue}>30 giorni</Text>
+            </View>
+          </View>
         </View>
-
-        {/* Card do treino de hoje */}
-        <TouchableOpacity
-          style={styles.workoutItemCard}
-          activeOpacity={0.85}
-          onPress={() => startWorkout(todayWorkout)}
-        >
-          <View style={styles.workoutItemLeft}>
-            <View style={styles.workoutItemBadge}>
-              <Flame size={12} color="#0B1121" />
-              <Text style={styles.workoutItemBadgeText}>OGGI</Text>
-            </View>
-            <Text style={styles.workoutItemTitle}>{todayWorkout.title}</Text>
-            <View style={styles.workoutItemMeta}>
-              <Clock size={12} color="#94A3B8" />
-              <Text style={styles.workoutItemMetaText}>{todayWorkout.durationMinutes} min</Text>
-              <Text style={styles.workoutItemMetaDivider}>•</Text>
-              <Dumbbell size={12} color="#94A3B8" />
-              <Text style={styles.workoutItemMetaText}>{todayWorkout.exercises.length} esercizi</Text>
-            </View>
-          </View>
-          <View style={styles.workoutPlayIcon}>
-            <Play size={18} color="#0B1121" fill="#0B1121" />
-          </View>
-        </TouchableOpacity>
-
-        {/* Outros módulos */}
-        {WORKOUT_MODULES.slice(1).map((module: WorkoutModule) => (
-          <TouchableOpacity
-            key={module.id}
-            activeOpacity={0.85}
-            style={styles.secondaryModuleCard}
-            onPress={() => startWorkout(module)}
-          >
-            <View style={styles.secondaryModuleLeft}>
-              <View style={styles.secondaryModuleIconBox}>
-                <Flame size={18} color={Colors.primary} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.secondaryModuleTitle}>{module.title}</Text>
-                <Text style={styles.secondaryModuleDesc} numberOfLines={1}>
-                  {module.durationMinutes} min • {module.exercises.length} esercizi
-                </Text>
-              </View>
-            </View>
-            <ChevronRight size={18} color="#64748B" />
-          </TouchableOpacity>
-        ))}
-
-        <View style={{ height: 24 }} />
       </ScrollView>
     </View>
   );
@@ -195,345 +215,304 @@ export const WorkoutHomeScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0D14',
+    backgroundColor: '#05070F',
   },
   scrollContent: {
-    paddingHorizontal: 16,
-    paddingTop: Platform.OS === 'ios' ? 44 : 12,
-    paddingBottom: 20,
+    padding: 16,
+    paddingVertical: 20,
+    gap: 16,
   },
-
-  // Top Bar Card
-  topBarCard: {
-    backgroundColor: '#121824',
-    borderRadius: 28,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+  scrollContentDesktop: {
+    maxWidth: 680,
+    alignSelf: 'center',
+    width: '100%',
+  },
+  topHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    marginBottom: 20,
+    paddingBottom: 4,
   },
-  checkinQuickBtn: {
+  liveSncBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(0, 229, 255, 0.1)',
+    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: 'rgba(0, 229, 255, 0.3)',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 20,
+    borderColor: 'rgba(16, 185, 129, 0.25)',
   },
-  checkinQuickText: {
-    color: Colors.primary,
-    fontSize: 11,
+  liveSncText: {
+    fontSize: 10,
     fontWeight: '800',
+    color: '#10B981',
     letterSpacing: 0.5,
   },
-
-  // Saudação
-  greetingContainer: {
-    marginBottom: 18,
-    paddingHorizontal: 4,
+  greetingBox: {
+    marginTop: 4,
   },
   greetingSub: {
     fontSize: 13,
     color: '#94A3B8',
-    fontWeight: '500',
-    marginBottom: 2,
   },
-  greetingName: {
-    fontSize: 26,
+  greetingTitle: {
+    fontSize: 24,
     fontWeight: '900',
     color: '#FFFFFF',
-    letterSpacing: -0.5,
+    letterSpacing: -0.4,
   },
 
-  // Card de Dias / Rotina
-  daysCard: {
-    backgroundColor: '#111722',
-    borderRadius: 22,
+  // Routine
+  routineCard: {
+    backgroundColor: '#0D111F',
+    borderRadius: 20,
     padding: 18,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
-    marginBottom: 16,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    gap: 14,
   },
-  daysHeader: {
-    marginBottom: 16,
-  },
-  daysCounterRow: {
+  routineHeaderRow: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
-  daysCountBig: {
-    fontSize: 42,
-    fontWeight: '900',
+  routineCategory: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#64748B',
+    letterSpacing: 0.6,
+  },
+  routineTitle: {
+    fontSize: 15,
+    fontWeight: '800',
     color: '#FFFFFF',
-    lineHeight: 48,
-  },
-  daysUnit: {
-    fontSize: 16,
-    color: '#94A3B8',
-    fontWeight: '600',
-  },
-  daysSubtext: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#38BDF8',
     marginTop: 2,
   },
-  weekCalendarRow: {
+  routineDaysPill: {
+    backgroundColor: 'rgba(0, 229, 255, 0.12)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  routineDaysPillText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: Colors.primary,
+  },
+  weekGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    gap: 4,
   },
-  weekDayCol: {
-    alignItems: 'center',
-    gap: 6,
+  dayColItem: {
     flex: 1,
-  },
-  weekDayLabel: {
-    fontSize: 10,
-    color: '#64748B',
-    fontWeight: '700',
-  },
-  weekDayCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  weekDayCircleSelected: {
-    borderWidth: 1.5,
-    borderColor: '#94A3B8',
-    borderStyle: 'dashed',
-    backgroundColor: 'transparent',
-  },
-  weekDayNumber: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#94A3B8',
-  },
-  weekDayNumberSelected: {
-    color: '#FFFFFF',
-    fontWeight: '900',
-  },
-
-  // Card CTA: Monte sua rotina personalizada
-  ctaCard: {
-    backgroundColor: '#121926',
-    borderRadius: 24,
-    padding: 22,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
-    alignItems: 'center',
-    position: 'relative',
-    overflow: 'hidden',
-    marginBottom: 20,
-  },
-  ctaGlow: {
-    position: 'absolute',
-    top: -40,
-    right: -40,
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    backgroundColor: 'rgba(249, 115, 22, 0.08)',
-  },
-  ctaIconsRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 16,
-  },
-  iconCircleGreen: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 1.5,
-    borderColor: '#A3E635',
-    backgroundColor: 'rgba(163, 230, 53, 0.08)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconCircleOrange: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 1.5,
-    borderColor: '#F97316',
-    backgroundColor: 'rgba(249, 115, 22, 0.08)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  ctaTitle: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  ctaDescription: {
-    fontSize: 12,
-    color: '#94A3B8',
-    textAlign: 'center',
-    lineHeight: 18,
-    marginBottom: 18,
-    paddingHorizontal: 8,
-  },
-  ctaButton: {
-    backgroundColor: '#F97316',
-    paddingVertical: 12,
-    paddingHorizontal: 28,
+    backgroundColor: '#12172A',
+    paddingVertical: 10,
+    paddingHorizontal: 2,
     borderRadius: 12,
     alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#F97316',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 4,
+    gap: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.04)',
   },
-  ctaButtonText: {
+  dayColItemWorkout: {
+    backgroundColor: 'rgba(0, 229, 255, 0.05)',
+    borderColor: 'rgba(0, 229, 255, 0.2)',
+  },
+  dayColItemToday: {
+    borderColor: Colors.primary,
+    backgroundColor: 'rgba(0, 229, 255, 0.12)',
+  },
+  dayColLabel: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#64748B',
+  },
+  dayColLabelToday: {
+    color: Colors.primary,
+  },
+  dayColCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#1E293B',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dayColCircleWorkout: {
+    backgroundColor: 'rgba(0, 229, 255, 0.15)',
+  },
+  dayColCircleToday: {
+    backgroundColor: Colors.primary,
+  },
+  restDash: {
+    width: 8,
+    height: 2,
+    backgroundColor: '#475569',
+    borderRadius: 1,
+  },
+  dayColSub: {
+    fontSize: 8,
+    fontWeight: '600',
+    color: '#64748B',
+  },
+  dayColSubToday: {
+    color: '#E2E8F0',
+  },
+
+  // Today Card
+  todayCard: {
+    backgroundColor: '#0D111F',
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 229, 255, 0.25)',
+    gap: 14,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 6,
+  },
+  todayCardHeader: {
+    flexDirection: 'row',
+  },
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+  },
+  statusBadgeGreen: {
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.3)',
+  },
+  statusBadgeBlue: {
+    backgroundColor: 'rgba(59, 130, 246, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.3)',
+  },
+  statusBadgeText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: 0.3,
+  },
+  exerciseMainName: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: -0.4,
+  },
+  exerciseSubtitle: {
+    fontSize: 12,
+    color: '#94A3B8',
+    lineHeight: 17,
+  },
+  exerciseSpecsGrid: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  specBox: {
+    flex: 1,
+    backgroundColor: '#12172A',
+    padding: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  specLabel: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#64748B',
+    marginBottom: 4,
+  },
+  specValue: {
     fontSize: 14,
     fontWeight: '800',
     color: '#FFFFFF',
   },
-  floatingAvatarWrap: {
-    position: 'absolute',
-    bottom: 12,
-    right: 12,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    padding: 2,
-    backgroundColor: 'rgba(0, 229, 255, 0.2)',
-    borderWidth: 2,
-    borderColor: Colors.primary,
+  loturcoBanner: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    backgroundColor: 'rgba(0, 229, 255, 0.06)',
+    padding: 12,
+    borderRadius: 12,
+    borderLeftWidth: 3,
+    borderLeftColor: Colors.primary,
   },
-  floatingAvatarImg: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 20,
+  loturcoBannerText: {
+    flex: 1,
+    fontSize: 11,
+    color: '#CBD5E1',
+    lineHeight: 16,
+  },
+  startWorkoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    backgroundColor: Colors.primary,
+    height: 52,
+    borderRadius: 14,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  startWorkoutButtonText: {
+    color: '#000000',
+    fontSize: 14,
+    fontWeight: '900',
+    letterSpacing: 0.4,
   },
 
-  // Seção de Programas
-  sectionHeadingRow: {
-    marginBottom: 12,
-    paddingHorizontal: 4,
+  // Baseline
+  baselineStatusCard: {
+    backgroundColor: '#0D111F',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    gap: 12,
   },
-  sectionHeadingText: {
-    fontSize: 11,
+  baselineHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  baselineTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  baselineMetricsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
+  baselineMetricItem: {
+    alignItems: 'center',
+  },
+  baselineMetricLabel: {
+    fontSize: 9,
     fontWeight: '800',
     color: '#64748B',
-    letterSpacing: 1.2,
+    marginBottom: 3,
   },
-
-  // Card Treino de Hoje
-  workoutItemCard: {
-    backgroundColor: '#0F1726',
-    borderRadius: 18,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-    borderWidth: 1.5,
-    borderColor: Colors.primary,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-  },
-  workoutItemLeft: {
-    flex: 1,
-    gap: 4,
-  },
-  workoutItemBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(0, 229, 255, 0.15)',
-    alignSelf: 'flex-start' as any,
-    paddingVertical: 3,
-    paddingHorizontal: 8,
-    borderRadius: 6,
-  },
-  workoutItemBadgeText: {
-    fontSize: 10,
-    fontWeight: '900',
-    color: Colors.primary,
-  },
-  workoutItemTitle: {
+  baselineMetricValue: {
     fontSize: 16,
     fontWeight: '900',
     color: '#FFFFFF',
   },
-  workoutItemMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  workoutItemMetaText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#94A3B8',
-  },
-  workoutItemMetaDivider: {
-    color: '#475569',
-  },
-  workoutPlayIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: Colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 12,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 6,
-  },
-
-  // Módulos Secundários
-  secondaryModuleCard: {
-    backgroundColor: '#0F1726',
-    borderRadius: 16,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  secondaryModuleLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    flex: 1,
-  },
-  secondaryModuleIconBox: {
-    width: 38,
-    height: 38,
-    borderRadius: 10,
-    backgroundColor: 'rgba(0, 229, 255, 0.12)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  secondaryModuleTitle: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    marginBottom: 2,
-  },
-  secondaryModuleDesc: {
-    fontSize: 12,
-    color: '#64748B',
+  baselineDivider: {
+    width: 1,
+    height: 28,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
 });

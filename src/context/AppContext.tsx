@@ -15,6 +15,9 @@ export type ScreenName =
   | 'Welcome'
   | 'Quiz'
   | 'ActivateAccount'
+  | 'OnboardingTutorial'
+  | 'BaselineEvaluation'
+  | 'LoturcoWorkout'
   | 'CameraIntro'
   | 'JumpInstruction'
   | 'JumpCamera'
@@ -23,8 +26,7 @@ export type ScreenName =
   | 'Dashboard'
   | 'WorkoutPlayer'
   | 'DailyCheckin'
-  | 'PrescriptionWorkout'
-  | 'BaselineEvaluation';
+  | 'PrescriptionWorkout';
 
 const DEFAULT_BASELINE: AthleteBaseline = {
   user_weight: 78,

@@ -10,163 +10,160 @@ import {
 import {
   Camera,
   TrendingUp,
-  Flame,
-  Zap,
-  Target,
-  Trophy,
   Calendar,
   Sparkles,
-  ArrowUpRight,
+  Flame,
+  Activity,
+  ShieldCheck,
+  Check,
+  ArrowRight,
+  ChevronRight,
 } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
-import { Header } from '../components/Header';
-import { Card } from '../components/Card';
-import { Button } from '../components/Button';
 import { useApp } from '../context/AppContext';
-import { t } from '../services/i18n';
-import { getJumpBenchmark } from '../utils/jumpPhysics';
-
-const { width } = Dimensions.get('window');
+import { VertiCamLogo } from '../components/VertiCamLogo';
+import { PrescriptionEngine } from '../services/prescriptionEngine';
 
 export const EvaluationScreen: React.FC = () => {
-  const { jumpHistory, latestJumpResult, userProfile, navigate } = useApp();
+  const { jumpHistory, latestJumpResult, userProfile, athleteBaseline, navigate } = useApp();
 
-  const currentJump = latestJumpResult?.jumpHeightCm || userProfile.currentJumpCm || 61.8;
-  const initialJump = userProfile.initialJumpCm || 52.0;
+  const currentJump = latestJumpResult?.jumpHeightCm || athleteBaseline.baseline_cmj_height || 52.4;
+  const initialJump = userProfile.initialJumpCm || 52.4;
   const totalGain = Math.max(0, Math.round((currentJump - initialJump) * 10) / 10);
-  const benchmark = getJumpBenchmark(currentJump);
+  const nextDate = userProfile.nextEvaluationDate || '24 Novembre 2026';
 
-  // Zabezpieczenie danych historii do wykresu
-  const testsToDisplay = jumpHistory.length > 0 ? jumpHistory : [
-    { id: '1', date: '15.08', jumpHeightCm: 52.0, flightTimeSeconds: 0.65 },
-    { id: '2', date: '01.09', jumpHeightCm: 56.4, flightTimeSeconds: 0.68 },
-    { id: '3', date: '12.09', jumpHeightCm: 59.2, flightTimeSeconds: 0.70 },
-    { id: '4', date: 'Oggi', jumpHeightCm: currentJump, flightTimeSeconds: 0.71 },
+  const cmjVal = athleteBaseline.baseline_cmj_height || 52.4;
+  const sjVal = athleteBaseline.baseline_sj_height || 47.8;
+  const eurVal = athleteBaseline.eur_ratio || PrescriptionEngine.calculateEUR(cmjVal, sjVal);
+  const eurDiagnostic = PrescriptionEngine.getEURDiagnostic(eurVal);
+
+  const evaluationHistory = [
+    {
+      id: '1',
+      date: 'Oggi',
+      title: 'Valutazione Iniziale Baseline',
+      cmj: cmjVal,
+      sj: sjVal,
+      eur: eurVal,
+      badge: 'UFFICIALE',
+    },
   ];
 
-  const maxVal = Math.max(...testsToDisplay.map((t: any) => t.jumpHeightCm), 70);
+  const windowWidth = Dimensions.get('window').width;
+  const isDesktop = windowWidth >= 768;
 
   return (
     <View style={styles.container}>
-      <Header />
-
-      <ScrollView contentContainerStyle={styles.content}>
-        {/* Tytuł sekcji */}
-        <View style={styles.pageHeader}>
-          <Text style={styles.pageTitle}>{t('evaluations.title')}</Text>
-          <Text style={styles.pageSub}>Monitora il tuo sviluppo biomeccanico e la potenza di salto</Text>
+      <ScrollView
+        contentContainerStyle={[styles.scrollContent, isDesktop && styles.scrollContentDesktop]}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <View style={styles.topHeader}>
+          <VertiCamLogo size="small" variant="badge" />
+          <View style={styles.headerTag}>
+            <Activity size={12} color={Colors.primary} />
+            <Text style={styles.headerTagText}>PROFILO NEUROMUSCOLARE</Text>
+          </View>
         </View>
 
-        {/* Duży Przycisk CTA: Wykonaj Nowy Test z Kamery */}
-        <TouchableOpacity
-          activeOpacity={0.85}
-          style={styles.bigCameraTrigger}
-          onPress={() => navigate('JumpInstruction')}
-        >
-          <View style={styles.cameraIconCircle}>
-            <Camera size={28} color="#0F172A" />
-          </View>
-          <View style={styles.cameraTriggerTextWrap}>
-            <Text style={styles.cameraTriggerTitle}>{t('evaluations.newTestCta')}</Text>
-            <Text style={styles.cameraTriggerSub}>Misurazione del tempo di volo 60 FPS con telecamera</Text>
-          </View>
-          <ArrowUpRight size={22} color="#0F172A" strokeWidth={2.5} />
-        </TouchableOpacity>
+        <View style={styles.titleSection}>
+          <Text style={styles.title}>Valutazioni del Salto</Text>
+          <Text style={styles.subtitle}>
+            Monitoraggio scientifico del tempo di volo e della restituzione elastica (EUR).
+          </Text>
+        </View>
 
-        {/* Karta Ostatniego Wyniku */}
-        <Card style={styles.latestCard} highlighted>
-          <View style={styles.latestHeader}>
-            <View style={styles.badgeWrapper}>
-              <Flame size={14} color="#0F172A" />
-              <Text style={styles.badgeText}>{t('evaluations.latestTest')}</Text>
+        {/* ── CARD PROSSIMA VALUTAZIONE UFFICIALE (CICLO 1 MESE LOTURCO) ── */}
+        <View style={styles.nextEvalCard}>
+          <View style={styles.nextEvalHeaderRow}>
+            <View style={styles.calendarIconCircle}>
+              <Calendar size={20} color={Colors.primary} strokeWidth={2.5} />
             </View>
-            <Text style={styles.latestDate}>
-              {latestJumpResult?.date || 'Ultima sessione'}
-            </Text>
-          </View>
-
-          <View style={styles.scoreRow}>
-            <View style={styles.scoreCol}>
-              <Text style={styles.scoreBigNum}>{currentJump.toFixed(1)}</Text>
-              <Text style={styles.scoreUnit}>cm</Text>
-            </View>
-
-            <View style={styles.statsSummaryPill}>
-              <TrendingUp size={16} color={Colors.accentGreen} />
-              <Text style={styles.gainText}>+{totalGain} cm dall'inizio</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.nextEvalCategory}>PROGRAMMAZIONE MENSILE</Text>
+              <Text style={styles.nextEvalTitle}>Prossima Valutazione Ufficiale</Text>
             </View>
           </View>
 
-          <View style={styles.benchmarkLine}>
-            <Text style={[styles.benchmarkTitle, { color: benchmark.color }]}>
-              {benchmark.levelLabel}
-            </Text>
-          </View>
-        </Card>
-
-        {/* Wykres Progresu (Wzrost Wyskoku w czasie) */}
-        <Card style={styles.chartCard}>
-          <View style={styles.chartHeader}>
-            <TrendingUp size={20} color={Colors.primary} />
-            <Text style={styles.chartTitle}>{t('evaluations.historyTitle')}</Text>
+          <View style={styles.nextDateBox}>
+            <Text style={styles.nextDateValue}>{nextDate}</Text>
+            <View style={styles.cycleBadge}>
+              <Text style={styles.cycleBadgeText}>Ciclo di 30 giorni</Text>
+            </View>
           </View>
 
-          {/* Słupkowy wykres progresu */}
-          <View style={styles.chartBarsContainer}>
-            {testsToDisplay.map((item: any, idx: number) => {
-              const heightPercent = Math.min(100, Math.round((item.jumpHeightCm / maxVal) * 100));
-              const isLast = idx === testsToDisplay.length - 1;
+          <Text style={styles.nextEvalExplanation}>
+            Secondo le evidenze del Prof. Irineu Loturco, il sistema nervoso centrale (SNC) necessita di 4 settimane di stimolo balistico e scarico per consolidare nuovi incrementi di frequenza di scarica dei motoneuroni.
+          </Text>
 
-              return (
-                <View key={item.id || idx} style={styles.barColumn}>
-                  <Text style={[styles.barValue, isLast && styles.barValueActive]}>
-                    {item.jumpHeightCm.toFixed(1)}
-                  </Text>
+          <TouchableOpacity
+            style={styles.retestCtaBtn}
+            onPress={() => navigate('BaselineEvaluation')}
+            activeOpacity={0.88}
+          >
+            <Camera size={16} color="#000000" strokeWidth={2.5} />
+            <Text style={styles.retestCtaBtnText}>EFFETTUA UN TEST STRAORDINARIO</Text>
+          </TouchableOpacity>
+        </View>
 
-                  <View style={styles.barTrack}>
-                    <View
-                      style={[
-                        styles.barFill,
-                        { height: `${heightPercent}%` },
-                        isLast && styles.barFillActive,
-                      ]}
-                    />
-                  </View>
+        {/* ── METRICHE CHIAVE ATTUALI ── */}
+        <View style={styles.metricsGrid}>
+          <View style={styles.metricCard}>
+            <Text style={styles.metricLabel}>CMJ ATTUALE</Text>
+            <Text style={styles.metricValue}>{cmjVal.toFixed(1)} <Text style={{ fontSize: 16 }}>cm</Text></Text>
+            <View style={styles.gainPill}>
+              <TrendingUp size={11} color="#10B981" />
+              <Text style={styles.gainPillText}>+{totalGain} cm</Text>
+            </View>
+          </View>
 
-                  <Text style={[styles.barLabel, isLast && styles.barLabelActive]}>
-                    {item.date?.slice(5) || `P${idx + 1}`}
-                  </Text>
+          <View style={styles.metricCard}>
+            <Text style={styles.metricLabel}>SJ CONCENTRICO</Text>
+            <Text style={styles.metricValue}>{sjVal.toFixed(1)} <Text style={{ fontSize: 16 }}>cm</Text></Text>
+            <Text style={styles.metricSub}>Partenza ferma a 90°</Text>
+          </View>
+        </View>
+
+        {/* ── CARD INDICE EUR (DIAGNOSI LOTURCO) ── */}
+        <View style={styles.eurCard}>
+          <View style={styles.eurHeaderRow}>
+            <View>
+              <Text style={styles.eurCategory}>ANALISI CICLO STRETCH-SHORTENING</Text>
+              <Text style={styles.eurTitle}>Rapporto EUR (CMJ ÷ SJ)</Text>
+            </View>
+            <View style={styles.eurBadge}>
+              <Text style={styles.eurBadgeValue}>{eurVal.toFixed(2)}</Text>
+            </View>
+          </View>
+
+          <View style={styles.eurDiagnosticBox}>
+            <Text style={styles.eurDiagnosticText}>{eurDiagnostic.recommendation}</Text>
+          </View>
+        </View>
+
+        {/* ── STORICO VALUTAZIONI EFFETTUATE ── */}
+        <View style={styles.historySection}>
+          <Text style={styles.historySectionTitle}>STORICO DELLE VALUTAZIONI</Text>
+
+          {evaluationHistory.map((evalItem) => (
+            <View key={evalItem.id} style={styles.historyCardItem}>
+              <View style={styles.historyCardLeft}>
+                <View style={styles.historyCheckDot}>
+                  <Check size={12} color="#000000" strokeWidth={3} />
                 </View>
-              );
-            })}
-          </View>
+                <View>
+                  <Text style={styles.historyItemTitle}>{evalItem.title}</Text>
+                  <Text style={styles.historyItemDate}>{evalItem.date}</Text>
+                </View>
+              </View>
 
-          <View style={styles.chartFooter}>
-            <View style={styles.legendDot} />
-            <Text style={styles.legendText}>Wysokość wyskoku z czasu lotu (cm)</Text>
-          </View>
-        </Card>
-
-        {/* 3 Kluczowe Wskaźniki */}
-        <View style={styles.statsGrid}>
-          <View style={styles.statBox}>
-            <Text style={styles.statBoxLabel}>SALTO INICIAL</Text>
-            <Text style={styles.statBoxNum}>{initialJump.toFixed(1)} cm</Text>
-          </View>
-
-          <View style={styles.statBox}>
-            <Text style={styles.statBoxLabel}>REKORD</Text>
-            <Text style={[styles.statBoxNum, { color: Colors.primary }]}>
-              {currentJump.toFixed(1)} cm
-            </Text>
-          </View>
-
-          <View style={styles.statBox}>
-            <Text style={styles.statBoxLabel}>ZYSK ŁĄCZNY</Text>
-            <Text style={[styles.statBoxNum, { color: Colors.accentGreen }]}>
-              +{totalGain} cm
-            </Text>
-          </View>
+              <View style={styles.historyCardRight}>
+                <Text style={styles.historyItemJump}>{evalItem.cmj.toFixed(1)} cm</Text>
+                <Text style={styles.historyItemEur}>EUR {evalItem.eur.toFixed(2)}</Text>
+              </View>
+            </View>
+          ))}
         </View>
       </ScrollView>
     </View>
@@ -176,249 +173,294 @@ export const EvaluationScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: '#05070F',
   },
-  content: {
-    padding: 20,
-    paddingBottom: 30,
-  },
-  pageHeader: {
-    marginBottom: 16,
-  },
-  pageTitle: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: Colors.textPrimary,
-  },
-  pageSub: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-    marginTop: 2,
-  },
-  bigCameraTrigger: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.primary,
+  scrollContent: {
     padding: 16,
-    borderRadius: 16,
-    gap: 14,
-    marginBottom: 20,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 6,
+    paddingVertical: 20,
+    gap: 16,
   },
-  cameraIconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
+  scrollContentDesktop: {
+    maxWidth: 680,
+    alignSelf: 'center',
+    width: '100%',
   },
-  cameraTriggerTextWrap: {
-    flex: 1,
-  },
-  cameraTriggerTitle: {
-    color: '#0F172A',
-    fontSize: 16,
-    fontWeight: '900',
-    textTransform: 'uppercase',
-  },
-  cameraTriggerSub: {
-    color: '#1E293B',
-    fontSize: 12,
-    fontWeight: '600',
-    marginTop: 2,
-  },
-  latestCard: {
-    padding: 18,
-    marginBottom: 16,
-  },
-  latestHeader: {
+  topHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    justifyContent: 'space-between',
   },
-  badgeWrapper: {
+  headerTag: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: Colors.primary,
-    paddingVertical: 4,
+    backgroundColor: 'rgba(0, 229, 255, 0.1)',
     paddingHorizontal: 10,
-    borderRadius: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 229, 255, 0.25)',
   },
-  badgeText: {
-    color: '#0F172A',
-    fontWeight: '900',
-    fontSize: 11,
+  headerTagText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: Colors.primary,
     letterSpacing: 0.5,
   },
-  latestDate: {
-    color: Colors.textMuted,
-    fontSize: 12,
-  },
-  scoreRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  scoreCol: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
+  titleSection: {
     gap: 4,
   },
-  scoreBigNum: {
-    fontSize: 48,
+  title: {
+    fontSize: 24,
     fontWeight: '900',
-    color: Colors.textPrimary,
-    lineHeight: 52,
+    color: '#FFFFFF',
+    letterSpacing: -0.4,
   },
-  scoreUnit: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: Colors.textSecondary,
-    marginBottom: 8,
-  },
-  statsSummaryPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(16, 185, 129, 0.12)',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.3)',
-    marginBottom: 8,
-  },
-  gainText: {
-    color: Colors.accentGreen,
-    fontWeight: '800',
+  subtitle: {
     fontSize: 13,
+    color: '#94A3B8',
+    lineHeight: 18,
   },
-  benchmarkLine: {
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: Colors.cardBorder,
+
+  // Next Eval
+  nextEvalCard: {
+    backgroundColor: '#0D111F',
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 229, 255, 0.25)',
+    gap: 14,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 6,
   },
-  benchmarkTitle: {
-    fontSize: 12,
-    fontWeight: '800',
-    textTransform: 'uppercase',
-  },
-  chartCard: {
-    padding: 18,
-    marginBottom: 16,
-  },
-  chartHeader: {
+  nextEvalHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 20,
+    gap: 12,
   },
-  chartTitle: {
-    color: Colors.textPrimary,
-    fontSize: 15,
+  calendarIconCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0, 229, 255, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  nextEvalCategory: {
+    fontSize: 10,
     fontWeight: '800',
-    textTransform: 'uppercase',
+    color: '#64748B',
+    letterSpacing: 0.6,
   },
-  chartBarsContainer: {
+  nextEvalTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  nextDateBox: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    height: 140,
-    paddingHorizontal: 10,
-    marginBottom: 14,
+    backgroundColor: '#12172A',
+    padding: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
   },
-  barColumn: {
-    alignItems: 'center',
-    flex: 1,
+  nextDateValue: {
+    fontSize: 17,
+    fontWeight: '900',
+    color: '#FFFFFF',
   },
-  barValue: {
-    color: Colors.textMuted,
+  cycleBadge: {
+    backgroundColor: 'rgba(0, 229, 255, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  cycleBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    marginBottom: 6,
-  },
-  barValueActive: {
     color: Colors.primary,
-    fontWeight: '900',
   },
-  barTrack: {
-    width: 24,
-    height: 100,
-    backgroundColor: '#0F172A',
-    borderRadius: 12,
-    justifyContent: 'flex-end',
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
+  nextEvalExplanation: {
+    fontSize: 12,
+    color: '#94A3B8',
+    lineHeight: 17,
   },
-  barFill: {
-    width: '100%',
-    backgroundColor: Colors.cardBorder,
-    borderRadius: 12,
-  },
-  barFillActive: {
-    backgroundColor: Colors.primary,
-  },
-  barLabel: {
-    color: Colors.textMuted,
-    fontSize: 11,
-    fontWeight: '600',
-    marginTop: 8,
-  },
-  barLabelActive: {
-    color: Colors.textPrimary,
-    fontWeight: '800',
-  },
-  chartFooter: {
+  retestCtaBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
     justifyContent: 'center',
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.05)',
-  },
-  legendDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    gap: 8,
     backgroundColor: Colors.primary,
+    height: 48,
+    borderRadius: 14,
   },
-  legendText: {
-    color: Colors.textMuted,
-    fontSize: 11,
+  retestCtaBtnText: {
+    color: '#000000',
+    fontSize: 13,
+    fontWeight: '900',
+    letterSpacing: 0.3,
   },
-  statsGrid: {
+
+  // Grid
+  metricsGrid: {
     flexDirection: 'row',
+    gap: 12,
+  },
+  metricCard: {
+    flex: 1,
+    backgroundColor: '#0D111F',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    gap: 4,
+  },
+  metricLabel: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#64748B',
+    letterSpacing: 0.5,
+  },
+  metricValue: {
+    fontSize: 26,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    marginTop: 2,
+  },
+  gainPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+    marginTop: 4,
+  },
+  gainPillText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#10B981',
+  },
+  metricSub: {
+    fontSize: 10,
+    color: '#94A3B8',
+    marginTop: 4,
+  },
+
+  // EUR
+  eurCard: {
+    backgroundColor: '#0D111F',
+    borderRadius: 16,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    gap: 12,
+  },
+  eurHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  eurCategory: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#64748B',
+    letterSpacing: 0.6,
+  },
+  eurTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    marginTop: 2,
+  },
+  eurBadge: {
+    backgroundColor: 'rgba(0, 229, 255, 0.15)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+  },
+  eurBadgeValue: {
+    color: Colors.primary,
+    fontSize: 16,
+    fontWeight: '900',
+  },
+  eurDiagnosticBox: {
+    backgroundColor: '#12172A',
+    padding: 12,
+    borderRadius: 12,
+    borderLeftWidth: 3,
+    borderLeftColor: Colors.primary,
+  },
+  eurDiagnosticText: {
+    fontSize: 12,
+    color: '#CBD5E1',
+    lineHeight: 17,
+  },
+
+  // History
+  historySection: {
     gap: 10,
   },
-  statBox: {
-    flex: 1,
-    backgroundColor: Colors.cardBackground,
-    borderRadius: 12,
-    padding: 12,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-  },
-  statBoxLabel: {
-    color: Colors.textMuted,
-    fontSize: 9,
+  historySectionTitle: {
+    fontSize: 11,
     fontWeight: '800',
-    textTransform: 'uppercase',
-    marginBottom: 4,
+    color: '#64748B',
+    letterSpacing: 0.8,
   },
-  statBoxNum: {
-    color: Colors.textPrimary,
-    fontSize: 15,
+  historyCardItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#0D111F',
+    borderRadius: 14,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  historyCardLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  historyCheckDot: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  historyItemTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  historyItemDate: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  historyCardRight: {
+    alignItems: 'flex-end',
+  },
+  historyItemJump: {
+    fontSize: 16,
     fontWeight: '900',
+    color: '#FFFFFF',
+  },
+  historyItemEur: {
+    fontSize: 11,
+    color: Colors.primary,
+    fontWeight: '700',
   },
 });

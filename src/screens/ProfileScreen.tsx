@@ -1,53 +1,78 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  TextInput,
   Alert,
+  Dimensions,
+  Platform,
 } from 'react-native';
 import {
   User,
-  Shield,
   CreditCard,
-  Download,
-  HelpCircle,
+  Lock,
+  Mail,
+  ShieldCheck,
+  Calendar,
+  Ruler,
+  Weight,
+  ExternalLink,
   LogOut,
   ChevronRight,
-  Sparkles,
-  Zap,
-  TrendingUp,
-  CheckCircle2,
+  Check,
+  Edit2,
 } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
-import { Header } from '../components/Header';
-import { Card } from '../components/Card';
-import { Button } from '../components/Button';
 import { useApp } from '../context/AppContext';
-import { t } from '../services/i18n';
+import { VertiCamLogo } from '../components/VertiCamLogo';
 
 export const ProfileScreen: React.FC = () => {
-  const { userProfile, isSubscribed, navigate } = useApp();
+  const { userProfile, updateProfile, isSubscribed, navigate } = useApp();
 
-  const initial = userProfile.initialJumpCm || 52.0;
-  const current = userProfile.currentJumpCm || 61.8;
-  const gain = Math.max(0, Math.round((current - initial) * 10) / 10);
+  const [isEditingBiometrics, setIsEditingBiometrics] = useState<boolean>(false);
+  const [weight, setWeight] = useState<string>(String(userProfile.weightKg || 78));
+  const [height, setHeight] = useState<string>(String(userProfile.heightCm || 188));
+  const [legLength, setLegLength] = useState<string>(String(userProfile.legLengthCm || 94));
 
-  const handleExportData = () => {
+  const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
+
+  const handleSaveBiometrics = async () => {
+    const w = parseFloat(weight);
+    const h = parseFloat(height);
+    const l = parseFloat(legLength);
+
+    if (isNaN(w) || isNaN(h) || isNaN(l)) {
+      Alert.alert('Errore', 'Inserisci valori numerici validi.');
+      return;
+    }
+
+    await updateProfile({
+      weightKg: w,
+      heightCm: h,
+      legLengthCm: l,
+    });
+
+    setIsEditingBiometrics(false);
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 3000);
+  };
+
+  const handleChangePassword = () => {
     Alert.alert(
-      'GDPR - Esportazione Dati',
-      'Il pacchetto con i tuoi dati biometrici e lo storico dei salti è stato generato e inviato al tuo indirizzo email.',
+      'Modifica Password',
+      'Ti è stata inviata un\'email per impostare una nuova password sicura al tuo indirizzo: ' + (userProfile.email || 'latuaemail@esempio.com'),
       [{ text: 'OK' }]
     );
   };
 
-  const handleManageSubscription = () => {
+  const handleStripePortal = () => {
     Alert.alert(
-      'Gestione Abbonamento',
-      'L\'abbonamento VertiCam PRO è attivo (349,00 € / anno). Prossimo rinnovo: 23.09.2027.',
+      'Gestione Pagamento Stripe',
+      'Il tuo abbonamento VertiCam Pro è attivo con crittografia Stripe a 256-bit.\n\nPer modificare metodo di pagamento o scaricare fatture, accedi al portale clienti Stripe.',
       [
-        { text: 'Disdici rinnovo', style: 'destructive' },
         { text: 'Chiudi', style: 'cancel' },
       ]
     );
@@ -57,159 +82,197 @@ export const ProfileScreen: React.FC = () => {
     navigate('Welcome');
   };
 
+  const windowWidth = Dimensions.get('window').width;
+  const isDesktop = windowWidth >= 768;
+
   return (
     <View style={styles.container}>
-      <Header />
+      <ScrollView
+        contentContainerStyle={[styles.scrollContent, isDesktop && styles.scrollContentDesktop]}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <View style={styles.topHeader}>
+          <VertiCamLogo size="small" variant="badge" />
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn} activeOpacity={0.7}>
+            <LogOut size={16} color="#64748B" />
+            <Text style={styles.logoutBtnText}>Esci</Text>
+          </TouchableOpacity>
+        </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
-        {/* Karta Profilu Zawodnika */}
-        <View style={styles.profileCard}>
+        {/* ── CARD ATLETA & PIANO PRO ── */}
+        <View style={styles.athleteCard}>
           <View style={styles.avatarCircle}>
-            <User size={36} color="#0F172A" />
+            <User size={30} color="#000000" strokeWidth={2.5} />
           </View>
-          <View style={styles.profileInfo}>
+          <View style={styles.athleteInfo}>
             <View style={styles.nameRow}>
-              <Text style={styles.profileName}>{userProfile.fullName || 'Atleta VertiCam'}</Text>
-              <View style={styles.proPill}>
-                <Text style={styles.proPillText}>PRO</Text>
+              <Text style={styles.athleteName}>{userProfile.fullName || 'Atleta VertiCam'}</Text>
+              <View style={styles.proBadge}>
+                <Text style={styles.proBadgeText}>PRO</Text>
               </View>
             </View>
-            <Text style={styles.profileRole}>
-              {userProfile.position.toUpperCase()} • {userProfile.level.toUpperCase()}
-            </Text>
-            <Text style={styles.profileParams}>
-              {userProfile.heightCm} cm • {userProfile.weightKg} kg • {userProfile.age} anni
-            </Text>
+            <Text style={styles.athleteEmail}>{userProfile.email || 'atleta@verticam.com'}</Text>
           </View>
         </View>
 
-        {/* 3 Kluczowe Statystyki Atletyczne */}
-        <View style={styles.statsCard}>
-          <View style={styles.statCol}>
-            <Text style={styles.statLabel}>SALTO INIZIALE</Text>
-            <Text style={styles.statVal}>{initial.toFixed(1)} cm</Text>
-            <Text style={styles.statSub}>Primo test</Text>
+        {/* ── DATI BIOMETRICI (METODO LOTURCO) ── */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeaderRow}>
+            <View>
+              <Text style={styles.sectionCategory}>PARAMETRI FISIOLOGICI</Text>
+              <Text style={styles.sectionTitle}>Dati Biometrici</Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => setIsEditingBiometrics(!isEditingBiometrics)}
+              style={styles.editActionBtn}
+              activeOpacity={0.7}
+            >
+              <Edit2 size={13} color={Colors.primary} />
+              <Text style={styles.editActionBtnText}>
+                {isEditingBiometrics ? 'Annulla' : 'Modifica'}
+              </Text>
+            </TouchableOpacity>
           </View>
 
-          <View style={styles.statDivider} />
+          {saveSuccess && (
+            <View style={styles.saveAlert}>
+              <Check size={14} color="#10B981" />
+              <Text style={styles.saveAlertText}>Dati biometrici aggiornati con successo!</Text>
+            </View>
+          )}
 
-          <View style={styles.statCol}>
-            <Text style={styles.statLabel}>SALTO ATTUALE</Text>
-            <Text style={[styles.statVal, { color: Colors.primary }]}>
-              {current.toFixed(1)} cm
-            </Text>
-            <Text style={styles.statSub}>Record personale</Text>
-          </View>
+          {isEditingBiometrics ? (
+            <View style={styles.editForm}>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Peso (kg)</Text>
+                <TextInput
+                  style={styles.input}
+                  value={weight}
+                  onChangeText={setWeight}
+                  keyboardType="numeric"
+                />
+              </View>
 
-          <View style={styles.statDivider} />
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Altezza (cm)</Text>
+                <TextInput
+                  style={styles.input}
+                  value={height}
+                  onChangeText={setHeight}
+                  keyboardType="numeric"
+                />
+              </View>
 
-          <View style={styles.statCol}>
-            <Text style={styles.statLabel}>GUADAGNO TOTALE</Text>
-            <Text style={[styles.statVal, { color: Colors.accentGreen }]}>
-              +{gain} cm
-            </Text>
-            <Text style={styles.statSub}>Incremento elevazione</Text>
-          </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Lunghezza Gamba (Trocantere al suolo - cm)</Text>
+                <TextInput
+                  style={styles.input}
+                  value={legLength}
+                  onChangeText={setLegLength}
+                  keyboardType="numeric"
+                />
+              </View>
+
+              <TouchableOpacity
+                style={styles.saveBtn}
+                onPress={handleSaveBiometrics}
+                activeOpacity={0.88}
+              >
+                <Text style={styles.saveBtnText}>Salva Nuovi Dati</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.biometricsRow}>
+              <View style={styles.bioItem}>
+                <Weight size={18} color={Colors.primary} />
+                <Text style={styles.bioValue}>{userProfile.weightKg || 78} kg</Text>
+                <Text style={styles.bioLabel}>Peso Corporeo</Text>
+              </View>
+
+              <View style={styles.bioDivider} />
+
+              <View style={styles.bioItem}>
+                <Ruler size={18} color={Colors.primary} />
+                <Text style={styles.bioValue}>{userProfile.heightCm || 188} cm</Text>
+                <Text style={styles.bioLabel}>Statura</Text>
+              </View>
+
+              <View style={styles.bioDivider} />
+
+              <View style={styles.bioItem}>
+                <Ruler size={18} color={Colors.primary} />
+                <Text style={styles.bioValue}>{userProfile.legLengthCm || 94} cm</Text>
+                <Text style={styles.bioLabel}>Arti Inferiori</Text>
+              </View>
+            </View>
+          )}
         </View>
 
-        {/* Sekcja Subskrypcji */}
-        <Text style={styles.sectionHeading}>{t('profile.subscriptionTitle')}</Text>
-        <Card style={styles.subCard}>
-          <View style={styles.subHeader}>
-            <View style={styles.subBadge}>
-              <Sparkles size={14} color="#0F172A" />
-              <Text style={styles.subBadgeText}>ATTIVO</Text>
+        {/* ── IMPOSTAZIONI ACCOUNT & SICUREZZA ── */}
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionCategory}>SICUREZZA & ACCESSO</Text>
+          <Text style={styles.sectionTitle}>Credenziali dell'Account</Text>
+
+          <View style={styles.accountItemRow}>
+            <View style={styles.accountItemLeft}>
+              <Mail size={18} color="#64748B" />
+              <View>
+                <Text style={styles.accountItemLabel}>Email di Accesso</Text>
+                <Text style={styles.accountItemValue}>{userProfile.email || 'atleta@verticam.com'}</Text>
+              </View>
             </View>
-            <Text style={styles.subPrice}>349,00 € / anno</Text>
           </View>
 
-          <Text style={styles.subTitle}>{t('profile.activePlan')}</Text>
-          <Text style={styles.subDetail}>{t('profile.renewalDate')}</Text>
-          <Text style={styles.subDetail}>{t('profile.paymentVia')}</Text>
-
           <TouchableOpacity
-            style={styles.manageSubBtn}
-            onPress={handleManageSubscription}
-            activeOpacity={0.8}
+            style={styles.accountActionRow}
+            onPress={handleChangePassword}
+            activeOpacity={0.7}
           >
-            <CreditCard size={16} color={Colors.primary} />
-            <Text style={styles.manageSubText}>{t('profile.manageSub')}</Text>
-            <ChevronRight size={16} color={Colors.primary} />
+            <View style={styles.accountItemLeft}>
+              <Lock size={18} color="#64748B" />
+              <View>
+                <Text style={styles.accountItemLabel}>Password</Text>
+                <Text style={styles.accountItemSub}>••••••••••••</Text>
+              </View>
+            </View>
+            <ChevronRight size={18} color="#64748B" />
           </TouchableOpacity>
-        </Card>
+        </View>
 
-        {/* Ustawienia i RODO / GDPR */}
-        <Text style={styles.sectionHeading}>{t('profile.settingsTitle')}</Text>
-        <View style={styles.settingsGroup}>
-          <TouchableOpacity
-            style={styles.settingsItem}
-            activeOpacity={0.8}
-            onPress={handleExportData}
-          >
-            <View style={styles.settingsIconWrap}>
-              <Download size={18} color={Colors.textPrimary} />
-            </View>
-            <View style={styles.settingsTextWrap}>
-              <Text style={styles.settingsTitle}>{t('profile.exportData')}</Text>
-              <Text style={styles.settingsSub}>Scarica una copia dello storico misurazioni</Text>
-            </View>
-            <ChevronRight size={18} color={Colors.textMuted} />
-          </TouchableOpacity>
+        {/* ── PIANI & GESTIONE PAGAMENTO STRIPE ── */}
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionCategory}>FATTURAZIONE & ABBONAMENTO</Text>
+          <Text style={styles.sectionTitle}>Piano Attivo & Pagamenti</Text>
 
-          <TouchableOpacity
-            style={styles.settingsItem}
-            activeOpacity={0.8}
-            onPress={() =>
-              Alert.alert(
-                'Conformità GDPR',
-                'VertiCam tratta i dati biometrici in conformità al Regolamento Generale sulla Protezione dei Dati (UE) 2016/679 (GDPR). Hai il pieno diritto di consultazione e cancellazione dei tuoi dati in qualsiasi momento.'
-              )
-            }
-          >
-            <View style={styles.settingsIconWrap}>
-              <Shield size={18} color={Colors.accentGreen} />
+          <View style={styles.subscriptionCard}>
+            <View style={styles.subCardTop}>
+              <View>
+                <Text style={styles.subPlanTitle}>VertiCam Pro</Text>
+                <Text style={styles.subPlanCadence}>Accesso completo e illimitato con IA</Text>
+              </View>
+              <View style={styles.activePill}>
+                <Text style={styles.activePillText}>ATTIVO</Text>
+              </View>
             </View>
-            <View style={styles.settingsTextWrap}>
-              <Text style={styles.settingsTitle}>{t('profile.gdpr')}</Text>
-              <Text style={styles.settingsSub}>Informativa sulla privacy e protezione dati</Text>
-            </View>
-            <ChevronRight size={18} color={Colors.textMuted} />
-          </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.settingsItem}
-            activeOpacity={0.8}
-            onPress={() =>
-              Alert.alert(
-                'Supporto Coach & Preparazione Atletica',
-                'Il nostro team di specialisti della biomeccanica e autoregolazione neuromuscolare risponde a: support@verticam.app'
-              )
-            }
-          >
-            <View style={styles.settingsIconWrap}>
-              <HelpCircle size={18} color={Colors.accentBlue} />
-            </View>
-            <View style={styles.settingsTextWrap}>
-              <Text style={styles.settingsTitle}>{t('profile.support')}</Text>
-              <Text style={styles.settingsSub}>Fai una domanda sulla tecnica o sul programma</Text>
-            </View>
-            <ChevronRight size={18} color={Colors.textMuted} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.settingsItem, styles.logoutItem]}
-            activeOpacity={0.8}
-            onPress={handleLogout}
-          >
-            <View style={[styles.settingsIconWrap, styles.logoutIconWrap]}>
-              <LogOut size={18} color={Colors.secondary} />
-            </View>
-            <View style={styles.settingsTextWrap}>
-              <Text style={[styles.settingsTitle, { color: Colors.secondary }]}>
-                {t('profile.logout')}
+            <View style={styles.stripeAuditLine}>
+              <ShieldCheck size={14} color="#10B981" />
+              <Text style={styles.stripeAuditText}>
+                Fatturazione protetta da Stripe Inc. (Crittografia 256-bit)
               </Text>
             </View>
-          </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.stripePortalBtn}
+              onPress={handleStripePortal}
+              activeOpacity={0.88}
+            >
+              <CreditCard size={16} color="#FFFFFF" />
+              <Text style={styles.stripePortalBtnText}>Gestisci Pagamento & Fatture</Text>
+              <ExternalLink size={14} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -219,206 +282,300 @@ export const ProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: '#05070F',
   },
-  content: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-  profileCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.cardBackground,
-    borderRadius: 18,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    marginBottom: 20,
+  scrollContent: {
+    padding: 16,
+    paddingVertical: 20,
     gap: 16,
   },
+  scrollContentDesktop: {
+    maxWidth: 680,
+    alignSelf: 'center',
+    width: '100%',
+  },
+  topHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  logoutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: '#12172A',
+  },
+  logoutBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#94A3B8',
+  },
+  athleteCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    backgroundColor: '#0D111F',
+    borderRadius: 20,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
   avatarCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  profileInfo: {
+  athleteInfo: {
     flex: 1,
   },
   nameRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 4,
   },
-  profileName: {
+  athleteName: {
     fontSize: 18,
     fontWeight: '900',
-    color: Colors.textPrimary,
+    color: '#FFFFFF',
+    letterSpacing: -0.2,
   },
-  proPill: {
-    backgroundColor: Colors.primary,
-    paddingHorizontal: 6,
+  proBadge: {
+    backgroundColor: 'rgba(0, 229, 255, 0.15)',
+    paddingHorizontal: 7,
     paddingVertical: 2,
     borderRadius: 6,
-  },
-  proPillText: {
-    color: '#0F172A',
-    fontWeight: '900',
-    fontSize: 10,
-  },
-  profileRole: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: Colors.primary,
-    marginBottom: 2,
-  },
-  profileParams: {
-    fontSize: 12,
-    color: Colors.textMuted,
-  },
-  statsCard: {
-    flexDirection: 'row',
-    backgroundColor: '#0F172A',
-    borderRadius: 16,
-    padding: 16,
     borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    marginBottom: 24,
+    borderColor: Colors.primary,
   },
-  statCol: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statDivider: {
-    width: 1,
-    backgroundColor: Colors.cardBorder,
-  },
-  statLabel: {
-    color: Colors.textMuted,
-    fontSize: 9,
-    fontWeight: '800',
-    textTransform: 'uppercase',
-    marginBottom: 4,
-  },
-  statVal: {
-    color: Colors.textPrimary,
-    fontSize: 18,
-    fontWeight: '900',
-    marginBottom: 2,
-  },
-  statSub: {
-    color: Colors.textMuted,
+  proBadgeText: {
+    color: Colors.primary,
     fontSize: 10,
+    fontWeight: '900',
   },
-  sectionHeading: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: Colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 12,
+  athleteEmail: {
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 2,
   },
-  subCard: {
+
+  // Sections
+  sectionCard: {
+    backgroundColor: '#0D111F',
+    borderRadius: 20,
     padding: 18,
-    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    gap: 12,
   },
-  subHeader: {
+  sectionHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
+    alignItems: 'flex-start',
   },
-  subBadge: {
+  sectionCategory: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#64748B',
+    letterSpacing: 0.6,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    marginTop: 2,
+  },
+  editActionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: Colors.primary,
-    paddingVertical: 3,
-    paddingHorizontal: 8,
-    borderRadius: 6,
+    backgroundColor: 'rgba(0, 229, 255, 0.1)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
   },
-  subBadgeText: {
-    color: '#0F172A',
-    fontWeight: '900',
-    fontSize: 10,
+  editActionBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: Colors.primary,
   },
-  subPrice: {
-    color: Colors.textPrimary,
-    fontWeight: '800',
-    fontSize: 14,
+  saveAlert: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    padding: 10,
+    borderRadius: 8,
   },
-  subTitle: {
-    color: Colors.textPrimary,
-    fontSize: 16,
-    fontWeight: '800',
-    marginBottom: 4,
-  },
-  subDetail: {
-    color: Colors.textMuted,
+  saveAlertText: {
     fontSize: 12,
-    lineHeight: 18,
+    color: '#10B981',
+    fontWeight: '700',
   },
-  manageSubBtn: {
+  biometricsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#12172A',
+    borderRadius: 14,
+    padding: 16,
+  },
+  bioItem: {
+    alignItems: 'center',
+    gap: 4,
+  },
+  bioValue: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    marginTop: 2,
+  },
+  bioLabel: {
+    fontSize: 10,
+    color: '#64748B',
+    fontWeight: '600',
+  },
+  bioDivider: {
+    width: 1,
+    height: 32,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  editForm: {
+    gap: 12,
+    marginTop: 6,
+  },
+  inputGroup: {
+    gap: 6,
+  },
+  inputLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#94A3B8',
+  },
+  input: {
+    backgroundColor: '#12172A',
+    borderRadius: 10,
+    height: 44,
+    color: '#FFFFFF',
+    paddingHorizontal: 12,
+    fontSize: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  saveBtn: {
+    backgroundColor: Colors.primary,
+    height: 46,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 6,
+  },
+  saveBtnText: {
+    color: '#000000',
+    fontWeight: '800',
+    fontSize: 13,
+  },
+
+  // Account
+  accountItemRow: {
+    backgroundColor: '#12172A',
+    padding: 14,
+    borderRadius: 12,
+  },
+  accountActionRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#0F172A',
-    padding: 12,
-    borderRadius: 10,
-    marginTop: 14,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
+    backgroundColor: '#12172A',
+    padding: 14,
+    borderRadius: 12,
   },
-  manageSubText: {
-    flex: 1,
-    marginLeft: 8,
-    color: Colors.primary,
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  settingsGroup: {
-    backgroundColor: Colors.cardBackground,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    overflow: 'hidden',
-  },
-  settingsItem: {
+  accountItemLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 12,
+  },
+  accountItemLabel: {
+    fontSize: 11,
+    color: '#64748B',
+    fontWeight: '600',
+  },
+  accountItemValue: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  accountItemSub: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    letterSpacing: 2,
+  },
+
+  // Subscription
+  subscriptionCard: {
+    backgroundColor: '#12172A',
+    borderRadius: 14,
     padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
-    gap: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 229, 255, 0.2)',
+    gap: 12,
   },
-  logoutItem: {
-    borderBottomWidth: 0,
+  subCardTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
-  settingsIconWrap: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: '#0F172A',
+  subPlanTitle: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#FFFFFF',
+  },
+  subPlanCadence: {
+    fontSize: 11,
+    color: '#94A3B8',
+    marginTop: 2,
+  },
+  activePill: {
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  activePillText: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: '#10B981',
+  },
+  stripeAuditLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  stripeAuditText: {
+    fontSize: 11,
+    color: '#64748B',
+  },
+  stripePortalBtn: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#090D1A',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+    height: 44,
+    borderRadius: 10,
+    marginTop: 4,
   },
-  logoutIconWrap: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-  },
-  settingsTextWrap: {
-    flex: 1,
-  },
-  settingsTitle: {
-    color: Colors.textPrimary,
-    fontSize: 14,
+  stripePortalBtnText: {
+    color: '#FFFFFF',
+    fontSize: 12,
     fontWeight: '700',
-  },
-  settingsSub: {
-    color: Colors.textMuted,
-    fontSize: 11,
-    marginTop: 2,
   },
 });

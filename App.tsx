@@ -12,6 +12,9 @@ import { DashboardScreen } from './src/screens/DashboardScreen';
 import { WorkoutPlayerScreen } from './src/screens/WorkoutPlayerScreen';
 import { DailyCheckinScreen } from './src/screens/DailyCheckinScreen';
 import { ActivateAccountScreen } from './src/screens/ActivateAccountScreen';
+import { OnboardingTutorialScreen } from './src/screens/OnboardingTutorialScreen';
+import { BaselineEvaluationScreen } from './src/screens/BaselineEvaluationScreen';
+import { LoturcoWorkoutScreen } from './src/screens/LoturcoWorkoutScreen';
 import { WebSidebar } from './src/components/WebSidebar';
 import { Colors } from './src/theme/colors';
 
@@ -39,10 +42,13 @@ const RootNavigator: React.FC = () => {
       case 'JumpResult':       return <JumpResultScreen />;
       case 'Paywall':          return <PaywallScreen />;
       case 'WorkoutPlayer':    return <WorkoutPlayerScreen />;
-      case 'DailyCheckin':     return <DailyCheckinScreen />;
-      case 'ActivateAccount':  return <ActivateAccountScreen />;
+      case 'DailyCheckin':        return <DailyCheckinScreen />;
+      case 'ActivateAccount':     return <ActivateAccountScreen />;
+      case 'OnboardingTutorial':  return <OnboardingTutorialScreen />;
+      case 'BaselineEvaluation':   return <BaselineEvaluationScreen />;
+      case 'LoturcoWorkout':      return <LoturcoWorkoutScreen />;
       case 'Dashboard':
-      default:                 return <DashboardScreen />;
+      default:                    return <DashboardScreen />;
     }
   };
 
