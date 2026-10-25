@@ -29,18 +29,18 @@ export class PrescriptionEngine {
     if (eur < 1.10) {
       return {
         deficitType: 'elastic',
-        recommendation: 'Deficit elastico/reattivo (EUR < 1.10). Necessita di enfasi sul Ciclo Allungamento-Accorciamento (SSC) e pliometria rapida.',
+        recommendation: 'Déficit elástico/reativo (EUR < 1.10). Necessita de ênfase no Ciclo Alongamento-Encurtamento (CAE) e pliometria rápida.',
       };
     }
     if (eur > 1.20) {
       return {
         deficitType: 'concentric_strength',
-        recommendation: 'Deficit di forza dinamica massimale (EUR > 1.20). Ottima capacità elastica, necessita di incremento della forza concentrica pura.',
+        recommendation: 'Déficit de força dinâmica máxima (EUR > 1.20). Excelente capacidade elástica, necessita de aumento da força concêntrica pura.',
       };
     }
     return {
       deficitType: 'balanced',
-      recommendation: 'Profilo neuromuscolare equilibrato (1.10 <= EUR <= 1.20). Sinergia ideale tra forza concentrica e restituzione elastica.',
+      recommendation: 'Perfil neuromuscular equilibrado (1.10 <= EUR <= 1.20). Sinergia ideal entre força concêntrica e restituição elástica.',
     };
   }
 
@@ -100,13 +100,13 @@ export class PrescriptionEngine {
 
     if (scorePercentage >= 95) {
       zone = 'GREEN';
-      statusMessage = 'SNC riposato e massima capacità di reclutamento delle unità motorie.';
+      statusMessage = 'SNC recuperado e capacidade máxima de recrutamento de unidades motoras.';
     } else if (scorePercentage >= 85) {
       zone = 'YELLOW';
-      statusMessage = 'Affaticamento residuo moderato accumulato. Volume e intensità ridotti per adattamento tecnico.';
+      statusMessage = 'Fadiga residual moderada acumulada. Volume e intensidade ajustados para adaptação técnica.';
     } else {
       zone = 'RED';
-      statusMessage = 'Esaurimento neurale acuto. Alto rischio di sovraccarico sui tendini rotuleo e d\'Achille. Seduta ad impatto annullata.';
+      statusMessage = 'Exaustão neural aguda. Risco elevado de sobrecarga nos tendões patelar e de Aquiles. Treino balístico suspenso.';
     }
 
     // 3. Protocollo di Riscaldamento Standardizzato & PAP

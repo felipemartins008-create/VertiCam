@@ -17,7 +17,6 @@ import {
   Zap,
   ShieldCheck,
   Sparkles,
-  Info,
 } from 'lucide-react-native';
 import { useApp } from '../context/AppContext';
 import { Colors } from '../theme/colors';
@@ -26,17 +25,17 @@ import { VertiCamLogo } from '../components/VertiCamLogo';
 export const OnboardingTutorialScreen: React.FC = () => {
   const { navigate, updateProfile } = useApp();
 
-  // Giorni di allenamento selezionati (Default: Lunedì 1, Mercoledì 3, Venerdì 5)
+  // Dias de treino selecionados (Padrão: Segunda 1, Quarta 3, Sexta 5)
   const [selectedDays, setSelectedDays] = useState<number[]>([1, 3, 5]);
 
   const daysOfWeek = [
-    { id: 1, label: 'LUN', full: 'Lunedì' },
-    { id: 2, label: 'MAR', full: 'Martedì' },
-    { id: 3, label: 'MER', full: 'Mercoledì' },
-    { id: 4, label: 'GIO', full: 'Giovedì' },
-    { id: 5, label: 'VEN', full: 'Venerdì' },
-    { id: 6, label: 'SAB', full: 'Sabato' },
-    { id: 0, label: 'DOM', full: 'Domenica' },
+    { id: 1, label: 'SEG', full: 'Segunda-feira' },
+    { id: 2, label: 'TER', full: 'Terça-feira' },
+    { id: 3, label: 'QUA', full: 'Quarta-feira' },
+    { id: 4, label: 'QUI', full: 'Quinta-feira' },
+    { id: 5, label: 'SEX', full: 'Sexta-feira' },
+    { id: 6, label: 'SÁB', full: 'Sábado' },
+    { id: 0, label: 'DOM', full: 'Domingo' },
   ];
 
   const toggleDay = (dayId: number) => {
@@ -65,28 +64,28 @@ export const OnboardingTutorialScreen: React.FC = () => {
         contentContainerStyle={[styles.scrollContent, isDesktop && styles.scrollContentDesktop]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header Logo & Titolo */}
+        {/* Header Logo & Titulo */}
         <View style={styles.topHeader}>
           <VertiCamLogo size="medium" />
           <View style={styles.welcomePill}>
             <Sparkles size={12} color={Colors.primary} />
-            <Text style={styles.welcomePillText}>COME FUNZIONA VERTICAM</Text>
+            <Text style={styles.welcomePillText}>COMO FUNCIONA O VERTICAM</Text>
           </View>
-          <Text style={styles.mainTitle}>3 Passi per Massimizzare la tua Elevazione</Text>
+          <Text style={styles.mainTitle}>3 Passos para Maximizar sua Impulsão</Text>
           <Text style={styles.mainSubtitle}>
-            Un approccio scientifico basato sul metodo del Prof. Irineu Loturco. Nessun esercizio a caso, solo massima potenza neurale.
+            Um método científico baseado no pesquisador Prof. Dr. Irineu Loturco. Sem exercícios aleatórios, apenas potência neuromuscular pura.
           </Text>
         </View>
 
-        {/* ── CARD 1: VALUTAZIONE INIZIALE ── */}
+        {/* ── CARD 1: AVALIAÇÃO INICIAL ── */}
         <View style={styles.tutorialCard}>
           <View style={styles.cardHeaderRow}>
             <View style={styles.stepBadge}>
               <Text style={styles.stepBadgeText}>1</Text>
             </View>
             <View style={styles.cardHeaderTexts}>
-              <Text style={styles.cardCategory}>PRIMO PASSO</Text>
-              <Text style={styles.cardTitle}>Valutazione Iniziale (Baseline)</Text>
+              <Text style={styles.cardCategory}>PRIMEIRO PASSO</Text>
+              <Text style={styles.cardTitle}>Avaliação Inicial (Linha de Base)</Text>
             </View>
             <View style={styles.iconCircle}>
               <Activity size={20} color={Colors.primary} strokeWidth={2.5} />
@@ -94,41 +93,41 @@ export const OnboardingTutorialScreen: React.FC = () => {
           </View>
 
           <Text style={styles.cardDescription}>
-            Prima di prescrivere qualsiasi carico, la fotocamera ad alta precisione calcola il tuo tempo di volo con due test fondamentali:
+            Antes de prescrever qualquer carga, a câmera de alta precisão calcula seu tempo de voo com dois testes fundamentais:
           </Text>
 
           <View style={styles.subItemsBox}>
             <View style={styles.subItem}>
               <View style={styles.bulletDot} />
               <Text style={styles.subItemText}>
-                <Text style={styles.boldText}>CMJ (Salto con contromovimento):</Text> misura la forza elastica e reattiva dei tuoi tendini.
+                <Text style={styles.boldText}>CMJ (Salto com contramovimento):</Text> mede a força elástica e a reatividade dos seus tendões.
               </Text>
             </View>
 
             <View style={styles.subItem}>
               <View style={styles.bulletDot} />
               <Text style={styles.subItemText}>
-                <Text style={styles.boldText}>SJ (Salto senza contromovimento):</Text> misura la forza concentrica pura partendo da fermo a 90°.
+                <Text style={styles.boldText}>SJ (Salto sem contramovimento):</Text> mede a força concêntrica pura partindo estático a 90°.
               </Text>
             </View>
           </View>
 
           <View style={styles.formulaPill}>
             <Text style={styles.formulaPillText}>
-              💡 L'indice EUR (CMJ ÷ SJ) rivelerà all'istante il tuo deficit neuromuscolare.
+              💡 O índice EUR (CMJ ÷ SJ) revelará exatamente o seu déficit neuromuscular de impulsão.
             </Text>
           </View>
         </View>
 
-        {/* ── CARD 2: I TUOI GIORNI DI ALLENAMENTO ── */}
+        {/* ── CARD 2: DIAS DE TREINO ── */}
         <View style={styles.tutorialCard}>
           <View style={styles.cardHeaderRow}>
             <View style={styles.stepBadge}>
               <Text style={styles.stepBadgeText}>2</Text>
             </View>
             <View style={styles.cardHeaderTexts}>
-              <Text style={styles.cardCategory}>PROGRAMMAZIONE</Text>
-              <Text style={styles.cardTitle}>I Tuoi Giorni di Allenamento</Text>
+              <Text style={styles.cardCategory}>PLANEJAMENTO SEMANAL</Text>
+              <Text style={styles.cardTitle}>Seus Dias de Treino</Text>
             </View>
             <View style={styles.iconCircle}>
               <Calendar size={20} color={Colors.primary} strokeWidth={2.5} />
@@ -136,10 +135,10 @@ export const OnboardingTutorialScreen: React.FC = () => {
           </View>
 
           <Text style={styles.cardDescription}>
-            Seleziona i giorni della settimana in cui desideri allenarti. Per il sistema nervoso centrale, <Text style={styles.boldText}>2 o 3 sessioni balistiche</Text> con recupero completo sono la formula ideale per guadagnare centimetri:
+            Escolha os dias da semana em que você vai treinar. Para o sistema nervoso central, <Text style={styles.boldText}>2 ou 3 sessões balísticas</Text> com recuperação total são a fórmula ideal para ganhar centímetros reais:
           </Text>
 
-          {/* Selettore Giorni Settimana */}
+          {/* Seletor Dias da Semana */}
           <View style={styles.daysSelectorRow}>
             {daysOfWeek.map((day) => {
               const isSelected = selectedDays.includes(day.id);
@@ -166,20 +165,20 @@ export const OnboardingTutorialScreen: React.FC = () => {
           <View style={styles.daysSummaryRow}>
             <Zap size={13} color="#10B981" />
             <Text style={styles.daysSummaryText}>
-              Frequenza: <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>{selectedDays.length} giorni/settimana</Text> (ottimale per il recupero neurale)
+              Frequência: <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>{selectedDays.length} dias na semana</Text> (ideal para recuperação neural)
             </Text>
           </View>
         </View>
 
-        {/* ── CARD 3: MONITORAGGIO SIMULTANEO CON TELECAMERA ── */}
+        {/* ── CARD 3: MONITORAMENTO SIMULTÂNEO COM CÂMERA ── */}
         <View style={styles.tutorialCard}>
           <View style={styles.cardHeaderRow}>
             <View style={styles.stepBadge}>
               <Text style={styles.stepBadgeText}>3</Text>
             </View>
             <View style={styles.cardHeaderTexts}>
-              <Text style={styles.cardCategory}>TECNOLOGIA IA</Text>
-              <Text style={styles.cardTitle}>Monitoraggio Simultaneo con Telecamera</Text>
+              <Text style={styles.cardCategory}>TECNOLOGIA DA CÂMERA</Text>
+              <Text style={styles.cardTitle}>Monitoramento Simultâneo de Carga e Volume</Text>
             </View>
             <View style={styles.iconCircle}>
               <Camera size={20} color={Colors.primary} strokeWidth={2.5} />
@@ -187,32 +186,32 @@ export const OnboardingTutorialScreen: React.FC = () => {
           </View>
 
           <Text style={styles.cardDescription}>
-            Durante ogni sessione, la telecamera analizza ogni ripetizione di <Text style={styles.boldText}>Salto con Carico (Loaded Jump)</Text>:
+            Durante todo o treino, a câmera acompanha cada repetição do seu <Text style={styles.boldText}>Salto com Carga (Loaded Jump)</Text>:
           </Text>
 
           <View style={styles.loturcoHighlightBox}>
             <View style={styles.loturcoHeader}>
               <ShieldCheck size={14} color={Colors.primary} />
-              <Text style={styles.loturcoTitle}>Principio di Irineu Loturco (Loss of Velocity):</Text>
+              <Text style={styles.loturcoTitle}>Princípio de Irineu Loturco (Loss of Velocity):</Text>
             </View>
             <Text style={styles.loturcoBody}>
-              Se la tua altezza o velocità cala di oltre il <Text style={{ color: '#FBBF24', fontWeight: '800' }}>10%</Text>, l'algoritmo riduce istantaneamente la zavorra o conclude la serie. In questo modo alleni solo le fibre muscolari rapide senza creare affaticamento cronico.
+              Se a altura ou velocidade do seu salto cair mais de <Text style={{ color: '#FBBF24', fontWeight: '800' }}>10%</Text>, o app diminui a carga ou encerra a série na hora. Isso garante que você só treine as fibras rápidas com máxima explosão, sem fadiga crônica.
             </Text>
           </View>
         </View>
 
-        {/* ── BOTTONE UNICO DI AZIONE ── */}
+        {/* ── BOTÃO ÚNICO DE AÇÃO ── */}
         <View style={styles.ctaBottomContainer}>
           <TouchableOpacity
             style={styles.singleActionButton}
             onPress={handleStartInitialEvaluation}
             activeOpacity={0.88}
           >
-            <Text style={styles.singleActionButtonText}>FAI LA VALUTAZIONE INIZIALE</Text>
+            <Text style={styles.singleActionButtonText}>FAZER AVALIAÇÃO INICIAL</Text>
             <ArrowRight size={20} color="#000000" strokeWidth={3} />
           </TouchableOpacity>
           <Text style={styles.ctaSubtext}>
-            Durata stimata: ~4 minuti • Richiede spazio libero per saltare
+            Duração estimada: ~4 minutos • Tenha espaço livre para saltar
           </Text>
         </View>
       </ScrollView>
@@ -380,7 +379,7 @@ const styles = StyleSheet.create({
     lineHeight: 15,
   },
 
-  // Giorni di Allenamento
+  // Dias da Semana
   daysSelectorRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

@@ -37,35 +37,35 @@ export const WebSidebar: React.FC = () => {
   const navItems: NavItem[] = [
     {
       id: 'home',
-      label: 'Home',
+      label: 'Início',
       Icon: Home,
       onPress: () => goTab('workouts'),
       isActive: isDash('workouts') && !inJumpFlow && currentScreen !== 'DailyCheckin',
     },
     {
       id: 'checkin',
-      label: 'Check-in Prontezza',
+      label: 'Check-in Prontidão',
       Icon: Activity,
       onPress: () => navigate('DailyCheckin'),
       isActive: currentScreen === 'DailyCheckin',
     },
     {
       id: 'treningi',
-      label: 'Allenamenti',
+      label: 'Treinos',
       Icon: Dumbbell,
       onPress: () => goTab('workouts'),
       isActive: currentScreen === 'WorkoutPlayer',
     },
     {
       id: 'pomiary',
-      label: 'Valutazioni',
+      label: 'Avaliações',
       Icon: BarChart2,
       onPress: () => goTab('evaluations'),
       isActive: isDash('evaluations'),
     },
     {
       id: 'wyskok',
-      label: 'Misura Salto',
+      label: 'Medir Salto',
       Icon: Camera,
       onPress: () => navigate('CameraIntro'),
       isActive: inJumpFlow,
@@ -75,7 +75,7 @@ export const WebSidebar: React.FC = () => {
   const accountItems: NavItem[] = [
     {
       id: 'profil',
-      label: 'Il Mio Profilo',
+      label: 'Meu Perfil',
       Icon: User,
       onPress: () => goTab('profile'),
       isActive: isDash('profile'),
@@ -89,7 +89,7 @@ export const WebSidebar: React.FC = () => {
     },
     {
       id: 'logout',
-      label: 'Esci',
+      label: 'Sair',
       Icon: LogOut,
       onPress: () => navigate('Welcome'),
       isActive: false,
@@ -135,12 +135,12 @@ export const WebSidebar: React.FC = () => {
   };
 
   const positionLabel: Record<string, string> = {
-    outside: 'Schiacciatore',
-    opposite: 'Opposto',
-    middle: 'Centrale',
-    setter: 'Palleggiatore',
-    libero: 'Libero',
-    beach: 'Beach Volley',
+    outside: 'Ponteiro',
+    opposite: 'Oposto',
+    middle: 'Central',
+    setter: 'Levantador',
+    libero: 'Líbero',
+    beach: 'Vôlei de Praia',
   };
 
   return (

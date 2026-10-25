@@ -28,23 +28,23 @@ export const WorkoutHomeScreen: React.FC = () => {
   const { navigate, userProfile, athleteBaseline } = useApp();
 
   const athleteName = userProfile?.fullName ? userProfile.fullName.split(' ')[0] : 'Atleta';
-  const workoutDays = userProfile.workoutDays || [1, 3, 5]; // Default: Lunedì, Mercoledì, Venerdì
+  const workoutDays = userProfile.workoutDays || [1, 3, 5]; // Padrão: Segunda, Quarta, Sexta
 
-  // Giorno corrente (0 = Dom, 1 = Lun, 2 = Mar, ...)
+  // Dia atual (0 = Dom, 1 = Seg, 2 = Ter, ...)
   const todayDayIndex = new Date().getDay();
   const isTodayWorkoutDay = workoutDays.includes(todayDayIndex);
 
   const daysList = [
-    { id: 1, label: 'LUN', name: 'Lunedì' },
-    { id: 2, label: 'MAR', name: 'Martedì' },
-    { id: 3, label: 'MER', name: 'Mercoledì' },
-    { id: 4, label: 'GIO', name: 'Giovedì' },
-    { id: 5, label: 'VEN', name: 'Venerdì' },
-    { id: 6, label: 'SAB', name: 'Sabato' },
-    { id: 0, label: 'DOM', name: 'Domenica' },
+    { id: 1, label: 'SEG', name: 'Segunda' },
+    { id: 2, label: 'TER', name: 'Terça' },
+    { id: 3, label: 'QUA', name: 'Quarta' },
+    { id: 4, label: 'QUI', name: 'Quinta' },
+    { id: 5, label: 'SEX', name: 'Sexta' },
+    { id: 6, label: 'SÁB', name: 'Sábado' },
+    { id: 0, label: 'DOM', name: 'Domingo' },
   ];
 
-  // Carico OPL stimato
+  // Carga OPL estimada
   const athleteWeight = userProfile.weightKg || athleteBaseline.user_weight || 78;
   const initialLoadKg = Math.round(athleteWeight * 0.20);
   const baselineCmj = athleteBaseline.baseline_cmj_height || 52.0;
@@ -67,25 +67,25 @@ export const WorkoutHomeScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* ── BENVENUTO ATLETA ── */}
+        {/* ── SAUDAÇÃO ── */}
         <View style={styles.greetingBox}>
-          <Text style={styles.greetingSub}>Bentornato sul campo,</Text>
+          <Text style={styles.greetingSub}>Bem-vindo de volta,</Text>
           <Text style={styles.greetingTitle}>{athleteName} 👋</Text>
         </View>
 
-        {/* ── ROTINA SETTIMANALE DEGLI ALLENAMENTI ── */}
+        {/* ── ROTINA SEMANAL DE TREINOS ── */}
         <View style={styles.routineCard}>
           <View style={styles.routineHeaderRow}>
             <View>
-              <Text style={styles.routineCategory}>LA TUA SETTIMANA</Text>
-              <Text style={styles.routineTitle}>Rotina di Potenza Neurale</Text>
+              <Text style={styles.routineCategory}>SUA SEMANA</Text>
+              <Text style={styles.routineTitle}>Rotina de Potência Neural</Text>
             </View>
             <View style={styles.routineDaysPill}>
-              <Text style={styles.routineDaysPillText}>{workoutDays.length}x a settimana</Text>
+              <Text style={styles.routineDaysPillText}>{workoutDays.length}x na semana</Text>
             </View>
           </View>
 
-          {/* Griglia Giorni Settimana */}
+          {/* Grade Dias da Semana */}
           <View style={styles.weekGrid}>
             {daysList.map((day) => {
               const isWorkout = workoutDays.includes(day.id);
@@ -117,7 +117,7 @@ export const WorkoutHomeScreen: React.FC = () => {
                     )}
                   </View>
                   <Text style={[styles.dayColSub, isToday && styles.dayColSubToday]}>
-                    {isWorkout ? 'Allenamento' : 'Recupero'}
+                    {isWorkout ? 'Treino' : 'Descanso'}
                   </Text>
                 </View>
               );
@@ -125,48 +125,48 @@ export const WorkoutHomeScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* ── CARD PRINCIPALE ALLENAMENTO DEL GIORNO ── */}
+        {/* ── CARD PRINCIPAL: TREINO DO DIA ── */}
         <View style={styles.todayCard}>
           <View style={styles.todayCardHeader}>
             <View style={[styles.statusBadge, isTodayWorkoutDay ? styles.statusBadgeGreen : styles.statusBadgeBlue]}>
               <Text style={styles.statusBadgeText}>
-                {isTodayWorkoutDay ? '🟢 OGGI: GIORNATA DI ALLENAMENTO' : '🔵 OGGI: RECUPERO NEURALE SNC'}
+                {isTodayWorkoutDay ? '🟢 HOJE: DIA DE TREINO BALÍSTICO' : '🔵 HOJE: RECUPERAÇÃO NEURAL SNC'}
               </Text>
             </View>
           </View>
 
-          <Text style={styles.exerciseMainName}>Salto con Carico (Loaded Jump)</Text>
+          <Text style={styles.exerciseMainName}>Salto com Carga (Loaded Jump)</Text>
           <Text style={styles.exerciseSubtitle}>
-            Metodo Scientifico Prof. Irineu Loturco • Autoregolazione simultanea della velocità
+            Método Científico Prof. Irineu Loturco • Autorregulação simultânea da velocidade
           </Text>
 
-          {/* Dettagli della Sessione */}
+          {/* Especificações da Sessão */}
           <View style={styles.exerciseSpecsGrid}>
             <View style={styles.specBox}>
-              <Text style={styles.specLabel}>RISCALDAMENTO</Text>
+              <Text style={styles.specLabel}>AQUECIMENTO</Text>
               <Text style={styles.specValue}>3x10 Squat</Text>
             </View>
 
             <View style={styles.specBox}>
-              <Text style={styles.specLabel}>CHECK NEURALE</Text>
-              <Text style={styles.specValue}>1x CMJ Camera</Text>
+              <Text style={styles.specLabel}>CHECK NEURAL</Text>
+              <Text style={styles.specValue}>1x CMJ Câmera</Text>
             </View>
 
             <View style={styles.specBox}>
-              <Text style={styles.specLabel}>CARICO OPL</Text>
+              <Text style={styles.specLabel}>CARGA OPL</Text>
               <Text style={[styles.specValue, { color: Colors.primary }]}>{initialLoadKg} kg</Text>
             </View>
           </View>
 
-          {/* Banner Metodo Loturco */}
+          {/* Banner Método Loturco */}
           <View style={styles.loturcoBanner}>
             <ShieldCheck size={14} color={Colors.primary} />
             <Text style={styles.loturcoBannerText}>
-              La telecamera monitorerà ogni ripetizione. Se l'altezza cala oltre il 10%, la serie viene conclusa automaticamente per proteggere la reattività del sistema nervoso.
+              A câmera monitora cada repetição. Se a impulsão cair mais de 10%, a série é encerrada automaticamente para preservar o sistema nervoso central.
             </Text>
           </View>
 
-          {/* Bottone Unico Inizia Allenamento */}
+          {/* Botão de Iniciar Treino */}
           <TouchableOpacity
             style={styles.startWorkoutButton}
             onPress={() => navigate('LoturcoWorkout')}
@@ -174,36 +174,36 @@ export const WorkoutHomeScreen: React.FC = () => {
           >
             <Play size={18} color="#000000" fill="#000000" />
             <Text style={styles.startWorkoutButtonText}>
-              {isTodayWorkoutDay ? 'INIZIA ALLENAMENTO' : 'AVVIA SESSIONE COMUNQUE'}
+              {isTodayWorkoutDay ? 'INICIAR TREINO' : 'INICIAR SESSÃO MESMO ASSIM'}
             </Text>
           </TouchableOpacity>
         </View>
 
-        {/* ── CARD STATUS BASELINE ATTUALE ── */}
+        {/* ── CARD LINHA DE BASE ATUAL ── */}
         <View style={styles.baselineStatusCard}>
           <View style={styles.baselineHeader}>
             <TrendingUp size={16} color={Colors.primary} />
-            <Text style={styles.baselineTitle}>La tua Baseline Attuale</Text>
+            <Text style={styles.baselineTitle}>Sua Linha de Base Atual</Text>
           </View>
 
           <View style={styles.baselineMetricsRow}>
             <View style={styles.baselineMetricItem}>
-              <Text style={styles.baselineMetricLabel}>ELEVAZIONE CMJ</Text>
+              <Text style={styles.baselineMetricLabel}>IMPULSÃO CMJ</Text>
               <Text style={styles.baselineMetricValue}>{baselineCmj} cm</Text>
             </View>
 
             <View style={styles.baselineDivider} />
 
             <View style={styles.baselineMetricItem}>
-              <Text style={styles.baselineMetricLabel}>INDICE EUR</Text>
+              <Text style={styles.baselineMetricLabel}>ÍNDICE EUR</Text>
               <Text style={styles.baselineMetricValue}>{athleteBaseline.eur_ratio?.toFixed(2) || '1.08'}</Text>
             </View>
 
             <View style={styles.baselineDivider} />
 
             <View style={styles.baselineMetricItem}>
-              <Text style={styles.baselineMetricLabel}>PROSSIMO TEST</Text>
-              <Text style={styles.baselineMetricValue}>30 giorni</Text>
+              <Text style={styles.baselineMetricLabel}>PRÓXIMO TESTE</Text>
+              <Text style={styles.baselineMetricValue}>30 dias</Text>
             </View>
           </View>
         </View>

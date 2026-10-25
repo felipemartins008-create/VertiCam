@@ -45,7 +45,7 @@ export const ProfileScreen: React.FC = () => {
     const l = parseFloat(legLength);
 
     if (isNaN(w) || isNaN(h) || isNaN(l)) {
-      Alert.alert('Errore', 'Inserisci valori numerici validi.');
+      Alert.alert('Erro', 'Insira valores numéricos válidos.');
       return;
     }
 
@@ -62,18 +62,18 @@ export const ProfileScreen: React.FC = () => {
 
   const handleChangePassword = () => {
     Alert.alert(
-      'Modifica Password',
-      'Ti è stata inviata un\'email per impostare una nuova password sicura al tuo indirizzo: ' + (userProfile.email || 'latuaemail@esempio.com'),
+      'Alterar Senha',
+      'Um link para redefinir sua senha com segurança foi enviado para o seu e-mail: ' + (userProfile.email || 'seuemail@exemplo.com'),
       [{ text: 'OK' }]
     );
   };
 
   const handleStripePortal = () => {
     Alert.alert(
-      'Gestione Pagamento Stripe',
-      'Il tuo abbonamento VertiCam Pro è attivo con crittografia Stripe a 256-bit.\n\nPer modificare metodo di pagamento o scaricare fatture, accedi al portale clienti Stripe.',
+      'Gerenciamento de Pagamento Stripe',
+      'Sua assinatura VertiCam Pro está ativa com criptografia Stripe (256-bit).\n\nPara alterar a forma de pagamento ou acessar suas faturas, utilize o portal seguro do cliente Stripe.',
       [
-        { text: 'Chiudi', style: 'cancel' },
+        { text: 'Fechar', style: 'cancel' },
       ]
     );
   };
@@ -96,7 +96,7 @@ export const ProfileScreen: React.FC = () => {
           <VertiCamLogo size="small" variant="badge" />
           <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn} activeOpacity={0.7}>
             <LogOut size={16} color="#64748B" />
-            <Text style={styles.logoutBtnText}>Esci</Text>
+            <Text style={styles.logoutBtnText}>Sair</Text>
           </TouchableOpacity>
         </View>
 
@@ -116,12 +116,12 @@ export const ProfileScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* ── DATI BIOMETRICI (METODO LOTURCO) ── */}
+        {/* ── DATOS BIOMÉTRICOS (MÉTODO LOTURCO) ── */}
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeaderRow}>
             <View>
-              <Text style={styles.sectionCategory}>PARAMETRI FISIOLOGICI</Text>
-              <Text style={styles.sectionTitle}>Dati Biometrici</Text>
+              <Text style={styles.sectionCategory}>PARÂMETROS FISIOLÓGICOS</Text>
+              <Text style={styles.sectionTitle}>Dados Biométricos</Text>
             </View>
             <TouchableOpacity
               onPress={() => setIsEditingBiometrics(!isEditingBiometrics)}
@@ -130,7 +130,7 @@ export const ProfileScreen: React.FC = () => {
             >
               <Edit2 size={13} color={Colors.primary} />
               <Text style={styles.editActionBtnText}>
-                {isEditingBiometrics ? 'Annulla' : 'Modifica'}
+                {isEditingBiometrics ? 'Cancelar' : 'Editar'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -138,14 +138,14 @@ export const ProfileScreen: React.FC = () => {
           {saveSuccess && (
             <View style={styles.saveAlert}>
               <Check size={14} color="#10B981" />
-              <Text style={styles.saveAlertText}>Dati biometrici aggiornati con successo!</Text>
+              <Text style={styles.saveAlertText}>Dados biométricos atualizados com sucesso!</Text>
             </View>
           )}
 
           {isEditingBiometrics ? (
             <View style={styles.editForm}>
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Peso (kg)</Text>
+                <Text style={styles.inputLabel}>Peso Corporal (kg)</Text>
                 <TextInput
                   style={styles.input}
                   value={weight}
@@ -155,7 +155,7 @@ export const ProfileScreen: React.FC = () => {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Altezza (cm)</Text>
+                <Text style={styles.inputLabel}>Altura (cm)</Text>
                 <TextInput
                   style={styles.input}
                   value={height}
@@ -165,7 +165,7 @@ export const ProfileScreen: React.FC = () => {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Lunghezza Gamba (Trocantere al suolo - cm)</Text>
+                <Text style={styles.inputLabel}>Comprimento da Perna (Trocânter ao solo - cm)</Text>
                 <TextInput
                   style={styles.input}
                   value={legLength}
@@ -179,7 +179,7 @@ export const ProfileScreen: React.FC = () => {
                 onPress={handleSaveBiometrics}
                 activeOpacity={0.88}
               >
-                <Text style={styles.saveBtnText}>Salva Nuovi Dati</Text>
+                <Text style={styles.saveBtnText}>Salvar Dados</Text>
               </TouchableOpacity>
             </View>
           ) : (
@@ -187,7 +187,7 @@ export const ProfileScreen: React.FC = () => {
               <View style={styles.bioItem}>
                 <Weight size={18} color={Colors.primary} />
                 <Text style={styles.bioValue}>{userProfile.weightKg || 78} kg</Text>
-                <Text style={styles.bioLabel}>Peso Corporeo</Text>
+                <Text style={styles.bioLabel}>Peso Corporal</Text>
               </View>
 
               <View style={styles.bioDivider} />
@@ -195,7 +195,7 @@ export const ProfileScreen: React.FC = () => {
               <View style={styles.bioItem}>
                 <Ruler size={18} color={Colors.primary} />
                 <Text style={styles.bioValue}>{userProfile.heightCm || 188} cm</Text>
-                <Text style={styles.bioLabel}>Statura</Text>
+                <Text style={styles.bioLabel}>Altura</Text>
               </View>
 
               <View style={styles.bioDivider} />
@@ -203,22 +203,22 @@ export const ProfileScreen: React.FC = () => {
               <View style={styles.bioItem}>
                 <Ruler size={18} color={Colors.primary} />
                 <Text style={styles.bioValue}>{userProfile.legLengthCm || 94} cm</Text>
-                <Text style={styles.bioLabel}>Arti Inferiori</Text>
+                <Text style={styles.bioLabel}>Membros Inferiores</Text>
               </View>
             </View>
           )}
         </View>
 
-        {/* ── IMPOSTAZIONI ACCOUNT & SICUREZZA ── */}
+        {/* ── CONFIGURAÇÕES DE CONTA & SEGURANÇA ── */}
         <View style={styles.sectionCard}>
-          <Text style={styles.sectionCategory}>SICUREZZA & ACCESSO</Text>
-          <Text style={styles.sectionTitle}>Credenziali dell'Account</Text>
+          <Text style={styles.sectionCategory}>SEGURANÇA & ACESSO</Text>
+          <Text style={styles.sectionTitle}>Credenciais da Conta</Text>
 
           <View style={styles.accountItemRow}>
             <View style={styles.accountItemLeft}>
               <Mail size={18} color="#64748B" />
               <View>
-                <Text style={styles.accountItemLabel}>Email di Accesso</Text>
+                <Text style={styles.accountItemLabel}>E-mail de Acesso</Text>
                 <Text style={styles.accountItemValue}>{userProfile.email || 'atleta@verticam.com'}</Text>
               </View>
             </View>
@@ -232,7 +232,7 @@ export const ProfileScreen: React.FC = () => {
             <View style={styles.accountItemLeft}>
               <Lock size={18} color="#64748B" />
               <View>
-                <Text style={styles.accountItemLabel}>Password</Text>
+                <Text style={styles.accountItemLabel}>Senha</Text>
                 <Text style={styles.accountItemSub}>••••••••••••</Text>
               </View>
             </View>
@@ -240,26 +240,26 @@ export const ProfileScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        {/* ── PIANI & GESTIONE PAGAMENTO STRIPE ── */}
+        {/* ── PLANOS & GERENCIAMENTO DE PAGAMENTO STRIPE ── */}
         <View style={styles.sectionCard}>
-          <Text style={styles.sectionCategory}>FATTURAZIONE & ABBONAMENTO</Text>
-          <Text style={styles.sectionTitle}>Piano Attivo & Pagamenti</Text>
+          <Text style={styles.sectionCategory}>FATURAMENTO & ASSINATURA</Text>
+          <Text style={styles.sectionTitle}>Plano Ativo & Pagamentos</Text>
 
           <View style={styles.subscriptionCard}>
             <View style={styles.subCardTop}>
               <View>
                 <Text style={styles.subPlanTitle}>VertiCam Pro</Text>
-                <Text style={styles.subPlanCadence}>Accesso completo e illimitato con IA</Text>
+                <Text style={styles.subPlanCadence}>Acesso completo e ilimitado com IA</Text>
               </View>
               <View style={styles.activePill}>
-                <Text style={styles.activePillText}>ATTIVO</Text>
+                <Text style={styles.activePillText}>ATIVO</Text>
               </View>
             </View>
 
             <View style={styles.stripeAuditLine}>
               <ShieldCheck size={14} color="#10B981" />
               <Text style={styles.stripeAuditText}>
-                Fatturazione protetta da Stripe Inc. (Crittografia 256-bit)
+                Faturamento protegido pela Stripe Inc. (Criptografia 256-bit)
               </Text>
             </View>
 
@@ -269,7 +269,7 @@ export const ProfileScreen: React.FC = () => {
               activeOpacity={0.88}
             >
               <CreditCard size={16} color="#FFFFFF" />
-              <Text style={styles.stripePortalBtnText}>Gestisci Pagamento & Fatture</Text>
+              <Text style={styles.stripePortalBtnText}>Gerenciar Pagamento & Faturas</Text>
               <ExternalLink size={14} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
