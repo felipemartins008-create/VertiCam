@@ -1034,9 +1034,8 @@ export const QuizScreen: React.FC = () => {
               {/* ── PALCO DO ATLETA DE VÔLEI COM CHÃO & SALTO DINÂMICO (DIREITA NO DESKTOP) ── */}
               {(() => {
                 const groundHeight = isDesktop ? 40 : 32;
-                const maxTravel = isDesktop ? 85 : 30;
-                const maxCmRef = isDesktop ? 40 : 30;
-                const elevationOffset = Math.round((Math.min(targetGainCm, maxCmRef) / maxCmRef) * maxTravel);
+                const maxTravel = isDesktop ? 110 : 52;
+                const elevationOffset = Math.round((Math.min(targetGainCm, 60) / 60) * maxTravel);
 
                 return (
                   <View style={[styles.athleteStageCard, isDesktop && styles.athleteStageCardDesktop]}>
@@ -3004,8 +3003,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.08)',
     position: 'relative',
     overflow: 'hidden',
-    height: 240,
-    minHeight: 240,
+    height: 250,
+    minHeight: 250,
     alignItems: 'center',
   },
   athleteStageCardDesktop: {
@@ -3045,8 +3044,8 @@ const styles = StyleSheet.create({
     zIndex: 5,
   },
   athleteFigureWrapperMobile: {
-    width: 66,
-    height: 152,
+    width: 64,
+    height: 146,
   },
   athleteFigureImage: {
     width: '100%',
