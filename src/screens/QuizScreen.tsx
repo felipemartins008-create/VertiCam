@@ -737,6 +737,7 @@ export const QuizScreen: React.FC = () => {
         ref={mainScrollRef}
         contentContainerStyle={[
           styles.scrollContainer,
+          !isDesktop && styles.scrollContainerMobile,
           (currentStep === 6 || currentStep === 7) && { paddingBottom: 130 },
         ]}
         showsVerticalScrollIndicator={false}
@@ -890,8 +891,12 @@ export const QuizScreen: React.FC = () => {
            ══════════════════════════════════════════════════════ */}
         {currentStep === 4 && (
           <View style={styles.stepContainer}>
-            <Text style={styles.mainTitle}>OBIETTIVO DI ELEVAZIONE</Text>
-            <Text style={styles.mainSubtitle}>QUANTO VUOI AUMENTARE IL TUO SALTO?</Text>
+            <Text style={[styles.mainTitle, !isDesktop && styles.mainTitleMobile]}>
+              OBIETTIVO DI ELEVAZIONE
+            </Text>
+            <Text style={[styles.mainSubtitle, !isDesktop && styles.mainSubtitleMobile]}>
+              QUANTO VUOI AUMENTARE IL TUO SALTO?
+            </Text>
 
             <View style={[styles.rulerScreenLayout, isDesktop && styles.rulerScreenLayoutDesktop]}>
               {/* ── PAINEL DA REGUA E CONTROLE (ESQUERDA NO DESKTOP) ── */}
@@ -949,8 +954,37 @@ export const QuizScreen: React.FC = () => {
                   </Text>
                 </View>
 
-                {/* Régua Interativa Arrastável (0 a 60 cm) */}
-                {(() => {
+                {/* Chips de Atalho Rápido para Seleção Imediata no Mobile */}
+                <View style={styles.quickChipsRow}>
+                  {[
+                    { cm: 6, label: '+6 cm' },
+                    { cm: 10, label: '+10 cm' },
+                    { cm: 12, label: '+12 cm ★' },
+                    { cm: 16, label: '+16 cm' },
+                    { cm: 20, label: '+20 cm' },
+                  ].map((preset) => {
+                    const isSelected = targetGainCm === preset.cm;
+                    return (
+                      <TouchableOpacity
+                        key={preset.cm}
+                        style={[styles.quickChip, isSelected && styles.quickChipActive]}
+                        activeOpacity={0.7}
+                        onPress={() => {
+                          setTargetGainCm(preset.cm);
+                          targetGainCmRef.current = preset.cm;
+                          rulerScrollRef.current?.scrollTo({ x: preset.cm * RULER_TICK_WIDTH, animated: true });
+                        }}
+                      >
+                        <Text style={[styles.quickChipText, isSelected && styles.quickChipTextActive]}>
+                          {preset.label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+
+                {/* Régua Interativa Arrastável (0 a 60 cm) no Desktop */}
+                {isDesktop && (() => {
                   const spacerWidth = Math.max(0, Math.round(rulerContainerWidth / 2 - RULER_TICK_WIDTH / 2));
                   return (
                     <View
@@ -1028,70 +1062,83 @@ export const QuizScreen: React.FC = () => {
               </View>
 
               {/* ── PALCO DO ATLETA DE VÔLEI COM CHÃO & SALTO DINÂMICO (DIREITA NO DESKTOP) ── */}
-              <View style={[styles.athleteStageCard, isDesktop && styles.athleteStageCardDesktop]}>
-                {/* Linhas de fundo do ginásio / rede */}
-                <View style={styles.stageCourtBackground}>
-                  <View style={styles.stageVolleyNetLine} />
-                  <View style={styles.stageVolleyAntenna} />
-                </View>
+              {(() => {
+                const groundHeight = isDesktop ? 40 : 32;
+                const maxTravel = isDesktop ? 85 : 30;
+                const maxCmRef = isDesktop ? 40 : 30;
+                const elevationOffset = Math.round((Math.min(targetGainCm, maxCmRef) / maxCmRef) * maxTravel);
 
-                {/* Atleta de Vôlei Dinâmico (Mãos na cintura, pernas estendidas) */}
-                <View
-                  style={[
-                    styles.athleteFigureWrapper,
-                    {
-                      bottom: 42 + Math.round((targetGainCm / 60) * (isDesktop ? 130 : 95)),
-                    },
-                  ]}
-                >
-                  <Image
-                    source={require('../../assets/athlete-jump-transparent.png')}
-                    style={styles.athleteFigureImage}
-                    resizeMode="contain"
-                  />
-                </View>
+                return (
+                  <View style={[styles.athleteStageCard, isDesktop && styles.athleteStageCardDesktop]}>
+                    {/* Linhas de fundo do ginásio / rede */}
+                    <View style={styles.stageCourtBackground}>
+                      <View style={styles.stageVolleyNetLine} />
+                      <View style={styles.stageVolleyAntenna} />
+                    </View>
 
-                {/* Linha Neon no Nível dos Pés do Atleta */}
-                <View
-                  style={[
-                    styles.feetElevationMarker,
-                    {
-                      bottom: 42 + Math.round((targetGainCm / 60) * (isDesktop ? 130 : 95)) - 10,
-                    },
-                  ]}
-                >
-                  <View style={styles.feetElevationLine} />
-                  <View style={styles.feetElevationBadge}>
-                    <Text style={styles.feetElevationBadgeText}>
-                      {targetGainCm > 0 ? `+${targetGainCm} cm` : '0 cm'}
-                    </Text>
+                    {/* Atleta de Vôlei Dinâmico (Mãos na cintura, pernas estendidas - 100% visível) */}
+                    <View
+                      style={[
+                        styles.athleteFigureWrapper,
+                        !isDesktop && styles.athleteFigureWrapperMobile,
+                        {
+                          bottom: groundHeight + elevationOffset,
+                        },
+                      ]}
+                    >
+                      <Image
+                        source={require('../../assets/athlete-jump-transparent.png')}
+                        style={styles.athleteFigureImage}
+                        resizeMode="contain"
+                      />
+                    </View>
+
+                    {/* Linha Neon no Nível dos Pés do Atleta */}
+                    <View
+                      style={[
+                        styles.feetElevationMarker,
+                        {
+                          bottom: groundHeight + elevationOffset,
+                        },
+                      ]}
+                    >
+                      <View style={styles.feetElevationLine} />
+                      <View style={styles.feetElevationBadge}>
+                        <Text style={styles.feetElevationBadgeText}>
+                          {targetGainCm > 0 ? `+${targetGainCm} cm` : '0 cm'}
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* Seta Vertical de Medição (Do Chão aos Pés) */}
+                    <View
+                      style={[
+                        styles.measurementArrowTrack,
+                        !isDesktop && styles.measurementArrowTrackMobile,
+                        {
+                          bottom: groundHeight,
+                          height: elevationOffset,
+                          opacity: targetGainCm > 0 ? 1 : 0,
+                        },
+                      ]}
+                    >
+                      <View style={styles.arrowTopHead} />
+                      <View style={styles.arrowShaft} />
+                      <View style={styles.arrowBottomHead} />
+                    </View>
+
+                    {/* O Chão (Linha Vermelha de Base + Piso de Quadra de Vôlei) */}
+                    <View style={[styles.groundBaseContainer, !isDesktop && styles.groundBaseContainerMobile]}>
+                      <View style={styles.groundRedLine} />
+                      <View style={[styles.groundFloorBar, !isDesktop && styles.groundFloorBarMobile]}>
+                        <Text style={[styles.groundFloorText, !isDesktop && styles.groundFloorTextMobile]}>
+                          0 cm • LIVELLO DEL SUOLO
+                        </Text>
+                      </View>
+                    </View>
                   </View>
-                </View>
-
-                {/* Seta Vertical de Medição (Do Chão aos Pés) */}
-                <View
-                  style={[
-                    styles.measurementArrowTrack,
-                    {
-                      bottom: 42,
-                      height: Math.max(0, Math.round((targetGainCm / 60) * (isDesktop ? 130 : 95))),
-                      opacity: targetGainCm > 0 ? 1 : 0,
-                    },
-                  ]}
-                >
-                  <View style={styles.arrowTopHead} />
-                  <View style={styles.arrowShaft} />
-                  <View style={styles.arrowBottomHead} />
-                </View>
-
-                {/* O Chão (Linha Vermelha de Base + Piso de Quadra de Vôlei) */}
-                <View style={styles.groundBaseContainer}>
-                  <View style={styles.groundRedLine} />
-                  <View style={styles.groundFloorBar}>
-                    <Text style={styles.groundFloorText}>0 cm • LIVELLO DEL SUOLO</Text>
-                  </View>
-                </View>
-              </View>
+                );
+              })()}
             </View>
 
             {/* Botão de Avanço (Estilo BetterMe Prossimo Passo) */}
@@ -2437,6 +2484,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
+  scrollContainerMobile: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 24,
+  },
   stepContainer: {
     width: '100%',
     maxWidth: 1240,
@@ -2479,6 +2531,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 10,
   },
+  mainTitleMobile: {
+    fontSize: 24,
+    lineHeight: 28,
+    letterSpacing: 0.5,
+    marginBottom: 6,
+  },
   mainSubtitle: {
     fontSize: 17,
     lineHeight: 24,
@@ -2488,6 +2546,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     textTransform: 'uppercase',
     marginBottom: 26,
+  },
+  mainSubtitleMobile: {
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 1.2,
+    marginBottom: 14,
   },
 
   // ── STEP 0: IMMAGINE DI TRASFORMAZIONE ELEVAZIONE ──
@@ -2773,45 +2837,50 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 860,
     flexDirection: 'column',
-    gap: 18,
-    marginBottom: 20,
+    gap: 12,
+    marginBottom: 14,
   },
   rulerScreenLayoutDesktop: {
     flexDirection: 'row',
     alignItems: 'stretch',
     gap: 24,
+    marginBottom: 20,
   },
   rulerControlsCard: {
-    flex: 1,
+    width: '100%',
     backgroundColor: '#161922',
-    borderRadius: 22,
-    padding: 24,
+    borderRadius: 18,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.08)',
     alignItems: 'center',
-    justifyContent: 'space-between',
   },
   rulerControlsCardDesktop: {
+    flex: 1,
+    padding: 24,
+    borderRadius: 22,
     minHeight: 400,
+    justifyContent: 'space-between',
   },
   rulerCardSubtitle: {
     color: '#888888',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '800',
-    letterSpacing: 1.2,
-    marginBottom: 14,
+    letterSpacing: 1,
+    marginBottom: 10,
   },
   rulerHeroNumberRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 16,
-    marginBottom: 12,
+    gap: 14,
+    marginBottom: 10,
   },
   rulerStepBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: '#262D3D',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',
@@ -2824,28 +2893,28 @@ const styles = StyleSheet.create({
     backgroundColor: '#0A0C12',
     borderWidth: 2,
     borderColor: Colors.primary,
-    borderRadius: 18,
-    paddingHorizontal: 22,
-    paddingVertical: 8,
+    borderRadius: 14,
+    paddingHorizontal: 18,
+    paddingVertical: 6,
   },
   rulerHeroPlus: {
     color: Colors.primary,
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: '900',
     marginRight: 2,
   },
   rulerHeroDigits: {
     color: '#FFFFFF',
-    fontSize: 48,
+    fontSize: 38,
     fontWeight: '900',
-    minWidth: 60,
+    minWidth: 50,
     textAlign: 'center',
   },
   rulerHeroUnit: {
     color: Colors.primary,
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '900',
-    marginLeft: 4,
+    marginLeft: 3,
   },
   rulerLevelBadge: {
     flexDirection: 'row',
@@ -2854,14 +2923,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 229, 255, 0.08)',
     borderWidth: 1,
     borderColor: 'rgba(0, 229, 255, 0.25)',
-    paddingVertical: 5,
-    paddingHorizontal: 12,
-    borderRadius: 10,
-    marginBottom: 20,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    marginBottom: 10,
   },
   rulerLevelText: {
     color: Colors.primary,
-    fontSize: 12.5,
+    fontSize: 11.5,
     fontWeight: '800',
   },
   rulerBoxContainer: {
@@ -2925,14 +2994,15 @@ const styles = StyleSheet.create({
   quickChipsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: 6,
     justifyContent: 'center',
+    marginBottom: 2,
   },
   quickChip: {
     backgroundColor: '#1E2330',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 10,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.06)',
   },
@@ -2942,7 +3012,7 @@ const styles = StyleSheet.create({
   },
   quickChipText: {
     color: '#AAAAAA',
-    fontSize: 12,
+    fontSize: 11.5,
     fontWeight: '700',
   },
   quickChipTextActive: {
@@ -2952,19 +3022,22 @@ const styles = StyleSheet.create({
 
   // ── PALCO DO ATLETA ──
   athleteStageCard: {
-    flex: 1,
+    width: '100%',
     backgroundColor: '#10131C',
-    borderRadius: 22,
+    borderRadius: 18,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.08)',
     position: 'relative',
     overflow: 'hidden',
-    height: 350,
+    height: 240,
+    minHeight: 240,
     alignItems: 'center',
   },
   athleteStageCardDesktop: {
+    flex: 1,
     height: 420,
     minHeight: 400,
+    borderRadius: 22,
   },
   stageCourtBackground: {
     position: 'absolute',
@@ -2975,7 +3048,7 @@ const styles = StyleSheet.create({
   },
   stageVolleyNetLine: {
     position: 'absolute',
-    top: 50,
+    top: 40,
     left: 0,
     right: 0,
     height: 1,
@@ -2983,18 +3056,22 @@ const styles = StyleSheet.create({
   },
   stageVolleyAntenna: {
     position: 'absolute',
-    top: 20,
-    right: 30,
+    top: 15,
+    right: 25,
     width: 2,
-    height: 60,
+    height: 50,
     backgroundColor: 'rgba(255, 23, 68, 0.4)',
   },
   athleteFigureWrapper: {
     position: 'absolute',
     alignSelf: 'center',
-    width: 140,
+    width: 100,
     height: 230,
     zIndex: 5,
+  },
+  athleteFigureWrapperMobile: {
+    width: 66,
+    height: 152,
   },
   athleteFigureImage: {
     width: '100%',
@@ -3002,9 +3079,9 @@ const styles = StyleSheet.create({
   },
   feetElevationMarker: {
     position: 'absolute',
-    left: 16,
-    right: 16,
-    height: 22,
+    left: 14,
+    right: 14,
+    height: 20,
     flexDirection: 'row',
     alignItems: 'center',
     zIndex: 6,
@@ -3019,14 +3096,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.85)',
     borderWidth: 1,
     borderColor: '#00E676',
-    paddingVertical: 3,
-    paddingHorizontal: 8,
-    borderRadius: 6,
+    paddingVertical: 2,
+    paddingHorizontal: 7,
+    borderRadius: 5,
     marginLeft: 6,
   },
   feetElevationBadgeText: {
     color: '#00E676',
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: '900',
   },
   measurementArrowTrack: {
@@ -3036,6 +3113,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     zIndex: 6,
+  },
+  measurementArrowTrackMobile: {
+    left: 18,
   },
   arrowTopHead: {
     width: 0,
@@ -3067,9 +3147,12 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 42,
+    height: 40,
     justifyContent: 'flex-end',
     zIndex: 4,
+  },
+  groundBaseContainerMobile: {
+    height: 32,
   },
   groundRedLine: {
     height: 2,
@@ -3077,18 +3160,25 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   groundFloorBar: {
-    height: 40,
+    height: 38,
     backgroundColor: '#1E140F',
     borderTopWidth: 1,
     borderTopColor: '#3E2723',
     alignItems: 'center',
     justifyContent: 'center',
   },
+  groundFloorBarMobile: {
+    height: 30,
+  },
   groundFloorText: {
     color: '#8D6E63',
     fontSize: 10.5,
     fontWeight: '800',
     letterSpacing: 1,
+  },
+  groundFloorTextMobile: {
+    fontSize: 9.5,
+    letterSpacing: 0.8,
   },
 
   // ── ESTILOS DAS NOVAS OPÇÕES EM LISTA / CARDS HORIZONTAIS ──
