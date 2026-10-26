@@ -2025,6 +2025,7 @@ export const QuizScreen: React.FC = () => {
                 </View>
                 <Text style={styles.securityBrandBadge}>VISA</Text>
                 <Text style={styles.securityBrandBadge}>Mastercard ID Check</Text>
+                <Text style={[styles.securityBrandBadge, { color: '#38BDF8', borderColor: 'rgba(56, 189, 248, 0.4)' }]}>PayPal</Text>
                 <Text style={styles.securityBrandBadge}>PCI DSS</Text>
               </View>
             </View>

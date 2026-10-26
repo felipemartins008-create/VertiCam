@@ -20,6 +20,8 @@ import {
   Check,
   RotateCcw,
   Sparkles,
+  CreditCard,
+  ChevronRight,
 } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
 import { createEmbeddedCheckoutSession, getStripeCheckoutUrl, STRIPE_PUBLISHABLE_KEY } from '../config/stripe';
@@ -43,6 +45,8 @@ export const StripeEmbeddedCheckoutModal: React.FC<StripeEmbeddedCheckoutModalPr
 }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'paypal'>('card');
+  const [paypalLoading, setPaypalLoading] = useState<boolean>(false);
   const checkoutInstanceRef = useRef<any>(null);
 
   // Helper per caricare Stripe.js v3 su Web
@@ -159,6 +163,37 @@ export const StripeEmbeddedCheckoutModal: React.FC<StripeEmbeddedCheckoutModalPr
       window.location.href = url;
     } else {
       Linking.openURL(url);
+    }
+  };
+
+  const installmentAmount = {
+    '1_month': '€ 6,66',
+    '3_months': '€ 12,66',
+    '6_months': '€ 19,99',
+  }[planId] || '€ 12,66';
+
+  const handlePayPalCheckout = async () => {
+    try {
+      setPaypalLoading(true);
+      // Cria a sessão com uiMode 'hosted' para redirecionar ao checkout oficial com PayPal
+      const session = await createEmbeddedCheckoutSession(planId, userEmail, 'hosted');
+      if (session?.url) {
+        if (Platform.OS === 'web' && typeof window !== 'undefined') {
+          window.location.href = session.url;
+        } else {
+          Linking.openURL(session.url);
+        }
+      } else {
+        const fallbackUrl = getStripeCheckoutUrl(planId, userEmail);
+        if (Platform.OS === 'web' && typeof window !== 'undefined') {
+          window.location.href = fallbackUrl;
+        } else {
+          Linking.openURL(fallbackUrl);
+        }
+      }
+    } catch (e) {
+      setPaypalLoading(false);
+      handleFallbackDirectCheckout();
     }
   };
 
@@ -337,6 +372,50 @@ export const StripeEmbeddedCheckoutModal: React.FC<StripeEmbeddedCheckoutModalPr
                 </View>
               </View>
 
+              {/* Selettore Metodo di Pagamento (Carta vs PayPal) */}
+              <View style={styles.paymentMethodTabsRow}>
+                <TouchableOpacity
+                  style={[
+                    styles.paymentMethodTab,
+                    paymentMethod === 'card' && styles.paymentMethodTabActive,
+                  ]}
+                  onPress={() => setPaymentMethod('card')}
+                  activeOpacity={0.85}
+                >
+                  <CreditCard size={15} color={paymentMethod === 'card' ? '#0F172A' : '#64748B'} strokeWidth={2.2} />
+                  <Text
+                    style={[
+                      styles.paymentMethodTabText,
+                      paymentMethod === 'card' && styles.paymentMethodTabTextActive,
+                    ]}
+                  >
+                    Carta / Apple & Google Pay
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.paymentMethodTab,
+                    paymentMethod === 'paypal' && styles.paymentMethodTabActivePaypal,
+                  ]}
+                  onPress={() => setPaymentMethod('paypal')}
+                  activeOpacity={0.85}
+                >
+                  <View style={styles.paypalTabLogoIcon}>
+                    <Text style={styles.paypalTabLogoP1}>P</Text>
+                    <Text style={styles.paypalTabLogoP2}>P</Text>
+                  </View>
+                  <Text
+                    style={[
+                      styles.paymentMethodTabText,
+                      paymentMethod === 'paypal' && styles.paymentMethodTabTextActivePaypal,
+                    ]}
+                  >
+                    PayPal
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
               {/* Circuiti Accettati Logos / Badges */}
               <View style={styles.cardBadgesRow}>
                 <View style={styles.cardBadgePill}>
@@ -351,52 +430,146 @@ export const StripeEmbeddedCheckoutModal: React.FC<StripeEmbeddedCheckoutModalPr
                 <View style={styles.cardBadgePill}>
                   <Text style={styles.cardBadgeText}>Google Pay</Text>
                 </View>
+                <View style={[styles.cardBadgePill, styles.cardBadgePillPaypal]}>
+                  <Text style={styles.cardBadgePaypalText}>PayPal</Text>
+                </View>
                 <View style={[styles.cardBadgePill, { borderColor: '#E2E8F0' }]}>
                   <Text style={[styles.cardBadgeText, { color: '#6366F1' }]}>Klarna</Text>
                 </View>
               </View>
 
-              {/* Content / Stripe Iframe Container */}
+              {/* Content / Stripe Iframe Container oppure PayPal View */}
               <ScrollView
                 style={styles.paymentScroll}
                 contentContainerStyle={styles.paymentScrollContent}
                 showsVerticalScrollIndicator={false}
               >
-                {loading && (
-                  <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color="#0F172A" />
-                    <Text style={styles.loadingMainText}>Connessione sicura a Stripe...</Text>
-                    <Text style={styles.loadingSubText}>Inizializzazione del gateway bancario crittografato</Text>
-                  </View>
-                )}
+                {paymentMethod === 'paypal' ? (
+                  <View style={styles.paypalContainer}>
+                    {/* Banner Informativo PayPal */}
+                    <View style={styles.paypalInfoCard}>
+                      <View style={styles.paypalHeaderBadge}>
+                        <View style={styles.paypalLogoIconBig}>
+                          <Text style={styles.paypalBigP1}>P</Text>
+                          <Text style={styles.paypalBigP2}>P</Text>
+                        </View>
+                        <Text style={styles.paypalBrandTitle}>PayPal Checkout</Text>
+                      </View>
+                      <Text style={styles.paypalExplainerText}>
+                        Paga in modo rapido e sicuro tramite il tuo conto PayPal, oppure dividi l'importo in 3 rate a tasso zero.
+                      </Text>
+                    </View>
 
-                {errorMessage && (
-                  <View style={styles.errorBox}>
-                    <AlertCircle size={28} color="#D97706" style={{ marginBottom: 10 }} />
-                    <Text style={styles.errorBoxTitle}>Completa l'acquisto in sicurezza</Text>
-                    <Text style={styles.errorBoxText}>
-                      Fai clic sul pulsante qui sotto per aprire il modulo di pagamento protetto ufficiale di Stripe:
-                    </Text>
+                    {/* Prezzo e Riepilogo per PayPal */}
+                    <View style={styles.paypalOrderSummaryRow}>
+                      <View>
+                        <Text style={styles.paypalOrderLabel}>TOTALE DA CORRISPONDERE</Text>
+                        <Text style={styles.paypalOrderPlanName}>{planInfo.title}</Text>
+                      </View>
+                      <Text style={styles.paypalOrderTotal}>{planInfo.priceTotal}</Text>
+                    </View>
+
+                    {/* Botão Oficial PayPal Amarelo */}
                     <TouchableOpacity
-                      style={styles.errorFallbackBtn}
-                      onPress={handleFallbackDirectCheckout}
+                      style={styles.paypalMainBtn}
+                      onPress={handlePayPalCheckout}
+                      disabled={paypalLoading}
                       activeOpacity={0.88}
                     >
-                      <Text style={styles.errorFallbackBtnText}>Vai al Pagamento Sicuro ({planInfo.priceTotal})</Text>
-                      <ExternalLink size={15} color="#FFFFFF" strokeWidth={2.5} />
+                      {paypalLoading ? (
+                        <ActivityIndicator size="small" color="#003087" />
+                      ) : (
+                        <View style={styles.paypalBtnContent}>
+                          <View style={styles.paypalLogoBtnIcon}>
+                            <Text style={styles.paypalBtnP1}>P</Text>
+                            <Text style={styles.paypalBtnP2}>P</Text>
+                          </View>
+                          <Text style={styles.paypalBtnLabel}>
+                            Paga con <Text style={styles.paypalBtnBrand}>PayPal</Text>
+                          </Text>
+                        </View>
+                      )}
                     </TouchableOpacity>
-                  </View>
-                )}
 
-                {Platform.OS === 'web' && (
-                  <View
-                    // @ts-ignore
-                    id="stripe-checkout-mount"
-                    style={[
-                      styles.stripeMountArea,
-                      (loading || errorMessage) && { display: 'none' },
-                    ]}
-                  />
+                    {/* Botão Secundário Paga in 3 Rate */}
+                    <TouchableOpacity
+                      style={styles.paypalInstallmentBtn}
+                      onPress={handlePayPalCheckout}
+                      disabled={paypalLoading}
+                      activeOpacity={0.88}
+                    >
+                      <View style={styles.installmentBtnContent}>
+                        <Text style={styles.installmentBtnTitle}>
+                          Paga in 3 rate da {installmentAmount}
+                        </Text>
+                        <Text style={styles.installmentBtnSub}>
+                          Senza interessi né costi aggiuntivi con PayPal
+                        </Text>
+                      </View>
+                      <ChevronRight size={18} color="#003087" strokeWidth={2.5} />
+                    </TouchableOpacity>
+
+                    {/* Vantaggi Sicurezza PayPal */}
+                    <View style={styles.paypalSecurityList}>
+                      <View style={styles.paypalSecurityItem}>
+                        <ShieldCheck size={16} color="#0079C1" strokeWidth={2.2} />
+                        <Text style={styles.paypalSecurityItemText}>
+                          <Text style={styles.boldDark}>Protezione Acquisti PayPal:</Text> rimborso completo garantito su ordini idonei
+                        </Text>
+                      </View>
+                      <View style={styles.paypalSecurityItem}>
+                        <Lock size={16} color="#0079C1" strokeWidth={2.2} />
+                        <Text style={styles.paypalSecurityItemText}>
+                          <Text style={styles.boldDark}>Zero condivisione dati:</Text> i dettagli della tua carta non vengono comunicati al venditore
+                        </Text>
+                      </View>
+                      <View style={styles.paypalSecurityItem}>
+                        <Sparkles size={16} color="#0079C1" strokeWidth={2.2} />
+                        <Text style={styles.paypalSecurityItemText}>
+                          <Text style={styles.boldDark}>Sblocco Immediato:</Text> accesso immediato all'app e ai test del salto post-acquisto
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                ) : (
+                  <>
+                    {loading && (
+                      <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color="#0F172A" />
+                        <Text style={styles.loadingMainText}>Connessione sicura a Stripe...</Text>
+                        <Text style={styles.loadingSubText}>Inizializzazione del gateway bancario crittografato</Text>
+                      </View>
+                    )}
+
+                    {errorMessage && (
+                      <View style={styles.errorBox}>
+                        <AlertCircle size={28} color="#D97706" style={{ marginBottom: 10 }} />
+                        <Text style={styles.errorBoxTitle}>Completa l'acquisto in sicurezza</Text>
+                        <Text style={styles.errorBoxText}>
+                          Fai clic sul pulsante qui sotto per aprire il modulo di pagamento protetto ufficiale di Stripe:
+                        </Text>
+                        <TouchableOpacity
+                          style={styles.errorFallbackBtn}
+                          onPress={handleFallbackDirectCheckout}
+                          activeOpacity={0.88}
+                        >
+                          <Text style={styles.errorFallbackBtnText}>Vai al Pagamento Sicuro ({planInfo.priceTotal})</Text>
+                          <ExternalLink size={15} color="#FFFFFF" strokeWidth={2.5} />
+                        </TouchableOpacity>
+                      </View>
+                    )}
+
+                    {Platform.OS === 'web' && (
+                      <View
+                        // @ts-ignore
+                        id="stripe-checkout-mount"
+                        style={[
+                          styles.stripeMountArea,
+                          (loading || errorMessage) && { display: 'none' },
+                        ]}
+                      />
+                    )}
+                  </>
                 )}
 
                 {/* Footer di Fiducia */}
@@ -732,6 +905,245 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#475569',
     letterSpacing: 0.3,
+  },
+  cardBadgePillPaypal: {
+    borderColor: '#0079C1',
+    backgroundColor: '#F0F9FF',
+  },
+  cardBadgePaypalText: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: '#003087',
+    letterSpacing: 0.3,
+  },
+
+  // Tabs di selezione Metodo di Pagamento
+  paymentMethodTabsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingHorizontal: 28,
+    paddingBottom: 14,
+  },
+  paymentMethodTab: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+  },
+  paymentMethodTabActive: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#0F172A',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  paymentMethodTabActivePaypal: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#0079C1',
+    shadowColor: '#0079C1',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  paymentMethodTabText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#64748B',
+  },
+  paymentMethodTabTextActive: {
+    color: '#0F172A',
+    fontWeight: '800',
+  },
+  paymentMethodTabTextActivePaypal: {
+    color: '#003087',
+    fontWeight: '800',
+  },
+  paypalTabLogoIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: -2,
+  },
+  paypalTabLogoP1: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#003087',
+  },
+  paypalTabLogoP2: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#0079C1',
+    marginLeft: -4,
+  },
+
+  // Sezione PayPal Checkout
+  paypalContainer: {
+    paddingVertical: 12,
+    gap: 16,
+  },
+  paypalInfoCard: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 14,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    gap: 8,
+  },
+  paypalHeaderBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  paypalLogoIconBig: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  paypalBigP1: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: '#003087',
+  },
+  paypalBigP2: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: '#0079C1',
+    marginLeft: -6,
+  },
+  paypalBrandTitle: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#003087',
+    letterSpacing: -0.3,
+  },
+  paypalExplainerText: {
+    fontSize: 12,
+    color: '#475569',
+    lineHeight: 18,
+  },
+
+  paypalOrderSummaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#F1F5F9',
+    padding: 14,
+    borderRadius: 12,
+  },
+  paypalOrderLabel: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#64748B',
+    letterSpacing: 0.6,
+  },
+  paypalOrderPlanName: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#0F172A',
+    marginTop: 2,
+  },
+  paypalOrderTotal: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#0F172A',
+  },
+
+  paypalMainBtn: {
+    backgroundColor: '#FFC439',
+    height: 52,
+    borderRadius: 26,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#FFC439',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  paypalBtnContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  paypalLogoBtnIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  paypalBtnP1: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#003087',
+  },
+  paypalBtnP2: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#0079C1',
+    marginLeft: -5,
+  },
+  paypalBtnLabel: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#003087',
+  },
+  paypalBtnBrand: {
+    fontSize: 17,
+    fontWeight: '900',
+    color: '#003087',
+    letterSpacing: -0.4,
+  },
+
+  paypalInstallmentBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#F0F9FF',
+    borderRadius: 14,
+    padding: 14,
+    borderWidth: 1.5,
+    borderColor: '#BAE6FD',
+  },
+  installmentBtnContent: {
+    gap: 2,
+  },
+  installmentBtnTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#003087',
+  },
+  installmentBtnSub: {
+    fontSize: 11,
+    color: '#0369A1',
+  },
+
+  paypalSecurityList: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+    padding: 14,
+    gap: 10,
+  },
+  paypalSecurityItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+  },
+  paypalSecurityItemText: {
+    flex: 1,
+    fontSize: 12,
+    color: '#475569',
+    lineHeight: 17,
+  },
+  boldDark: {
+    fontWeight: '700',
+    color: '#0F172A',
   },
 
   paymentScroll: {

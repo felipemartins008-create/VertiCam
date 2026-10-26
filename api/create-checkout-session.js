@@ -27,20 +27,27 @@ module.exports = async (req, res) => {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
     const planId = body.planId || '3_months';
     const email = body.email || undefined;
+    const uiMode = body.uiMode || 'embedded_page';
     const priceId = PRICES[planId] || PRICES['3_months'];
 
     const origin = req.headers.origin || 'https://verticam.vercel.app';
     const returnUrl = `${origin}/?payment=success&session_id={CHECKOUT_SESSION_ID}`;
 
     const params = [
-      `ui_mode=embedded_page`,
+      `ui_mode=${encodeURIComponent(uiMode)}`,
       `mode=subscription`,
       `line_items[0][price]=${encodeURIComponent(priceId)}`,
       `line_items[0][quantity]=1`,
-      `return_url=${encodeURIComponent(returnUrl)}`,
       `allow_promotion_codes=true`,
       `locale=it`
     ];
+
+    if (uiMode === 'embedded_page') {
+      params.push(`return_url=${encodeURIComponent(returnUrl)}`);
+    } else {
+      params.push(`success_url=${encodeURIComponent(`${origin}/?payment=success&session_id={CHECKOUT_SESSION_ID}`)}`);
+      params.push(`cancel_url=${encodeURIComponent(`${origin}/?payment=cancel`)}`);
+    }
 
     if (email && email.includes('@')) {
       params.push(`customer_email=${encodeURIComponent(email.trim())}`);
@@ -72,6 +79,7 @@ module.exports = async (req, res) => {
           return res.status(200).json({ 
             clientSecret: parsed.client_secret, 
             sessionId: parsed.id,
+            url: parsed.url,
             publishableKey: STRIPE_PUBLISHABLE_KEY
           });
         } catch (e) {

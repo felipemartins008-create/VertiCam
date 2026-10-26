@@ -40,24 +40,27 @@ export function getStripeCheckoutUrl(planId: string, email?: string): string {
 export const STRIPE_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY || '';
 
 /**
- * Cria uma sessão do Stripe Embedded Checkout via endpoint serverless da Vercel
+ * Cria uma sessão do Stripe Checkout (Embedded ou Hosted/PayPal) via endpoint serverless da Vercel
  */
 export async function createEmbeddedCheckoutSession(
   planId: string, 
-  email?: string
-): Promise<{ clientSecret: string; publishableKey?: string } | null> {
+  email?: string,
+  uiMode: 'embedded_page' | 'hosted' = 'embedded_page'
+): Promise<{ clientSecret?: string; url?: string; sessionId?: string; publishableKey?: string } | null> {
   try {
     const res = await fetch('/api/create-checkout-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ planId, email })
+      body: JSON.stringify({ planId, email, uiMode })
     });
     if (!res.ok) return null;
     const data = await res.json();
-    return data.clientSecret ? { 
+    return { 
       clientSecret: data.clientSecret, 
+      url: data.url,
+      sessionId: data.sessionId,
       publishableKey: data.publishableKey || STRIPE_PUBLISHABLE_KEY 
-    } : null;
+    };
   } catch (e) {
     return null;
   }
