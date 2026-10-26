@@ -1752,11 +1752,11 @@ export const QuizScreen: React.FC = () => {
               </View>
 
               <TouchableOpacity
-                style={[styles.continuePillBtn, { maxWidth: 390 }]}
+                style={styles.continuePillBtn}
                 activeOpacity={0.88}
                 onPress={handleFinishBiometrics}
               >
-                <Text style={styles.continuePillText}>GENERA IL MIO PIANO CON L'IA</Text>
+                <Text style={styles.continuePillText}>CREA IL MIO PIANO</Text>
                 <View style={styles.startArrowCircle}>
                   <ChevronRight size={18} color="#FFFFFF" strokeWidth={3} />
                 </View>
@@ -4067,13 +4067,15 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 360,
     alignSelf: 'center',
-    height: 58,
+    minHeight: 56,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
     backgroundColor: '#F3F4ED',
-    borderRadius: 29,
+    borderRadius: 28,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
+    gap: 10,
     marginTop: 18,
     marginBottom: 8,
     shadowColor: '#000000',
@@ -4084,9 +4086,9 @@ const styles = StyleSheet.create({
   },
   continuePillText: {
     color: '#000000',
-    fontSize: 16,
-    fontWeight: '900',
-    letterSpacing: 0.8,
+    fontSize: 15,
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
 
   // ── BETTERME STEP 12: LOADER BIOMECCANICO ──
