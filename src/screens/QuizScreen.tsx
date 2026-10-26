@@ -41,6 +41,7 @@ import {
   X,
   Gift,
   Tag,
+  Camera,
 } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
 import { useApp } from '../context/AppContext';
@@ -1480,6 +1481,52 @@ export const QuizScreen: React.FC = () => {
                     </Text>
                   </View>
                 </View>
+              </View>
+            </View>
+
+            {/* ── SEZIONE SMARTPHONE IN BASSO: L'APP IN AZIONE COL SALTO ── */}
+            <View style={styles.solutionPhoneSection}>
+              <View style={styles.solutionPhoneHeader}>
+                <View style={styles.solutionPhonePill}>
+                  <Camera size={13} color={Colors.primary} />
+                  <Text style={styles.solutionPhonePillText}>FOTOCAMERA IA IN AZIONE</Text>
+                </View>
+                <Text style={styles.solutionPhoneTitle}>
+                  Misura l'elevazione in tempo reale a 240 FPS
+                </Text>
+                <Text style={styles.solutionPhoneSubtitle}>
+                  Basta posizionare lo smartphone a terra: l'algoritmo rileva millisecondo per millisecondo il momento esatto di decollo e atterraggio.
+                </Text>
+              </View>
+
+              <View style={styles.solutionPhoneDisplayWrapper}>
+                {/* Glow di sfondo */}
+                <View pointerEvents="none" style={styles.solutionPhoneGlowBlob} />
+
+                {/* Badge Telemetria Sinistra */}
+                <View style={[styles.floatingTelemetryBadge, styles.floatingBadgeLeft]}>
+                  <View style={styles.telemetryDotGreen} />
+                  <View>
+                    <Text style={styles.telemetryBadgeLabel}>DECOLLO RILEVATO</Text>
+                    <Text style={styles.telemetryBadgeVal}>Precisione al ms</Text>
+                  </View>
+                </View>
+
+                {/* Badge Telemetria Destra */}
+                <View style={[styles.floatingTelemetryBadge, styles.floatingBadgeRight]}>
+                  <Sparkles size={13} color={Colors.primary} />
+                  <View>
+                    <Text style={styles.telemetryBadgeLabel}>TEMPO DI VOLO</Text>
+                    <Text style={styles.telemetryBadgeValCyan}>+53.4 cm • 640 ms</Text>
+                  </View>
+                </View>
+
+                {/* Immagine del cellulare che mostra la persona che salta */}
+                <Image
+                  source={require('../../assets/feature-phone-1.png')}
+                  style={styles.solutionPhoneImage}
+                  resizeMode="contain"
+                />
               </View>
             </View>
           </View>
@@ -3673,6 +3720,128 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
     textAlign: 'center',
+  },
+
+  // ── SEZIONE SMARTPHONE COL SALTO IN BASSO (STEP 7) ──
+  solutionPhoneSection: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 40,
+    paddingTop: 36,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  solutionPhoneHeader: {
+    alignItems: 'center',
+    maxWidth: 640,
+    marginBottom: 24,
+    gap: 8,
+  },
+  solutionPhonePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(0, 229, 255, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 229, 255, 0.3)',
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    marginBottom: 4,
+  },
+  solutionPhonePillText: {
+    color: Colors.primary,
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+  },
+  solutionPhoneTitle: {
+    color: '#FFFFFF',
+    fontSize: 24,
+    fontWeight: '900',
+    textAlign: 'center',
+    letterSpacing: -0.3,
+  },
+  solutionPhoneSubtitle: {
+    color: '#94A3B8',
+    fontSize: 13,
+    textAlign: 'center',
+    lineHeight: 19,
+  },
+  solutionPhoneDisplayWrapper: {
+    width: '100%',
+    maxWidth: 480,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  solutionPhoneGlowBlob: {
+    position: 'absolute',
+    width: 260,
+    height: 260,
+    borderRadius: 130,
+    backgroundColor: 'rgba(0, 229, 255, 0.15)',
+    filter: 'blur(60px)' as any,
+    alignSelf: 'center',
+  },
+  solutionPhoneImage: {
+    width: '100%',
+    maxWidth: 340,
+    height: 480,
+    alignSelf: 'center',
+  },
+  floatingTelemetryBadge: {
+    position: 'absolute',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(15, 23, 42, 0.92)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    zIndex: 10,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  floatingBadgeLeft: {
+    left: 8,
+    top: 80,
+  },
+  floatingBadgeRight: {
+    right: 8,
+    top: 220,
+    borderColor: 'rgba(0, 229, 255, 0.35)',
+  },
+  telemetryDotGreen: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#10B981',
+  },
+  telemetryBadgeLabel: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#64748B',
+    letterSpacing: 0.6,
+  },
+  telemetryBadgeVal: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    marginTop: 1,
+  },
+  telemetryBadgeValCyan: {
+    fontSize: 11,
+    fontWeight: '900',
+    color: Colors.primary,
+    marginTop: 1,
   },
 
   // ── TRANSIZIONE BIOMETRICA (STEP 8 / 6-1) ──
