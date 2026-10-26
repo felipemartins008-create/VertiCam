@@ -752,9 +752,9 @@ export const QuizScreen: React.FC = () => {
               <Text style={styles.aiBadgeText}>POTENZIATO DA TECNOLOGIA & IA</Text>
             </View>
 
-            <Text style={styles.mainTitle}>PIANO DI ALLENAMENTO ELEVAZIONE & SALTO</Text>
+            <Text style={styles.mainTitle}>Piano di Allenamento Salto & Elevazione</Text>
             <Text style={styles.mainSubtitle}>
-              RISPONDI AL TEST PER INIZIARE IL TUO ALLENAMENTO PERSONALIZZATO
+              Rispondi al test per personalizzare il tuo programma di allenamento
             </Text>
 
             <View style={styles.proofImageCard}>
@@ -792,8 +792,8 @@ export const QuizScreen: React.FC = () => {
            ══════════════════════════════════════════════════════ */}
         {currentStep === 1 && (
           <View style={styles.stepContainer}>
-            <Text style={styles.mainTitle}>SCEGLI IL TUO GENERE</Text>
-            <Text style={styles.mainSubtitle}>PER CHI È QUESTO PIANO DI ALLENAMENTO?</Text>
+            <Text style={styles.mainTitle}>Qual è il tuo sesso biologico?</Text>
+            <Text style={styles.mainSubtitle}>I tendini e la risposta neuromuscolare hanno adattamenti specifici</Text>
 
             {renderBetterMeCards(
               [
@@ -822,8 +822,8 @@ export const QuizScreen: React.FC = () => {
            ══════════════════════════════════════════════════════ */}
         {currentStep === 2 && (
           <View style={styles.stepContainer}>
-            <Text style={styles.mainTitle}>QUAL È LA TUA ETÀ?</Text>
-            <Text style={styles.mainSubtitle}>PER CALIBRARE IL VOLUME E IL RECUPERO ARTICOLARE</Text>
+            <Text style={styles.mainTitle}>Qual è la tua età?</Text>
+            <Text style={styles.mainSubtitle}>L'elasticità tendinea e i tempi di recupero cambiano con l'età</Text>
 
             {renderBetterMeCards(
               gender === 'male' ? maleAgeCards : femaleAgeCards,
@@ -841,8 +841,8 @@ export const QuizScreen: React.FC = () => {
            ══════════════════════════════════════════════════════ */}
         {currentStep === 3 && (
           <View style={styles.stepContainer}>
-            <Text style={styles.mainTitle}>IL TUO RUOLO</Text>
-            <Text style={styles.mainSubtitle}>IN CHE RUOLO GIOCHI?</Text>
+            <Text style={styles.mainTitle}>Qual è il tuo ruolo in campo?</Text>
+            <Text style={styles.mainSubtitle}>Ogni ruolo richiede pattern balistici e altezze di stacco differenti</Text>
 
             {renderBetterMeCards(
               [
@@ -892,10 +892,10 @@ export const QuizScreen: React.FC = () => {
         {currentStep === 4 && (
           <View style={styles.stepContainer}>
             <Text style={[styles.mainTitle, !isDesktop && styles.mainTitleMobile]}>
-              OBIETTIVO DI ELEVAZIONE
+              Quanto vuoi aumentare il tuo salto?
             </Text>
             <Text style={[styles.mainSubtitle, !isDesktop && styles.mainSubtitleMobile]}>
-              QUANTO VUOI AUMENTARE IL TUO SALTO?
+              Trascina la régua per definire il tuo obiettivo in centimetri
             </Text>
 
             <View style={[styles.rulerScreenLayout, isDesktop && styles.rulerScreenLayoutDesktop]}>
@@ -1229,12 +1229,9 @@ export const QuizScreen: React.FC = () => {
            ══════════════════════════════════════════════════════ */}
         {currentStep === 6 && (
           <View style={styles.stepContainer}>
-            <Text style={styles.mainTitle}>IL TUO VANTAGGIO IN CAMPO</Text>
+            <Text style={styles.mainTitle}>Cosa speri di ottenere di più con questo piano?</Text>
             <Text style={styles.mainSubtitle}>
-              COSA CAMBIEREBBE DI PIÙ SE RAGGIUNGESSI QUESTA ELEVAZIONE?
-            </Text>
-            <Text style={styles.multiSelectInstruction}>
-              Seleziona tutte le opzioni che desideri
+              Scegli tutti quelli che si applicano
             </Text>
 
             <View style={styles.optionsListWrap}>
@@ -1242,26 +1239,22 @@ export const QuizScreen: React.FC = () => {
                 {
                   id: 'power_spike',
                   title: 'Attaccare con molta più potenza a rete',
-                  desc: 'Colpire la palla nel punto più alto e scaricare tutta la forza del braccio senza subire muri.',
-                  tag: 'ATTACCO & POTENZA',
+                  icon: (sel: boolean) => <Zap size={20} color={sel ? Colors.primary : '#D6D1C7'} strokeWidth={2} />,
                 },
                 {
                   id: 'dominant_block',
                   title: 'Dominare a rete con un muro invalicabile',
-                  desc: 'Invadere lo spazio sopra il nastro, chiudere ogni traiettoria e stampare muri punto decisivi.',
-                  tag: 'DOMINIO A MURO',
+                  icon: (sel: boolean) => <Flame size={20} color={sel ? Colors.primary : '#D6D1C7'} strokeWidth={2} />,
                 },
                 {
                   id: 'competitive_team',
-                  title: 'Entrare in una squadra per giocare i campionati',
-                  desc: 'Superare i provini, conquistare un posto fisso da titolare e competere ad alto livello agonistico.',
-                  tag: 'LIVELLO AGONISTICO',
+                  title: 'Entrare in squadra e giocare i campionati',
+                  icon: (sel: boolean) => <Award size={20} color={sel ? Colors.primary : '#D6D1C7'} strokeWidth={2} />,
                 },
                 {
                   id: 'team_standout',
-                  title: 'Distinguermi ed essere il giocatore decisivo della squadra',
-                  desc: 'Fare la differenza nei momenti caldi del match ed essere il punto di riferimento assoluto in campo.',
-                  tag: 'LEADERSHIP & TALENTO',
+                  title: 'Essere il giocatore decisivo della squadra',
+                  icon: (sel: boolean) => <TrendingUp size={20} color={sel ? Colors.primary : '#D6D1C7'} strokeWidth={2} />,
                 },
               ].map((opt) => {
                 const isSelected = selectedImpacts.includes(opt.id);
@@ -1272,35 +1265,16 @@ export const QuizScreen: React.FC = () => {
                       styles.personaChoiceCard,
                       isSelected && styles.personaChoiceCardSelected,
                     ]}
-                    activeOpacity={0.85}
+                    activeOpacity={0.8}
                     onPress={() => toggleImpact(opt.id)}
                   >
-                    <View style={styles.personaCardHeader}>
-                      <View
-                        style={[
-                          styles.personaTag,
-                          isSelected && styles.personaTagSelected,
-                        ]}
-                      >
-                        <Text
-                          style={[
-                            styles.personaTagText,
-                            isSelected && styles.personaTagTextSelected,
-                          ]}
-                        >
-                          {opt.tag}
-                        </Text>
-                      </View>
-                      <View
-                        style={[
-                          styles.personaCheckbox,
-                          isSelected && styles.personaCheckboxActive,
-                        ]}
-                      >
-                        {isSelected && (
-                          <Check size={14} color="#FFFFFF" strokeWidth={3} />
-                        )}
-                      </View>
+                    <View
+                      style={[
+                        styles.personaIconContainer,
+                        isSelected && styles.personaIconContainerSelected,
+                      ]}
+                    >
+                      {opt.icon(isSelected)}
                     </View>
                     <Text
                       style={[
@@ -1310,14 +1284,16 @@ export const QuizScreen: React.FC = () => {
                     >
                       {opt.title}
                     </Text>
-                    <Text
+                    <View
                       style={[
-                        styles.personaCardDesc,
-                        isSelected && styles.personaCardDescSelected,
+                        styles.personaCheckbox,
+                        isSelected && styles.personaCheckboxActive,
                       ]}
                     >
-                      {opt.desc}
-                    </Text>
+                      {isSelected && (
+                        <Check size={14} color="#000000" strokeWidth={3} />
+                      )}
+                    </View>
                   </TouchableOpacity>
                 );
               })}
@@ -1600,9 +1576,9 @@ export const QuizScreen: React.FC = () => {
            ══════════════════════════════════════════════════════ */}
         {currentStep === 9 && (
           <View style={styles.stepContainer}>
-            <Text style={styles.mainTitle}>LA TUA DISPONIBILITÀ</Text>
+            <Text style={styles.mainTitle}>Quanti giorni alla settimana vuoi allenarti?</Text>
             <Text style={styles.mainSubtitle}>
-              QUANTI GIORNI ALLA SETTIMANA VUOI ALLENARTI?
+              Il recupero neurale è fondamentale per l'esplosività del salto
             </Text>
 
             <View style={styles.optionsListWrap}>
@@ -1664,9 +1640,9 @@ export const QuizScreen: React.FC = () => {
            ══════════════════════════════════════════════════════ */}
         {currentStep === 10 && (
           <View style={styles.stepContainer}>
-            <Text style={styles.mainTitle}>PESO CORPOREO</Text>
+            <Text style={styles.mainTitle}>Qual è il tuo peso attuale?</Text>
             <Text style={styles.mainSubtitle}>
-              FONDAMENTALE PER IL RAPPORTO POTENZA-PESO DEL SALTO
+              Serve per calcolare il rapporto potenza-peso del salto
             </Text>
 
             <View style={styles.biometricInputCard}>
@@ -1729,9 +1705,9 @@ export const QuizScreen: React.FC = () => {
            ══════════════════════════════════════════════════════ */}
         {currentStep === 11 && (
           <View style={styles.stepContainer}>
-            <Text style={styles.mainTitle}>ALTEZZA CORPOREA</Text>
+            <Text style={styles.mainTitle}>Qual è la tua altezza?</Text>
             <Text style={styles.mainSubtitle}>
-              CALCOLO DEL TUO PUNTO D'IMPATTO SOPRA LA RETE
+              Serve per calcolare il reach e il punto di impatto sopra la rete
             </Text>
 
             <View style={styles.biometricInputCard}>
@@ -2490,37 +2466,40 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
 
-  // ── TÍTULOS CENTRALIZADOS ──
+  // ── TÍTULOS CENTRALIZADOS ESTILO BETTERME ──
   mainTitle: {
-    fontSize: 34,
-    lineHeight: 40,
-    fontWeight: '900',
+    fontSize: 24,
+    lineHeight: 30,
+    fontWeight: '700',
     color: '#FFFFFF',
-    letterSpacing: 1.2,
+    letterSpacing: -0.3,
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 6,
+    textTransform: 'none',
   },
   mainTitleMobile: {
-    fontSize: 24,
+    fontSize: 22,
     lineHeight: 28,
-    letterSpacing: 0.5,
+    letterSpacing: -0.2,
     marginBottom: 6,
+    textTransform: 'none',
   },
   mainSubtitle: {
-    fontSize: 17,
-    lineHeight: 24,
-    fontWeight: '700',
-    color: '#9E9E9E',
-    letterSpacing: 2,
+    fontSize: 15,
+    lineHeight: 21,
+    fontWeight: '400',
+    color: '#A0A0A5',
+    letterSpacing: 0,
     textAlign: 'center',
-    textTransform: 'uppercase',
-    marginBottom: 26,
+    textTransform: 'none',
+    marginBottom: 20,
   },
   mainSubtitleMobile: {
-    fontSize: 12,
-    lineHeight: 16,
-    letterSpacing: 1.2,
-    marginBottom: 14,
+    fontSize: 14,
+    lineHeight: 20,
+    letterSpacing: 0,
+    marginBottom: 16,
+    textTransform: 'none',
   },
 
   // ── STEP 0: IMMAGINE DI TRASFORMAZIONE ELEVAZIONE ──
@@ -3434,70 +3413,57 @@ const styles = StyleSheet.create({
   // ── PERSONAS CARD (STEP 6 - ESTILO BETTERME) ──
   personaChoiceCard: {
     backgroundColor: '#161922',
-    borderRadius: 18,
-    padding: 18,
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
     borderWidth: 1.5,
     borderColor: 'rgba(255, 255, 255, 0.08)',
-    marginBottom: 12,
+    marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    minHeight: 62,
   },
   personaChoiceCardSelected: {
-    backgroundColor: '#EBE5D8',
-    borderColor: '#EBE5D8',
+    backgroundColor: '#1A2130',
+    borderColor: Colors.primary,
   },
-  personaCardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  personaIconContainer: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
     alignItems: 'center',
-    marginBottom: 10,
+    justifyContent: 'center',
+    marginRight: 14,
   },
-  personaTag: {
+  personaIconContainerSelected: {
     backgroundColor: 'rgba(0, 229, 255, 0.12)',
-    paddingVertical: 3.5,
-    paddingHorizontal: 9,
-    borderRadius: 6,
   },
-  personaTagSelected: {
-    backgroundColor: 'rgba(30, 28, 25, 0.12)',
+  personaCardTitle: {
+    flex: 1,
+    color: '#FFFFFF',
+    fontSize: 15.5,
+    fontWeight: '600',
+    lineHeight: 21,
+    marginRight: 12,
   },
-  personaTagText: {
-    color: Colors.primary,
-    fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 0.8,
-  },
-  personaTagTextSelected: {
-    color: '#2B2620',
+  personaCardTitleSelected: {
+    color: '#FFFFFF',
+    fontWeight: '700',
   },
   personaCheckbox: {
     width: 24,
     height: 24,
     borderRadius: 6,
     borderWidth: 1.8,
-    borderColor: '#555866',
+    borderColor: '#4A4D5C',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'transparent',
   },
   personaCheckboxActive: {
-    backgroundColor: '#5A4D41',
-    borderColor: '#5A4D41',
-  },
-  personaCardTitle: {
-    color: '#FFFFFF',
-    fontSize: 17,
-    fontWeight: '800',
-    marginBottom: 4,
-  },
-  personaCardTitleSelected: {
-    color: '#1C1C1E',
-  },
-  personaCardDesc: {
-    color: '#9E9E9E',
-    fontSize: 13.5,
-    lineHeight: 19,
-  },
-  personaCardDescSelected: {
-    color: '#44413C',
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
   },
 
   // ── BARRA FLUTTUANTE INFERIORE (STEP 6) ──
