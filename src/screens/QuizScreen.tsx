@@ -954,37 +954,8 @@ export const QuizScreen: React.FC = () => {
                   </Text>
                 </View>
 
-                {/* Chips de Atalho Rápido para Seleção Imediata no Mobile */}
-                <View style={styles.quickChipsRow}>
-                  {[
-                    { cm: 6, label: '+6 cm' },
-                    { cm: 10, label: '+10 cm' },
-                    { cm: 12, label: '+12 cm ★' },
-                    { cm: 16, label: '+16 cm' },
-                    { cm: 20, label: '+20 cm' },
-                  ].map((preset) => {
-                    const isSelected = targetGainCm === preset.cm;
-                    return (
-                      <TouchableOpacity
-                        key={preset.cm}
-                        style={[styles.quickChip, isSelected && styles.quickChipActive]}
-                        activeOpacity={0.7}
-                        onPress={() => {
-                          setTargetGainCm(preset.cm);
-                          targetGainCmRef.current = preset.cm;
-                          rulerScrollRef.current?.scrollTo({ x: preset.cm * RULER_TICK_WIDTH, animated: true });
-                        }}
-                      >
-                        <Text style={[styles.quickChipText, isSelected && styles.quickChipTextActive]}>
-                          {preset.label}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-
-                {/* Régua Interativa Arrastável (0 a 60 cm) no Desktop */}
-                {isDesktop && (() => {
+                {/* Régua Interativa Arrastável (0 a 60 cm) */}
+                {(() => {
                   const spacerWidth = Math.max(0, Math.round(rulerContainerWidth / 2 - RULER_TICK_WIDTH / 2));
                   return (
                     <View
@@ -995,7 +966,6 @@ export const QuizScreen: React.FC = () => {
                           setRulerContainerWidth(w);
                         }
                       }}
-                      {...panResponder.panHandlers}
                     >
                       <View style={styles.rulerPointerMarker} pointerEvents="none" />
                       <ScrollView
@@ -2950,10 +2920,15 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     left: '50%',
-    width: 2,
-    marginLeft: -1,
+    width: 2.5,
+    marginLeft: -1.25,
     backgroundColor: Colors.primary,
     zIndex: 10,
+    borderRadius: 1.25,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 4,
   },
   rulerScrollContent: {
     alignItems: 'center',
