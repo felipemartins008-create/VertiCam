@@ -1314,16 +1314,61 @@ export const QuizScreen: React.FC = () => {
            ══════════════════════════════════════════════════════ */}
         {currentStep === 7 && (
           <View style={styles.solutionScreenContainer}>
-            <View style={[styles.solutionSplitLayout, isDesktop && styles.solutionSplitLayoutRow]}>
-              {/* ── COLONNA SINISTRA: COPY & AUTORITÀ (STILE BETTERME) ── */}
-              <View style={[styles.solutionLeftCol, isDesktop && styles.solutionLeftColDesktop]}>
+            {/* ── 1. PARTE SUPERIORE: SMARTPHONE CON L'APP E IL SALTO IN AZIONE ── */}
+            <View style={styles.solutionPhoneSection}>
+              <View style={styles.solutionPhoneHeader}>
                 <View style={styles.solutionAiBadge}>
                   <Sparkles size={13} color={Colors.primary} />
                   <Text style={styles.solutionAiBadgeText}>TECNOLOGIA DI LIVELLO OLIMPICO</Text>
                 </View>
-
-                <Text style={styles.solutionHeadline}>
+                <Text style={styles.solutionPhoneTitle}>
                   La stessa tecnologia delle squadre di Serie A, guidata da oltre 300 studi scientifici.
+                </Text>
+                <Text style={styles.solutionPhoneSubtitle}>
+                  La fotocamera del tuo smartphone diventa un laboratorio biomeccanico: rileva in tempo reale altezza, tempo di volo ed esplosività a 240 FPS.
+                </Text>
+              </View>
+
+              <View style={styles.solutionPhoneDisplayWrapper}>
+                {/* Glow di sfondo */}
+                <View pointerEvents="none" style={styles.solutionPhoneGlowBlob} />
+
+                {/* Badge Telemetria Sinistra */}
+                <View style={[styles.floatingTelemetryBadge, styles.floatingBadgeLeft]}>
+                  <View style={styles.telemetryDotGreen} />
+                  <View>
+                    <Text style={styles.telemetryBadgeLabel}>DECOLLO RILEVATO</Text>
+                    <Text style={styles.telemetryBadgeVal}>Precisione al ms</Text>
+                  </View>
+                </View>
+
+                {/* Badge Telemetria Destra */}
+                <View style={[styles.floatingTelemetryBadge, styles.floatingBadgeRight]}>
+                  <Sparkles size={13} color={Colors.primary} />
+                  <View>
+                    <Text style={styles.telemetryBadgeLabel}>TEMPO DI VOLO</Text>
+                    <Text style={styles.telemetryBadgeValCyan}>62 cm • 710 ms</Text>
+                  </View>
+                </View>
+
+                {/* Immagine del cellulare che mostra la persona che salta */}
+                <Image
+                  source={require('../../assets/phone-jump-camera.png')}
+                  style={styles.solutionPhoneImage}
+                  resizeMode="contain"
+                />
+              </View>
+            </View>
+
+            {/* ── 2. PARTE INFERIORE: COPY, CARDS E CONFRONTO SCIENTIFICO ── */}
+            <View style={[styles.solutionSplitLayout, isDesktop && styles.solutionSplitLayoutRow]}>
+              {/* ── COLONNA SINISTRA: COPY & 3 PUNTI ── */}
+              <View style={[styles.solutionLeftCol, isDesktop && styles.solutionLeftColDesktop]}>
+                <View style={styles.solutionSubHeaderPill}>
+                  <Text style={styles.solutionSubHeaderPillText}>PRECISIONE E AUTOREGOLAZIONE</Text>
+                </View>
+                <Text style={styles.solutionSubHeadline}>
+                  Perché VertiCam supera qualsiasi metodo tradizionale
                 </Text>
 
                 <View style={styles.solutionPointsList}>
@@ -1481,52 +1526,6 @@ export const QuizScreen: React.FC = () => {
                     </Text>
                   </View>
                 </View>
-              </View>
-            </View>
-
-            {/* ── SEZIONE SMARTPHONE IN BASSO: L'APP IN AZIONE COL SALTO ── */}
-            <View style={styles.solutionPhoneSection}>
-              <View style={styles.solutionPhoneHeader}>
-                <View style={styles.solutionPhonePill}>
-                  <Camera size={13} color={Colors.primary} />
-                  <Text style={styles.solutionPhonePillText}>FOTOCAMERA IA IN AZIONE</Text>
-                </View>
-                <Text style={styles.solutionPhoneTitle}>
-                  Misura l'elevazione in tempo reale a 240 FPS
-                </Text>
-                <Text style={styles.solutionPhoneSubtitle}>
-                  Basta posizionare lo smartphone a terra: l'algoritmo rileva millisecondo per millisecondo il momento esatto di decollo e atterraggio.
-                </Text>
-              </View>
-
-              <View style={styles.solutionPhoneDisplayWrapper}>
-                {/* Glow di sfondo */}
-                <View pointerEvents="none" style={styles.solutionPhoneGlowBlob} />
-
-                {/* Badge Telemetria Sinistra */}
-                <View style={[styles.floatingTelemetryBadge, styles.floatingBadgeLeft]}>
-                  <View style={styles.telemetryDotGreen} />
-                  <View>
-                    <Text style={styles.telemetryBadgeLabel}>DECOLLO RILEVATO</Text>
-                    <Text style={styles.telemetryBadgeVal}>Precisione al ms</Text>
-                  </View>
-                </View>
-
-                {/* Badge Telemetria Destra */}
-                <View style={[styles.floatingTelemetryBadge, styles.floatingBadgeRight]}>
-                  <Sparkles size={13} color={Colors.primary} />
-                  <View>
-                    <Text style={styles.telemetryBadgeLabel}>TEMPO DI VOLO</Text>
-                    <Text style={styles.telemetryBadgeValCyan}>62 cm • 710 ms</Text>
-                  </View>
-                </View>
-
-                {/* Immagine del cellulare che mostra la persona che salta */}
-                <Image
-                  source={require('../../assets/phone-jump-camera.png')}
-                  style={styles.solutionPhoneImage}
-                  resizeMode="contain"
-                />
               </View>
             </View>
           </View>
@@ -3483,6 +3482,10 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     gap: 28,
     alignItems: 'stretch',
+    marginTop: 40,
+    paddingTop: 36,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.08)',
   },
   solutionSplitLayoutRow: {
     flexDirection: 'row',
@@ -3722,14 +3725,34 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  // ── SEZIONE SMARTPHONE COL SALTO IN BASSO (STEP 7) ──
+  // ── SEZIONE SMARTPHONE COL SALTO IN ALTO (STEP 7) ──
   solutionPhoneSection: {
     width: '100%',
     alignItems: 'center',
-    marginTop: 40,
-    paddingTop: 36,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.08)',
+    marginBottom: 10,
+  },
+  solutionSubHeaderPill: {
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    marginBottom: 8,
+  },
+  solutionSubHeaderPillText: {
+    color: '#94A3B8',
+    fontSize: 10.5,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+  },
+  solutionSubHeadline: {
+    color: '#FFFFFF',
+    fontSize: 22,
+    fontWeight: '900',
+    lineHeight: 28,
+    letterSpacing: -0.4,
+    marginBottom: 20,
+    textAlign: 'left',
   },
   solutionPhoneHeader: {
     alignItems: 'center',
