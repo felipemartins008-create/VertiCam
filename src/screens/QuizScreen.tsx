@@ -1517,13 +1517,13 @@ export const QuizScreen: React.FC = () => {
                   <Sparkles size={13} color={Colors.primary} />
                   <View>
                     <Text style={styles.telemetryBadgeLabel}>TEMPO DI VOLO</Text>
-                    <Text style={styles.telemetryBadgeValCyan}>+53.4 cm • 640 ms</Text>
+                    <Text style={styles.telemetryBadgeValCyan}>62 cm • 710 ms</Text>
                   </View>
                 </View>
 
                 {/* Immagine del cellulare che mostra la persona che salta */}
                 <Image
-                  source={require('../../assets/feature-phone-1.png')}
+                  source={require('../../assets/phone-jump-camera.png')}
                   style={styles.solutionPhoneImage}
                   resizeMode="contain"
                 />
@@ -3788,9 +3788,10 @@ const styles = StyleSheet.create({
   },
   solutionPhoneImage: {
     width: '100%',
-    maxWidth: 340,
-    height: 480,
+    maxWidth: 360,
+    height: 540,
     alignSelf: 'center',
+    borderRadius: 24,
   },
   floatingTelemetryBadge: {
     position: 'absolute',
