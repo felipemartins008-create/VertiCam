@@ -915,7 +915,7 @@ export const QuizScreen: React.FC = () => {
                       rulerScrollRef.current?.scrollTo({ x: next * RULER_TICK_WIDTH, animated: true });
                     }}
                   >
-                    <Minus size={20} color="#FFFFFF" />
+                    <Minus size={16} color="#FFFFFF" strokeWidth={2.5} />
                   </TouchableOpacity>
 
                   <View style={styles.rulerHeroValueBox}>
@@ -934,13 +934,13 @@ export const QuizScreen: React.FC = () => {
                       rulerScrollRef.current?.scrollTo({ x: next * RULER_TICK_WIDTH, animated: true });
                     }}
                   >
-                    <Plus size={20} color="#FFFFFF" />
+                    <Plus size={16} color="#FFFFFF" strokeWidth={2.5} />
                   </TouchableOpacity>
                 </View>
 
                 {/* Dica de Nível do Salto */}
                 <View style={styles.rulerLevelBadge}>
-                  <Flame size={14} color={Colors.primary} />
+                  <Flame size={12} color={Colors.primary} />
                   <Text style={styles.rulerLevelText}>
                     {targetGainCm === 0
                       ? 'Livello Attuale di Base'
@@ -2785,8 +2785,8 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 860,
     flexDirection: 'column',
-    gap: 12,
-    marginBottom: 14,
+    gap: 10,
+    marginBottom: 12,
   },
   rulerScreenLayoutDesktop: {
     flexDirection: 'row',
@@ -2797,9 +2797,9 @@ const styles = StyleSheet.create({
   rulerControlsCard: {
     width: '100%',
     backgroundColor: '#161922',
-    borderRadius: 18,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.08)',
     alignItems: 'center',
@@ -2813,22 +2813,22 @@ const styles = StyleSheet.create({
   },
   rulerCardSubtitle: {
     color: '#888888',
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '800',
     letterSpacing: 1,
-    marginBottom: 10,
+    marginBottom: 6,
   },
   rulerHeroNumberRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 14,
-    marginBottom: 10,
+    gap: 12,
+    marginBottom: 8,
   },
   rulerStepBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     backgroundColor: '#262D3D',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',
@@ -2839,59 +2839,59 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'baseline',
     backgroundColor: '#0A0C12',
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: Colors.primary,
-    borderRadius: 14,
-    paddingHorizontal: 18,
-    paddingVertical: 6,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 3,
   },
   rulerHeroPlus: {
     color: Colors.primary,
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '900',
     marginRight: 2,
   },
   rulerHeroDigits: {
     color: '#FFFFFF',
-    fontSize: 38,
+    fontSize: 30,
     fontWeight: '900',
-    minWidth: 50,
+    minWidth: 42,
     textAlign: 'center',
   },
   rulerHeroUnit: {
     color: Colors.primary,
-    fontSize: 20,
+    fontSize: 17,
     fontWeight: '900',
     marginLeft: 3,
   },
   rulerLevelBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 5,
     backgroundColor: 'rgba(0, 229, 255, 0.08)',
     borderWidth: 1,
     borderColor: 'rgba(0, 229, 255, 0.25)',
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    marginBottom: 10,
+    paddingVertical: 3,
+    paddingHorizontal: 9,
+    borderRadius: 6,
+    marginBottom: 8,
   },
   rulerLevelText: {
     color: Colors.primary,
-    fontSize: 11.5,
+    fontSize: 11,
     fontWeight: '800',
   },
   rulerBoxContainer: {
     width: '100%',
-    height: 72,
+    height: 54,
     backgroundColor: '#0F121B',
-    borderRadius: 14,
+    borderRadius: 12,
     overflow: 'hidden',
     position: 'relative',
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.08)',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   rulerPointerMarker: {
     position: 'absolute',
@@ -2915,30 +2915,30 @@ const styles = StyleSheet.create({
     width: 14,
     alignItems: 'center',
     justifyContent: 'flex-start',
-    height: 54,
+    height: 44,
   },
   rulerTickLine: {
     width: 1.5,
     backgroundColor: '#444444',
   },
   rulerTickMinor: {
-    height: 14,
+    height: 10,
   },
   rulerTickMajor: {
-    height: 24,
+    height: 18,
     backgroundColor: '#AAAAAA',
     width: 2,
   },
   rulerTickActive: {
     backgroundColor: Colors.primary,
     width: 2.5,
-    height: 28,
+    height: 22,
   },
   rulerTickText: {
     color: '#777777',
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: '700',
-    marginTop: 4,
+    marginTop: 2,
   },
   rulerTickTextActive: {
     color: Colors.primary,
