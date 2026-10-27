@@ -738,7 +738,7 @@ export const QuizScreen: React.FC = () => {
         contentContainerStyle={[
           styles.scrollContainer,
           !isDesktop && styles.scrollContainerMobile,
-          (currentStep === 6 || currentStep === 7) && { paddingBottom: 130 },
+          [4, 5, 6, 7, 10, 11].includes(currentStep) && { paddingBottom: 120 },
         ]}
         showsVerticalScrollIndicator={false}
       >
@@ -1109,18 +1109,6 @@ export const QuizScreen: React.FC = () => {
                 );
               })()}
             </View>
-
-            {/* Botão de Avanço (Estilo BetterMe Prossimo Passo) */}
-            <TouchableOpacity
-              style={styles.continuePillBtn}
-              activeOpacity={0.88}
-              onPress={handleProceedFromGain}
-            >
-              <Text style={styles.continuePillText}>PROSSIMO PASSO</Text>
-              <View style={styles.startArrowCircle}>
-                <ChevronRight size={18} color="#FFFFFF" strokeWidth={3} />
-              </View>
-            </TouchableOpacity>
           </View>
         )}
 
@@ -1210,17 +1198,6 @@ export const QuizScreen: React.FC = () => {
                 </View>
               </View>
             </View>
-
-            <TouchableOpacity
-              style={styles.continuePillBtn}
-              activeOpacity={0.88}
-              onPress={handleNextStep}
-            >
-              <Text style={styles.continuePillText}>CONTINUA</Text>
-              <View style={styles.startArrowCircle}>
-                <ChevronRight size={18} color="#FFFFFF" strokeWidth={3} />
-              </View>
-            </TouchableOpacity>
           </View>
         )}
 
@@ -1556,17 +1533,6 @@ export const QuizScreen: React.FC = () => {
                   <Text style={styles.checkListText}>Calcolo esatto del punto d'impatto sopra la rete</Text>
                 </View>
               </View>
-
-              <TouchableOpacity
-                style={styles.continuePillBtn}
-                activeOpacity={0.88}
-                onPress={handleNextStep}
-              >
-                <Text style={styles.continuePillText}>INSERISCI I TUOI PARAMETRI</Text>
-                <View style={styles.startArrowCircle}>
-                  <ChevronRight size={18} color="#FFFFFF" strokeWidth={3} />
-                </View>
-              </TouchableOpacity>
             </View>
           </View>
         )}
@@ -1685,17 +1651,6 @@ export const QuizScreen: React.FC = () => {
                   La forza verticale necessaria allo stacco cresce in modo direttamente proporzionale alla massa corporea. L'algoritmo calcolerà l'impulso newtoniano esatto per te.
                 </Text>
               </View>
-
-              <TouchableOpacity
-                style={styles.continuePillBtn}
-                activeOpacity={0.88}
-                onPress={handleNextStep}
-              >
-                <Text style={styles.continuePillText}>CONFERMA IL PESO</Text>
-                <View style={styles.startArrowCircle}>
-                  <ChevronRight size={18} color="#FFFFFF" strokeWidth={3} />
-                </View>
-              </TouchableOpacity>
             </View>
           </View>
         )}
@@ -1750,17 +1705,6 @@ export const QuizScreen: React.FC = () => {
                   Portata da fermo stimata: <Text style={{ color: '#FFFFFF', fontWeight: '900' }}>{standingReach} cm</Text> • Potenziale in attacco a rete con VertiCam: <Text style={{ color: Colors.primary, fontWeight: '900' }}>{totalAttackReach} cm</Text> ({clearanceOverNet > 0 ? `+${clearanceOverNet} cm sopra la rete!` : 'piena altezza a rete'})
                 </Text>
               </View>
-
-              <TouchableOpacity
-                style={styles.continuePillBtn}
-                activeOpacity={0.88}
-                onPress={handleFinishBiometrics}
-              >
-                <Text style={styles.continuePillText}>CREA IL MIO PIANO</Text>
-                <View style={styles.startArrowCircle}>
-                  <ChevronRight size={18} color="#FFFFFF" strokeWidth={3} />
-                </View>
-              </TouchableOpacity>
             </View>
           </View>
         )}
@@ -2292,23 +2236,40 @@ export const QuizScreen: React.FC = () => {
         )}
       </ScrollView>
 
-      {/* ── BARRA FLUTTUANTE INFERIORE (STEP 6 & STEP 7: BOTTONE ESTILO BETTERME) ── */}
-      {(currentStep === 6 || currentStep === 7) && (
-        <View style={styles.floatingBottomBarContainer}>
-          <TouchableOpacity
-            style={styles.betterMeFloatingBtn}
-            activeOpacity={0.88}
-            onPress={handleNextStep}
-          >
-            <Text style={styles.betterMeFloatingBtnText}>
-              {currentStep === 6 ? 'PROSSIMO PASSO' : 'CONTINUA'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      {/* ── BARRA FLUTTUANTE INFERIORE (STEPS COM BOTÃO DE PROSSEGUIR ESTILO BETTERME) ── */}
+      {[4, 5, 6, 7, 10, 11].includes(currentStep) && (() => {
+        let label = 'PROSSIMO PASSO';
+        let action = handleNextStep;
 
-      {/* Floating Help Button (oculto nos Steps 6, 7, no loader 12 e na oferta 13) */}
-      {currentStep !== 6 && currentStep !== 7 && currentStep !== 12 && currentStep !== 13 && (
+        if (currentStep === 4) {
+          action = handleProceedFromGain;
+        } else if (currentStep === 7) {
+          label = 'CONTINUA';
+        } else if (currentStep === 10) {
+          label = 'CONFERMA IL PESO';
+        } else if (currentStep === 11) {
+          label = 'CREA IL MIO PIANO';
+          action = handleFinishBiometrics;
+        }
+
+        return (
+          <View style={styles.floatingBottomBarContainer}>
+            <TouchableOpacity
+              style={styles.betterMeFloatingBtn}
+              activeOpacity={0.88}
+              onPress={action}
+            >
+              <Text style={styles.betterMeFloatingBtnText}>{label}</Text>
+              <View style={styles.startArrowCircle}>
+                <ChevronRight size={18} color="#FFFFFF" strokeWidth={3} />
+              </View>
+            </TouchableOpacity>
+          </View>
+        );
+      })()}
+
+      {/* Floating Help Button (oculto nos steps com barra flutuante, no loader 12 e na oferta 13) */}
+      {![4, 5, 6, 7, 10, 11, 12, 13].includes(currentStep) && (
         <TouchableOpacity style={styles.floatingHelpBtn} activeOpacity={0.8}>
           <HelpCircle size={15} color="#000000" />
           <Text style={styles.floatingHelpText}>Aiuto</Text>
@@ -3466,27 +3427,32 @@ const styles = StyleSheet.create({
     borderColor: Colors.primary,
   },
 
-  // ── BARRA FLUTTUANTE INFERIORE (STEP 6) ──
+  // ── BARRA FLUTTUANTE INFERIORE (STEPS CON BOTTONE DI PROSEGUIRE ESTILO BETTERME) ──
   floatingBottomBarContainer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    paddingTop: 16,
-    paddingBottom: 28,
+    paddingTop: 12,
+    paddingBottom: 22,
+    paddingHorizontal: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    backgroundColor: 'rgba(10, 12, 18, 0.94)',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.08)',
     zIndex: 999,
   },
   betterMeFloatingBtn: {
-    backgroundColor: '#EBE5D8',
+    backgroundColor: '#F3F4ED',
     borderRadius: 30,
-    paddingVertical: 14,
-    paddingHorizontal: 48,
-    minWidth: 280,
+    height: 54,
+    width: '100%',
+    maxWidth: 380,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 12,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
@@ -3494,8 +3460,8 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   betterMeFloatingBtnText: {
-    color: '#1C1C1E',
-    fontSize: 15,
+    color: '#000000',
+    fontSize: 15.5,
     fontWeight: '800',
     letterSpacing: 0.8,
   },
