@@ -518,6 +518,92 @@ export const QuizScreen: React.FC = () => {
     },
   ];
 
+  // Triplicar lista para efeito infinito contínuo e suave (looping) no mobile
+  const loopedShowcaseFeatures = React.useMemo(() => {
+    return [...showcaseFeatures, ...showcaseFeatures, ...showcaseFeatures];
+  }, []);
+
+  const showcaseScrollRef = React.useRef<ScrollView>(null);
+  const currentShowcaseIndexRef = React.useRef<number>(5);
+  const [showcaseActiveIndex, setShowcaseActiveIndex] = useState<number>(0);
+  const isShowcasePausedRef = React.useRef<boolean>(false);
+  const pauseTimeoutRef = React.useRef<any>(null);
+
+  // Auto-play contínuo em loop para os celulares no Step 13 (Apenas Mobile - Desktop permanece 100% estático)
+  useEffect(() => {
+    if (currentStep !== 13 || isDesktop) return;
+
+    // Posiciona suavemente no conjunto central sem animação para permitir scroll infinito em ambas direções
+    const initTimer = setTimeout(() => {
+      showcaseScrollRef.current?.scrollTo({
+        x: currentShowcaseIndexRef.current * 179,
+        animated: false,
+      });
+    }, 120);
+
+    const interval = setInterval(() => {
+      if (isShowcasePausedRef.current) return;
+
+      const nextIndex = currentShowcaseIndexRef.current + 1;
+      currentShowcaseIndexRef.current = nextIndex;
+      setShowcaseActiveIndex(nextIndex % showcaseFeatures.length);
+
+      showcaseScrollRef.current?.scrollTo({
+        x: nextIndex * 179,
+        animated: true,
+      });
+
+      // Se passou do segundo conjunto (>= 10), reseta silenciosamente para o conjunto do meio
+      if (nextIndex >= 10) {
+        setTimeout(() => {
+          currentShowcaseIndexRef.current = 5;
+          showcaseScrollRef.current?.scrollTo({
+            x: 5 * 179,
+            animated: false,
+          });
+        }, 420);
+      }
+    }, 2600);
+
+    return () => {
+      clearTimeout(initTimer);
+      clearInterval(interval);
+      if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+    };
+  }, [currentStep, isDesktop]);
+
+  const handleShowcaseScrollBeginDrag = () => {
+    isShowcasePausedRef.current = true;
+    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+  };
+
+  const handleShowcaseScrollEndDrag = () => {
+    pauseTimeoutRef.current = setTimeout(() => {
+      isShowcasePausedRef.current = false;
+    }, 3200);
+  };
+
+  const handleShowcaseMomentumScrollEnd = (e: any) => {
+    const offsetX = e.nativeEvent.contentOffset.x;
+    const index = Math.round(offsetX / 179);
+    currentShowcaseIndexRef.current = index;
+    setShowcaseActiveIndex(index % showcaseFeatures.length);
+
+    if (index >= 10) {
+      currentShowcaseIndexRef.current = 5 + (index % 5);
+      showcaseScrollRef.current?.scrollTo({
+        x: currentShowcaseIndexRef.current * 179,
+        animated: false,
+      });
+    } else if (index < 5) {
+      currentShowcaseIndexRef.current = 5 + (index % 5);
+      showcaseScrollRef.current?.scrollTo({
+        x: currentShowcaseIndexRef.current * 179,
+        animated: false,
+      });
+    }
+  };
+
   const handleCheckout = () => {
     setIsCheckoutModalVisible(true);
   };
@@ -2160,13 +2246,17 @@ export const QuizScreen: React.FC = () => {
               ) : (
                 <View style={styles.mobileShowcaseContainer}>
                   <ScrollView
+                    ref={showcaseScrollRef}
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     snapToInterval={179}
                     decelerationRate="fast"
                     contentContainerStyle={styles.screensShowcaseScroll}
+                    onScrollBeginDrag={handleShowcaseScrollBeginDrag}
+                    onScrollEndDrag={handleShowcaseScrollEndDrag}
+                    onMomentumScrollEnd={handleShowcaseMomentumScrollEnd}
                   >
-                    {showcaseFeatures.map((feat, idx) => (
+                    {loopedShowcaseFeatures.map((feat, idx) => (
                       <View key={idx} style={styles.screenMockupCardMobile}>
                         <View style={[styles.phoneFrameContainer, feat.isHighlight && styles.phoneFrameHighlight]}>
                           {feat.isHighlight && <View pointerEvents="none" style={styles.phoneGlowBlob} />}
@@ -2186,9 +2276,18 @@ export const QuizScreen: React.FC = () => {
                       </View>
                     ))}
                   </ScrollView>
-                  <View style={styles.showcaseSwipeHintRow}>
-                    <Text style={styles.showcaseSwipeHintText}>Scorri per esplorare le 5 funzionalità</Text>
-                    <ChevronRight size={14} color="#8A8D9B" />
+
+                  {/* Dots de Paginação Interativos com Indicador Ativo */}
+                  <View style={styles.showcaseDotsRow}>
+                    {showcaseFeatures.map((_, i) => (
+                      <View
+                        key={i}
+                        style={[
+                          styles.showcaseDot,
+                          showcaseActiveIndex === i && styles.showcaseDotActive,
+                        ]}
+                      />
+                    ))}
                   </View>
                 </View>
               )}
@@ -4792,17 +4891,25 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 12,
   },
-  showcaseSwipeHintRow: {
+  showcaseDotsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: 6,
     marginBottom: 20,
+    marginTop: 4,
   },
-  showcaseSwipeHintText: {
-    color: '#8A8D9B',
-    fontSize: 11.5,
-    fontWeight: '600',
+  showcaseDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+  },
+  showcaseDotActive: {
+    width: 20,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: Colors.primary,
   },
   screenMockupCard: {
     width: 180,
