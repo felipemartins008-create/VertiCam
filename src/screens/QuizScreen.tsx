@@ -119,38 +119,131 @@ export const QuizScreen: React.FC = () => {
 
   // Régua interativa Step 4 (0-60 cm com arraste e centralização suave)
   const rulerScrollRef = React.useRef<ScrollView>(null);
+  const rulerContainerRef = React.useRef<View>(null);
   const [rulerContainerWidth, setRulerContainerWidth] = useState<number>(320);
   const targetGainCmRef = React.useRef<number>(targetGainCm);
   targetGainCmRef.current = targetGainCm;
 
-  const panResponder = React.useMemo(() => {
-    let startOffset = 0;
-    return PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: (_, gestureState) => Math.abs(gestureState.dx) > 2,
-      onPanResponderGrant: () => {
-        startOffset = targetGainCmRef.current * RULER_TICK_WIDTH;
-      },
-      onPanResponderMove: (_, gestureState) => {
-        const newOffset = startOffset - gestureState.dx;
-        const clampedOffset = Math.max(0, Math.min(RULER_MAX_CM * RULER_TICK_WIDTH, newOffset));
-        const newCm = Math.round(clampedOffset / RULER_TICK_WIDTH);
-        if (newCm !== targetGainCmRef.current) {
-          targetGainCmRef.current = newCm;
-          setTargetGainCm(newCm);
-        }
-        rulerScrollRef.current?.scrollTo({ x: clampedOffset, animated: false });
-      },
-      onPanResponderRelease: () => {
-        const finalX = targetGainCmRef.current * RULER_TICK_WIDTH;
-        rulerScrollRef.current?.scrollTo({ x: finalX, animated: true });
-      },
-      onPanResponderTerminate: () => {
-        const finalX = targetGainCmRef.current * RULER_TICK_WIDTH;
-        rulerScrollRef.current?.scrollTo({ x: finalX, animated: true });
-      },
-    });
-  }, []);
+  // Controle de arrasto e clique do mouse exclusivo para Desktop (não afeta o touch mobile)
+  const isMouseDownRef = useRef(false);
+  const dragStartXRef = useRef(0);
+  const dragStartScrollXRef = useRef(0);
+  const hasDraggedRef = useRef(false);
+
+  const startDrag = (clientX: number) => {
+    isMouseDownRef.current = true;
+    hasDraggedRef.current = false;
+    dragStartXRef.current = clientX;
+    dragStartScrollXRef.current = targetGainCmRef.current * RULER_TICK_WIDTH;
+    if (typeof document !== 'undefined') {
+      document.body.style.userSelect = 'none';
+      document.body.style.cursor = 'grabbing';
+    }
+  };
+
+  const handleGlobalMouseMove = (e: MouseEvent) => {
+    if (!isMouseDownRef.current) return;
+    const deltaX = e.clientX - dragStartXRef.current;
+    if (Math.abs(deltaX) > 2) {
+      hasDraggedRef.current = true;
+    }
+    const newScrollX = dragStartScrollXRef.current - deltaX;
+    const clampedScrollX = Math.max(0, Math.min(RULER_MAX_CM * RULER_TICK_WIDTH, newScrollX));
+    const newCm = Math.round(clampedScrollX / RULER_TICK_WIDTH);
+
+    if (newCm !== targetGainCmRef.current) {
+      targetGainCmRef.current = newCm;
+      setTargetGainCm(newCm);
+    }
+    rulerScrollRef.current?.scrollTo({ x: clampedScrollX, animated: false });
+  };
+
+  const handleGlobalMouseUp = (e: MouseEvent) => {
+    if (!isMouseDownRef.current) return;
+    isMouseDownRef.current = false;
+    if (typeof document !== 'undefined') {
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+    }
+
+    if (!hasDraggedRef.current) {
+      // Clique direto em qualquer ponto da régua no desktop
+      const containerEl = rulerContainerRef.current as any;
+      const domNode: HTMLElement | null =
+        containerEl?.tagName
+          ? containerEl
+          : (containerEl?.getScrollableNode?.() || containerEl?._node || (containerEl as HTMLElement));
+
+      if (domNode && typeof domNode.getBoundingClientRect === 'function') {
+        const rect = domNode.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const center = rect.width / 2;
+        const diffFromCenter = clickX - center;
+        const currentScrollX = targetGainCmRef.current * RULER_TICK_WIDTH;
+        const targetScrollX = currentScrollX + diffFromCenter;
+        const clampedScrollX = Math.max(0, Math.min(RULER_MAX_CM * RULER_TICK_WIDTH, targetScrollX));
+        const targetCm = Math.round(clampedScrollX / RULER_TICK_WIDTH);
+        targetGainCmRef.current = targetCm;
+        setTargetGainCm(targetCm);
+        rulerScrollRef.current?.scrollTo({ x: targetCm * RULER_TICK_WIDTH, animated: true });
+        return;
+      }
+    }
+
+    // Encaixe suave no tick mais próximo
+    const snapX = targetGainCmRef.current * RULER_TICK_WIDTH;
+    rulerScrollRef.current?.scrollTo({ x: snapX, animated: true });
+  };
+
+  // Listener nativo de mouse para desktop (Wheel + Drag + Click) isolado apenas quando isDesktop for true
+  useEffect(() => {
+    if (Platform.OS !== 'web' || !isDesktop || currentStep !== 4) return;
+
+    const containerEl = rulerContainerRef.current as any;
+    const domNode: HTMLElement | null =
+      containerEl?.tagName
+        ? containerEl
+        : (containerEl?.getScrollableNode?.() || containerEl?._node || (containerEl as HTMLElement));
+
+    const onMouseDown = (e: MouseEvent) => {
+      if (e.button !== 0) return;
+      startDrag(e.clientX);
+      e.preventDefault();
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      if (Math.abs(delta) < 2) return;
+      const step = delta > 0 ? 1 : -1;
+      const nextCm = Math.max(RULER_MIN_CM, Math.min(RULER_MAX_CM, targetGainCmRef.current + step));
+      if (nextCm !== targetGainCmRef.current) {
+        targetGainCmRef.current = nextCm;
+        setTargetGainCm(nextCm);
+        rulerScrollRef.current?.scrollTo({ x: nextCm * RULER_TICK_WIDTH, animated: false });
+      }
+    };
+
+    if (domNode && typeof domNode.addEventListener === 'function') {
+      domNode.addEventListener('mousedown', onMouseDown);
+      domNode.addEventListener('wheel', onWheel, { passive: false });
+    }
+    window.addEventListener('mousemove', handleGlobalMouseMove);
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+
+    return () => {
+      if (domNode && typeof domNode.removeEventListener === 'function') {
+        domNode.removeEventListener('mousedown', onMouseDown);
+        domNode.removeEventListener('wheel', onWheel);
+      }
+      window.removeEventListener('mousemove', handleGlobalMouseMove);
+      window.removeEventListener('mouseup', handleGlobalMouseUp);
+      if (typeof document !== 'undefined') {
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
+      }
+    };
+  }, [currentStep, rulerContainerWidth, isDesktop]);
 
   // Sincronizza a posição da régua para o centro sempre que abrir o Step 4
   useEffect(() => {
@@ -959,13 +1052,24 @@ export const QuizScreen: React.FC = () => {
                   const spacerWidth = Math.max(0, Math.round(rulerContainerWidth / 2 - RULER_TICK_WIDTH / 2));
                   return (
                     <View
-                      style={[styles.rulerBoxContainer, { cursor: 'ew-resize' as any }]}
+                      ref={rulerContainerRef}
+                      style={[styles.rulerBoxContainer, isDesktop && styles.rulerBoxContainerDesktop]}
                       onLayout={(e) => {
                         const w = e.nativeEvent.layout.width;
                         if (w > 0 && Math.abs(w - rulerContainerWidth) > 2) {
                           setRulerContainerWidth(w);
                         }
                       }}
+                      {...(isDesktop
+                        ? {
+                            onMouseDown: (e: any) => {
+                              if (e.button === 0 && !isMouseDownRef.current) {
+                                startDrag(e.clientX || e.nativeEvent?.clientX);
+                                e.preventDefault?.();
+                              }
+                            },
+                          }
+                        : {})}
                     >
                       <View style={styles.rulerPointerMarker} pointerEvents="none" />
                       <ScrollView
@@ -1122,7 +1226,7 @@ export const QuizScreen: React.FC = () => {
               <View style={[styles.projectionTextCol, isDesktop && styles.projectionTextColDesktop]}>
                 <Text style={styles.cleanHeaderGoalLabel}>IL TUO OBIETTIVO</Text>
 
-                <Text style={styles.cleanHeroTitle}>
+                <Text style={[styles.cleanHeroTitle, isDesktop && styles.cleanHeroTitleDesktop]}>
                   Raggiungi{' '}
                   <Text style={{ color: Colors.primary }}>
                     +{targetGainCm > 0 ? targetGainCm : 12} cm
@@ -1134,19 +1238,18 @@ export const QuizScreen: React.FC = () => {
                   <Text style={styles.heroTimeCardLabel}>TEMPO STIMATO PER RAGGIUNGERLO</Text>
 
                   <View style={styles.heroTimeDigitsRow}>
-                    <Clock size={36} color={Colors.primary} />
+                    <Clock size={20} color={Colors.primary} style={{ alignSelf: 'center' }} />
                     <Text style={styles.heroTimeDigitsText}>{timelineData.monthsHighlight}</Text>
+                    <Text style={styles.heroTimeWeeksSub}>({timelineData.weeksRange})</Text>
                   </View>
-
-                  <Text style={styles.heroTimeWeeksSub}>({timelineData.weeksRange})</Text>
 
                   <View style={styles.heroTimeDivider} />
 
                   <View style={styles.heroTimeDateRow}>
-                    <Calendar size={16} color="#FF9100" />
+                    <Calendar size={15} color="#FF9100" />
                     <Text style={styles.heroTimeDateText}>
                       Data prevista:{' '}
-                      <Text style={{ color: '#FFFFFF', fontWeight: '900' }}>
+                      <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>
                         {timelineData.dateFormatted}
                       </Text>
                     </Text>
@@ -1158,13 +1261,13 @@ export const QuizScreen: React.FC = () => {
                 </Text>
               </View>
 
-              {/* ── COLONNA DESTRA: PROVA SOCIALE CLEAN (APENAS FOTO E DADOS DE EVOLUÇÃO) ── */}
+              {/* ── COLONNA DESTRA: PROVA SOCIALE CLEAN (FOTO E DADOS DE EVOLUÇÃO) ── */}
               <View style={[styles.proofCardWrapper, isDesktop && styles.proofCardWrapperDesktop]}>
                 {/* Header Atleta com Resultado */}
                 <View style={styles.cleanProofHeader}>
                   <View style={styles.proofAthleteInfo}>
                     <View style={styles.proofAvatarCircle}>
-                      <Award size={18} color={Colors.primary} />
+                      <Award size={16} color={Colors.primary} />
                     </View>
                     <View>
                       <Text style={styles.proofAthleteName}>{proofAthlete.name}</Text>
@@ -1180,7 +1283,7 @@ export const QuizScreen: React.FC = () => {
                   </View>
                 </View>
 
-                {/* Immagine Prima e Dopo com Badges de Evolução */}
+                {/* Immagine Prima e Dopo con Badges di Evoluzione */}
                 <View style={styles.cleanProofImageWrapper}>
                   <Image
                     source={proofAthlete.image}
@@ -2854,6 +2957,10 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.08)',
     marginBottom: 2,
   },
+  rulerBoxContainerDesktop: {
+    cursor: 'grab' as any,
+    userSelect: 'none' as any,
+  },
   rulerPointerMarker: {
     position: 'absolute',
     top: 0,
@@ -3157,15 +3264,15 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 960,
     flexDirection: 'column',
-    gap: 22,
-    marginBottom: 20,
+    gap: 16,
+    marginBottom: 16,
   },
   projectionScreenLayoutDesktop: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 40,
-    marginBottom: 24,
+    gap: 36,
+    marginBottom: 20,
   },
   projectionTextCol: {
     width: '100%',
@@ -3176,111 +3283,117 @@ const styles = StyleSheet.create({
   },
   cleanHeaderGoalLabel: {
     color: '#90A4AE',
-    fontSize: 12,
-    fontWeight: '800',
-    letterSpacing: 1.2,
-    marginBottom: 6,
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 1,
+    marginBottom: 4,
   },
   cleanHeroTitle: {
     color: '#FFFFFF',
-    fontSize: 34,
-    fontWeight: '900',
-    lineHeight: 42,
-    letterSpacing: -0.8,
-    marginBottom: 20,
+    fontSize: 22,
+    fontWeight: '800',
+    lineHeight: 28,
+    letterSpacing: -0.4,
+    marginBottom: 12,
+  },
+  cleanHeroTitleDesktop: {
+    fontSize: 28,
+    lineHeight: 36,
+    marginBottom: 16,
   },
   heroTimeCard: {
     backgroundColor: '#0F131D',
-    borderRadius: 20,
+    borderRadius: 16,
     borderWidth: 1.5,
     borderColor: 'rgba(0, 229, 255, 0.35)',
-    padding: 22,
-    marginBottom: 16,
+    padding: 14,
+    marginBottom: 12,
     shadowColor: '#00E5FF',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 18,
+    shadowOpacity: 0.12,
+    shadowRadius: 14,
   },
   heroTimeCardLabel: {
     color: '#90A4AE',
-    fontSize: 11.5,
-    fontWeight: '800',
-    letterSpacing: 1,
-    marginBottom: 10,
+    fontSize: 10.5,
+    fontWeight: '700',
+    letterSpacing: 0.8,
+    marginBottom: 6,
   },
   heroTimeDigitsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    marginBottom: 4,
+    gap: 8,
+    marginBottom: 8,
   },
   heroTimeDigitsText: {
     color: Colors.primary,
-    fontSize: 38,
-    fontWeight: '900',
-    letterSpacing: -0.5,
+    fontSize: 24,
+    fontWeight: '800',
+    letterSpacing: -0.3,
   },
   heroTimeWeeksSub: {
     color: '#B0BEC5',
-    fontSize: 14,
-    fontWeight: '700',
-    marginBottom: 14,
-    marginLeft: 48,
+    fontSize: 13,
+    fontWeight: '600',
   },
   heroTimeDivider: {
     height: 1,
     backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    marginBottom: 14,
+    marginBottom: 8,
   },
   heroTimeDateRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
   },
   heroTimeDateText: {
     color: '#CFD8DC',
-    fontSize: 13.5,
-    fontWeight: '600',
+    fontSize: 12.5,
+    fontWeight: '500',
   },
   cleanFooterInsight: {
     color: '#78909C',
-    fontSize: 12.5,
-    fontWeight: '600',
+    fontSize: 11.5,
+    fontWeight: '500',
+    lineHeight: 16,
   },
 
   // Coluna Direita (Prova Social Clean com Foto em Destaque)
   proofCardWrapper: {
     width: '100%',
     backgroundColor: '#10131C',
-    borderRadius: 22,
+    borderRadius: 18,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.09)',
-    padding: 16,
+    padding: 12,
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
     elevation: 6,
   },
   proofCardWrapperDesktop: {
     flex: 1,
     maxWidth: 440,
+    padding: 16,
+    borderRadius: 22,
   },
   cleanProofHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 14,
+    marginBottom: 10,
   },
   proofAthleteInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
   },
   proofAvatarCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     backgroundColor: 'rgba(0, 229, 255, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
@@ -3289,40 +3402,42 @@ const styles = StyleSheet.create({
   },
   proofAthleteName: {
     color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '900',
+    fontSize: 13.5,
+    fontWeight: '700',
   },
   proofAthleteRole: {
     color: '#90A4AE',
-    fontSize: 11,
-    fontWeight: '600',
+    fontSize: 10.5,
+    fontWeight: '500',
   },
   proofResultBadge: {
     backgroundColor: 'rgba(0, 230, 118, 0.12)',
     borderWidth: 1,
     borderColor: '#00E676',
-    borderRadius: 10,
-    paddingVertical: 4,
-    paddingHorizontal: 10,
+    borderRadius: 6,
+    paddingVertical: 2,
+    paddingHorizontal: 8,
     alignItems: 'center',
   },
   proofResultBadgeText: {
     color: '#00E676',
-    fontSize: 13.5,
-    fontWeight: '900',
+    fontSize: 11.5,
+    fontWeight: '800',
   },
   proofResultBadgeSub: {
     color: '#A5D6A7',
-    fontSize: 9.5,
-    fontWeight: '700',
+    fontSize: 8.5,
+    fontWeight: '600',
   },
   cleanProofImageWrapper: {
     width: '100%',
-    height: 320,
-    borderRadius: 16,
+    aspectRatio: 1.35,
+    borderRadius: 12,
     overflow: 'hidden',
     position: 'relative',
     backgroundColor: '#0A0C12',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   proofCardImage: {
     width: '100%',
@@ -3330,34 +3445,35 @@ const styles = StyleSheet.create({
   },
   proofOverlayBadgeLeft: {
     position: 'absolute',
-    top: 10,
-    left: 10,
+    top: 8,
+    left: 8,
     backgroundColor: 'rgba(0, 0, 0, 0.75)',
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 6,
+    paddingVertical: 3,
+    paddingHorizontal: 7,
+    borderRadius: 5,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   proofOverlayText: {
     color: '#E0E0E0',
-    fontSize: 10.5,
-    fontWeight: '800',
+    fontSize: 9.5,
+    fontWeight: '700',
   },
   proofOverlayBadgeRight: {
     position: 'absolute',
-    top: 10,
-    right: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 6,
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.82)',
+    paddingVertical: 3,
+    paddingHorizontal: 7,
+    borderRadius: 5,
     borderWidth: 1,
     borderColor: '#00E676',
   },
   proofOverlayTextGreen: {
     color: '#00E676',
-    fontSize: 10.5,
+    fontSize: 9.5,
+    fontWeight: '800',
     fontWeight: '900',
   },
 
