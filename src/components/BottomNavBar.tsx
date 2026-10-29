@@ -14,17 +14,17 @@ export const BottomNavBar: React.FC = () => {
   const tabs = [
     {
       id: 'workouts' as const,
-      label: 'Treinos',
+      label: 'Allenamenti',
       Icon: Dumbbell,
     },
     {
       id: 'evaluations' as const,
-      label: 'Avaliações',
+      label: 'Valutazioni',
       Icon: TrendingUp,
     },
     {
       id: 'profile' as const,
-      label: 'Perfil',
+      label: 'Profilo',
       Icon: User,
     },
   ];

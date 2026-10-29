@@ -44,13 +44,13 @@ export const OnboardingTutorialScreen: React.FC = () => {
   const [consecutiveWarning, setConsecutiveWarning] = useState<string | null>(null);
 
   const daysOfWeek = [
-    { id: 1, label: 'SEG', full: 'Segunda-feira' },
-    { id: 2, label: 'TER', full: 'Terça-feira' },
-    { id: 3, label: 'QUA', full: 'Quarta-feira' },
-    { id: 4, label: 'QUI', full: 'Quinta-feira' },
-    { id: 5, label: 'SEX', full: 'Sexta-feira' },
-    { id: 6, label: 'SÁB', full: 'Sábado' },
-    { id: 0, label: 'DOM', full: 'Domingo' },
+    { id: 1, label: 'LUN', full: 'Lunedì' },
+    { id: 2, label: 'MAR', full: 'Martedì' },
+    { id: 3, label: 'MER', full: 'Mercoledì' },
+    { id: 4, label: 'GIO', full: 'Giovedì' },
+    { id: 5, label: 'VEN', full: 'Venerdì' },
+    { id: 6, label: 'SAB', full: 'Sabato' },
+    { id: 0, label: 'DOM', full: 'Domenica' },
   ];
 
   const toggleDay = (dayId: number) => {
@@ -59,7 +59,7 @@ export const OnboardingTutorialScreen: React.FC = () => {
         setSelectedDays(selectedDays.filter((d) => d !== dayId));
         setConsecutiveWarning(null);
       } else {
-        setConsecutiveWarning('Mantenha pelo menos 1 dia de treino selecionado.');
+        setConsecutiveWarning('Seleziona almeno 1 giorno di allenamento.');
       }
     } else {
       // Verifica se o dia clicado é consecutivo a algum dia já selecionado
@@ -68,9 +68,8 @@ export const OnboardingTutorialScreen: React.FC = () => {
       );
 
       if (hasConsecutive) {
-        const clickedDayName = daysOfWeek.find((d) => d.id === dayId)?.full || 'este dia';
         setConsecutiveWarning(
-          `⚠️ Dias seguidos bloqueados! O Sistema Nervoso Central (SNC) necessita de pelo menos 1 dia completo de recuperação entre treinos balísticos (Método Irineu Loturco). Selecione dias alternados para proteger seus tendões.`
+          `⚠️ Giorni consecutivi bloccati! Il Sistema Nervoso Centrale (SNC) necessita di almeno 1 giorno intero di recupero tra sessioni balistiche (Metodo Loturco). Scegli giorni alternati per proteggere i tuoi tendini.`
         );
         return;
       }
@@ -106,11 +105,11 @@ export const OnboardingTutorialScreen: React.FC = () => {
           <VertiCamLogo size="medium" />
           <View style={styles.welcomePill}>
             <Sparkles size={12} color={Colors.primary} />
-            <Text style={styles.welcomePillText}>COMO FUNCIONA O VERTICAM</Text>
+            <Text style={styles.welcomePillText}>COME FUNZIONA VERTICAM</Text>
           </View>
-          <Text style={styles.mainTitle}>3 Passos para Maximizar sua Impulsão</Text>
+          <Text style={styles.mainTitle}>3 Passaggi per Massimizzare la Tua Elevazione</Text>
           <Text style={styles.mainSubtitle}>
-            Um método científico baseado no pesquisador Prof. Dr. Irineu Loturco. Sem exercícios aleatórios, apenas potência neuromuscular pura.
+            Un metodo scientifico basato sulle ricerche del Prof. Dott. Irineu Loturco. Nessun esercizio casuale, solo pura potenza neuromuscolare.
           </Text>
         </View>
 
@@ -121,8 +120,8 @@ export const OnboardingTutorialScreen: React.FC = () => {
               <Text style={styles.stepBadgeText}>1</Text>
             </View>
             <View style={styles.cardHeaderTexts}>
-              <Text style={styles.cardCategory}>PRIMEIRO PASSO</Text>
-              <Text style={styles.cardTitle}>Avaliação Inicial (Linha de Base)</Text>
+              <Text style={styles.cardCategory}>PRIMO PASSO</Text>
+              <Text style={styles.cardTitle}>Valutazione Iniziale (Baseline)</Text>
             </View>
             <View style={styles.iconCircle}>
               <Activity size={20} color={Colors.primary} strokeWidth={2.5} />
@@ -130,28 +129,28 @@ export const OnboardingTutorialScreen: React.FC = () => {
           </View>
 
           <Text style={styles.cardDescription}>
-            Antes de prescrever qualquer carga, a câmera de alta precisão calcula seu tempo de voo com dois testes fundamentais:
+            Prima di calcolare qualsiasi carico, la fotocamera ad alta precisione misura il tuo tempo di volo con due test fondamentali:
           </Text>
 
           <View style={styles.subItemsBox}>
             <View style={styles.subItem}>
               <View style={styles.bulletDot} />
               <Text style={styles.subItemText}>
-                <Text style={styles.boldText}>CMJ (Salto com contramovimento):</Text> mede a força elástica e a reatividade dos seus tendões.
+                <Text style={styles.boldText}>CMJ (Salto con contromovimento):</Text> misura la forza elastica e la reattività dei tuoi tendini.
               </Text>
             </View>
 
             <View style={styles.subItem}>
               <View style={styles.bulletDot} />
               <Text style={styles.subItemText}>
-                <Text style={styles.boldText}>SJ (Salto sem contramovimento):</Text> mede a força concêntrica pura partindo estático a 90°.
+                <Text style={styles.boldText}>SJ (Salto senza contromovimento / Squat Jump):</Text> misura la forza concentrica pura partendo da fermo a 90°.
               </Text>
             </View>
           </View>
 
           <View style={styles.formulaPill}>
             <Text style={styles.formulaPillText}>
-              💡 O índice EUR (CMJ ÷ SJ) revelará exatamente o seu déficit neuromuscular de impulsão.
+              💡 L'indice EUR (CMJ ÷ SJ) evidenzierà con precisione il tuo deficit neuromuscolare di salto.
             </Text>
           </View>
         </View>
@@ -163,8 +162,8 @@ export const OnboardingTutorialScreen: React.FC = () => {
               <Text style={styles.stepBadgeText}>2</Text>
             </View>
             <View style={styles.cardHeaderTexts}>
-              <Text style={styles.cardCategory}>PLANEJAMENTO SEMANAL</Text>
-              <Text style={styles.cardTitle}>Seus Dias de Treino</Text>
+              <Text style={styles.cardCategory}>PIANIFICAZIONE SETTIMANALE</Text>
+              <Text style={styles.cardTitle}>I Tuoi Giorni di Allenamento</Text>
             </View>
             <View style={styles.iconCircle}>
               <Calendar size={20} color={Colors.primary} strokeWidth={2.5} />
@@ -172,7 +171,7 @@ export const OnboardingTutorialScreen: React.FC = () => {
           </View>
 
           <Text style={styles.cardDescription}>
-            Escolha os dias da semana em que você vai treinar. Para o sistema nervoso central, <Text style={styles.boldText}>2 ou 3 sessões balísticas</Text> com recuperação total são a fórmula ideal para ganhar centímetros reais:
+            Seleziona i giorni della settimana in cui allenarti. Per il sistema nervoso centrale, <Text style={styles.boldText}>2 o 3 sessioni balistiche</Text> con recupero completo rappresentano la formula ideale per guadagnare centimetri reali:
           </Text>
 
           {/* Seletor Dias da Semana */}
@@ -204,7 +203,7 @@ export const OnboardingTutorialScreen: React.FC = () => {
             <View style={styles.consecutiveWarningBox}>
               <AlertTriangle size={18} color="#F59E0B" style={{ marginTop: 2 }} />
               <View style={{ flex: 1 }}>
-                <Text style={styles.consecutiveWarningTitle}>Descanso Obrigatório de 1 Dia</Text>
+                <Text style={styles.consecutiveWarningTitle}>Riposo Obbligatorio di 1 Giorno</Text>
                 <Text style={styles.consecutiveWarningText}>{consecutiveWarning}</Text>
               </View>
             </View>
@@ -212,7 +211,7 @@ export const OnboardingTutorialScreen: React.FC = () => {
 
           {/* Sugestões Rápidas Seguras */}
           <View style={styles.presetsContainer}>
-            <Text style={styles.presetsLabel}>SUGESTÕES DE PERIODIZAÇÃO LOTURCO:</Text>
+            <Text style={styles.presetsLabel}>PERIODIZZAZIONI SUGGERITE LOTURCO:</Text>
             <View style={styles.presetButtonsRow}>
               <TouchableOpacity
                 style={[
@@ -222,7 +221,7 @@ export const OnboardingTutorialScreen: React.FC = () => {
                 onPress={() => applyPreset([1, 3, 5])}
                 activeOpacity={0.8}
               >
-                <Text style={styles.presetBtnText}>Seg / Qua / Sex (Recomendado)</Text>
+                <Text style={styles.presetBtnText}>Lun / Mer / Ven (Consigliato)</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -233,7 +232,7 @@ export const OnboardingTutorialScreen: React.FC = () => {
                 onPress={() => applyPreset([2, 4, 6])}
                 activeOpacity={0.8}
               >
-                <Text style={styles.presetBtnText}>Ter / Qui / Sáb</Text>
+                <Text style={styles.presetBtnText}>Mar / Gio / Sab</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -241,7 +240,7 @@ export const OnboardingTutorialScreen: React.FC = () => {
           <View style={styles.daysSummaryRow}>
             <Zap size={13} color="#10B981" />
             <Text style={styles.daysSummaryText}>
-              Frequência: <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>{selectedDays.length} dias na semana</Text> (com descanso do SNC entre eles)
+              Frequenza: <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>{selectedDays.length} giorni a settimana</Text> (con recupero completo del SNC tra le sessioni)
             </Text>
           </View>
         </View>
@@ -253,8 +252,8 @@ export const OnboardingTutorialScreen: React.FC = () => {
               <Text style={styles.stepBadgeText}>3</Text>
             </View>
             <View style={styles.cardHeaderTexts}>
-              <Text style={styles.cardCategory}>TECNOLOGIA DA CÂMERA</Text>
-              <Text style={styles.cardTitle}>Monitoramento Simultâneo de Carga e Volume</Text>
+              <Text style={styles.cardCategory}>TECNOLOGIA VIDEO IA</Text>
+              <Text style={styles.cardTitle}>Monitoraggio Simultaneo di Carico e Volume</Text>
             </View>
             <View style={styles.iconCircle}>
               <Camera size={20} color={Colors.primary} strokeWidth={2.5} />
@@ -262,16 +261,16 @@ export const OnboardingTutorialScreen: React.FC = () => {
           </View>
 
           <Text style={styles.cardDescription}>
-            Durante todo o treino, a câmera acompanha cada repetição do seu <Text style={styles.boldText}>Salto com Carga (Loaded Jump)</Text>:
+            Durante l'intero allenamento, la fotocamera analizza ogni singola ripetizione del tuo <Text style={styles.boldText}>Salto con Sovraccarico (Loaded Jump)</Text>:
           </Text>
 
           <View style={styles.loturcoHighlightBox}>
             <View style={styles.loturcoHeader}>
               <ShieldCheck size={14} color={Colors.primary} />
-              <Text style={styles.loturcoTitle}>Princípio de Irineu Loturco (Loss of Velocity):</Text>
+              <Text style={styles.loturcoTitle}>Principio di Irineu Loturco (Loss of Velocity):</Text>
             </View>
             <Text style={styles.loturcoBody}>
-              Se a altura ou velocidade do seu salto cair mais de <Text style={{ color: '#FBBF24', fontWeight: '800' }}>10%</Text>, o app diminui a carga ou encerra a série na hora. Isso garante que você só treine as fibras rápidas com máxima explosão, sem fadiga crônica.
+              Se l'altezza o la velocità del tuo salto cala di oltre il <Text style={{ color: '#FBBF24', fontWeight: '800' }}>10%</Text>, l'app riduce il carico o interrompe immediatamente la serie. Questo garantisce di stimolare solo le fibre rapide con massima esplosività, senza accumulare fatica cronica.
             </Text>
           </View>
         </View>
@@ -283,11 +282,11 @@ export const OnboardingTutorialScreen: React.FC = () => {
             onPress={handleStartInitialEvaluation}
             activeOpacity={0.88}
           >
-            <Text style={styles.singleActionButtonText}>FAZER AVALIAÇÃO INICIAL</Text>
+            <Text style={styles.singleActionButtonText}>ESEGUI VALUTAZIONE INIZIALE</Text>
             <ArrowRight size={20} color="#000000" strokeWidth={3} />
           </TouchableOpacity>
           <Text style={styles.ctaSubtext}>
-            Duração estimada: ~4 minutos • Tenha espaço livre para saltar
+            Durata stimata: ~4 minuti • Assicurati di avere spazio libero per saltare
           </Text>
         </View>
       </ScrollView>

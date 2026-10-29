@@ -101,7 +101,7 @@ export const BaselineEvaluationScreen: React.FC = () => {
     // Próxima avaliação: hoje + 30 dias
     const nextDate = new Date();
     nextDate.setDate(nextDate.getDate() + 30);
-    const nextDateString = nextDate.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+    const nextDateString = nextDate.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
 
     await updateProfile({
       hasCompletedInitialEvaluation: true,
@@ -132,15 +132,15 @@ export const BaselineEvaluationScreen: React.FC = () => {
   const avgSj = sjScores.length > 0 ? Math.round((sjScores.reduce((a, b) => a + b, 0) / sjScores.length) * 10) / 10 : 47.8;
   const eurRatio = PrescriptionEngine.calculateEUR(avgCmj, avgSj);
 
-  // Diagnóstico em português
-  const getPortugueseDiagnosis = (eur: number) => {
+  // Diagnóstico em italiano
+  const getItalianDiagnosis = (eur: number) => {
     if (eur < 1.10) {
-      return 'Déficit elástico/reativo (EUR < 1.10). Seus tendões acumulam pouca energia elástica. Foco imediato em ciclo de alongamento-encurtamento (CEA) e pliometria rápida.';
+      return 'Deficit elastico/reattivo (EUR < 1.10). I tuoi tendini accumulano poca energia elastica. Focus immediato sul ciclo stiramento-accorciamento (CEA) e pliometria reattiva.';
     }
     if (eur > 1.20) {
-      return 'Déficit de força concêntrica pura (EUR > 1.20). Excelente capacidade elástica, mas precisa aumentar a força máxima dos membros inferiores.';
+      return 'Deficit di forza concentrica pura (EUR > 1.20). Eccellente capacità elastica, ma necessiti di incrementare la forza massimale degli arti inferiori.';
     }
-    return 'Perfil neuromuscular equilibrado (1.10 a 1.20). Sinergia ideal entre força concêntrica e restituição elástica dos tendões.';
+    return 'Profilo neuromuscolare equilibrato (1.10 - 1.20). Sinergia ottimale tra forza concentrica e restituzione elastica tendinea.';
   };
 
   return (
@@ -150,11 +150,11 @@ export const BaselineEvaluationScreen: React.FC = () => {
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <View style={styles.topBadge}>
             <Activity size={12} color={Colors.primary} />
-            <Text style={styles.topBadgeText}>PROTOCOLO CIENTÍFICO LOTURCO</Text>
+            <Text style={styles.topBadgeText}>PROTOCOLLO SCIENTIFICO LOTURCO</Text>
           </View>
-          <Text style={styles.screenHeading}>Regras da Avaliação Inicial</Text>
+          <Text style={styles.screenHeading}>Regole della Valutazione Iniziale</Text>
           <Text style={styles.screenSubheading}>
-            Para garantir uma medição milimétrica precisa e padronizada, siga estas 2 regras biomecânicas:
+            Per garantire una misurazione millimetrica precisa e standardizzata, segui queste 2 regole biomeccaniche:
           </Text>
 
           {/* Regra 1 */}
@@ -163,9 +163,9 @@ export const BaselineEvaluationScreen: React.FC = () => {
               <Text style={styles.ruleNumber}>1</Text>
             </View>
             <View style={styles.ruleTextContent}>
-              <Text style={styles.ruleTitle}>Mãos sempre firmes na cintura</Text>
+              <Text style={styles.ruleTitle}>Mani sempre salde sui fianchi</Text>
               <Text style={styles.ruleDescription}>
-                Mantenha as mãos apoiadas no quadril durante todo o teste. Isso anula a ajuda dos braços, isolando 100% a potência real das suas pernas.
+                Mantieni le mani appoggiate sui fianchi per l'intera durata del test. Questo esclude la spinta delle braccia, isolando al 100% la reale potenza delle gambe.
               </Text>
             </View>
           </View>
@@ -176,9 +176,9 @@ export const BaselineEvaluationScreen: React.FC = () => {
               <Text style={styles.ruleNumber}>2</Text>
             </View>
             <View style={styles.ruleTextContent}>
-              <Text style={styles.ruleTitle}>Joelhos e pernas estendidas no ar</Text>
+              <Text style={styles.ruleTitle}>Ginocchia e gambe distese in volo</Text>
               <Text style={styles.ruleDescription}>
-                Salte com os tornozelos e mantenha as pernas completamente retas durante o voo até a aterrissagem. Dobrar os joelhos no ar falseia o tempo de voo.
+                Spingi con le caviglie e mantieni le gambe perfettamente distese in volo fino all'atterraggio. Flettere le ginocchia in aria altera il tempo di volo reale.
               </Text>
             </View>
           </View>
@@ -190,18 +190,18 @@ export const BaselineEvaluationScreen: React.FC = () => {
 
           {/* Sequência do Teste */}
           <View style={styles.sequenceCard}>
-            <Text style={styles.sequenceTitle}>SEQUÊNCIA DO TESTE:</Text>
+            <Text style={styles.sequenceTitle}>SEQUENZA DEL TEST:</Text>
             <View style={styles.sequenceRow}>
               <View style={styles.sequenceBadge}>
-                <Text style={styles.sequenceBadgeLabel}>ETAPA 1</Text>
-                <Text style={styles.sequenceBadgeName}>3x Saltos CMJ</Text>
-                <Text style={styles.sequenceBadgeSub}>Com contramovimento rápido</Text>
+                <Text style={styles.sequenceBadgeLabel}>FASE 1</Text>
+                <Text style={styles.sequenceBadgeName}>3x Salti CMJ</Text>
+                <Text style={styles.sequenceBadgeSub}>Con contromovimento rapido</Text>
               </View>
               <ArrowRight size={18} color="#64748B" />
               <View style={styles.sequenceBadge}>
-                <Text style={styles.sequenceBadgeLabel}>ETAPA 2</Text>
-                <Text style={styles.sequenceBadgeName}>3x Saltos SJ</Text>
-                <Text style={styles.sequenceBadgeSub}>Estático a 90° por 2s antes de saltar</Text>
+                <Text style={styles.sequenceBadgeLabel}>FASE 2</Text>
+                <Text style={styles.sequenceBadgeName}>3x Salti SJ</Text>
+                <Text style={styles.sequenceBadgeSub}>Fermo a 90° per 2s prima di saltare</Text>
               </View>
             </View>
           </View>
@@ -212,7 +212,7 @@ export const BaselineEvaluationScreen: React.FC = () => {
             onPress={() => setPhase('warmup')}
             activeOpacity={0.88}
           >
-            <Text style={styles.mainActionBtnText}>INICIAR AQUECIMENTO (3x10 SQUAT)</Text>
+            <Text style={styles.mainActionBtnText}>INIZIA RISCALDAMENTO (3x10 SQUAT)</Text>
             <ArrowRight size={18} color="#000000" strokeWidth={3} />
           </TouchableOpacity>
         </ScrollView>
@@ -223,12 +223,12 @@ export const BaselineEvaluationScreen: React.FC = () => {
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <View style={styles.topBadge}>
             <Flame size={12} color="#F97316" />
-            <Text style={[styles.topBadgeText, { color: '#F97316' }]}>ATIVAÇÃO NEUROMUSCULAR</Text>
+            <Text style={[styles.topBadgeText, { color: '#F97316' }]}>ATTIVAZIONE NEUROMUSCOLARE</Text>
           </View>
 
-          <Text style={styles.screenHeading}>Aquecimento Específico</Text>
+          <Text style={styles.screenHeading}>Riscaldamento Specifico</Text>
           <Text style={styles.screenSubheading}>
-            3 séries de 10 repetições de agachamento com peso corporal para ativar os fusos neuromusculares e preparar o tendão patelar.
+            3 serie da 10 ripetizioni di squat a corpo libero per attivare i fusi neuromuscolari e preparare il tendine rotuleo.
           </Text>
 
           {/* Demonstração Biomecânica do Agachamento */}
@@ -236,15 +236,15 @@ export const BaselineEvaluationScreen: React.FC = () => {
 
           {/* Card Série */}
           <View style={styles.warmupProgressCard}>
-            <Text style={styles.warmupCardTitle}>SÉRIE {warmupSet} DE 3</Text>
-            <Text style={styles.warmupCardReps}>10 Repetições de Agachamento</Text>
-            <Text style={styles.warmupCardSub}>Descida controlada (2s), subida rápida e explosiva (1s)</Text>
+            <Text style={styles.warmupCardTitle}>SERIE {warmupSet} DI 3</Text>
+            <Text style={styles.warmupCardReps}>10 Ripetizioni di Squat</Text>
+            <Text style={styles.warmupCardSub}>Discesa controllata (2s), risalita rapida ed esplosiva (1s)</Text>
 
             {isResting ? (
               <View style={styles.restTimerBox}>
                 <RotateCcw size={18} color={Colors.primary} />
-                <Text style={styles.restTimerText}>Recuperação Neural: {warmupRestSeconds}s</Text>
-                <Text style={styles.restTimerSub}>Descanse totalmente antes da próxima série</Text>
+                <Text style={styles.restTimerText}>Recupero Neurale: {warmupRestSeconds}s</Text>
+                <Text style={styles.restTimerSub}>Riposati completamente prima della prossima serie</Text>
               </View>
             ) : (
               <TouchableOpacity
@@ -254,7 +254,7 @@ export const BaselineEvaluationScreen: React.FC = () => {
               >
                 <Check size={18} color="#000000" strokeWidth={3} />
                 <Text style={styles.warmupCompleteBtnText}>
-                  {warmupSet === 3 ? 'CONCLUIR AQUECIMENTO & ABRIR CÂMERA' : `SÉRIE ${warmupSet} CONCLUÍDA`}
+                  {warmupSet === 3 ? 'COMPLETA RISCALDAMENTO & APRI FOTOCAMERA' : `SERIE ${warmupSet} COMPLETATA`}
                 </Text>
               </TouchableOpacity>
             )}
@@ -277,7 +277,7 @@ export const BaselineEvaluationScreen: React.FC = () => {
           <View style={styles.warmupTipBox}>
             <ShieldCheck size={14} color="#10B981" />
             <Text style={styles.warmupTipText}>
-              O aquecimento diminui a rigidez passiva e prepara o SNC para disparar a máxima taxa de contração nos saltos de teste.
+              Il riscaldamento riduce la rigidità passiva e prepara il SNC a esprimere il massimo tasso di sviluppo della forza durante i salti di test.
             </Text>
           </View>
         </ScrollView>
@@ -300,48 +300,48 @@ export const BaselineEvaluationScreen: React.FC = () => {
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <View style={styles.topBadge}>
             <Sparkles size={12} color="#10B981" />
-            <Text style={[styles.topBadgeText, { color: '#10B981' }]}>AVALIAÇÃO CONCLUÍDA</Text>
+            <Text style={[styles.topBadgeText, { color: '#10B981' }]}>VALUTAZIONE COMPLETATA</Text>
           </View>
 
-          <Text style={styles.screenHeading}>Sua Linha de Base Neuromuscular</Text>
+          <Text style={styles.screenHeading}>La Tua Baseline Neuromuscolare</Text>
           <Text style={styles.screenSubheading}>
-            Perfil validado através do teste de dupla curva (CMJ vs SJ) do Prof. Dr. Irineu Loturco.
+            Profilo validato tramite il test a doppia curva (CMJ vs SJ) del Prof. Dott. Irineu Loturco.
           </Text>
 
           {/* Grid Resultados CMJ e SJ */}
           <View style={styles.resultsGrid}>
             <View style={styles.resultMetricBox}>
-              <Text style={styles.resultMetricLabel}>MÉDIA CMJ (Elástico)</Text>
+              <Text style={styles.resultMetricLabel}>MEDIA CMJ (Elastico)</Text>
               <Text style={styles.resultMetricValue}>{avgCmj} <Text style={{ fontSize: 16 }}>cm</Text></Text>
-              <Text style={styles.resultMetricSub}>3 tentativas registradas</Text>
+              <Text style={styles.resultMetricSub}>3 tentativi registrati</Text>
             </View>
 
             <View style={styles.resultMetricBox}>
-              <Text style={styles.resultMetricLabel}>MÉDIA SJ (Concêntrico)</Text>
+              <Text style={styles.resultMetricLabel}>MEDIA SJ (Concentrico)</Text>
               <Text style={styles.resultMetricValue}>{avgSj} <Text style={{ fontSize: 16 }}>cm</Text></Text>
-              <Text style={styles.resultMetricSub}>3 tentativas registradas</Text>
+              <Text style={styles.resultMetricSub}>3 tentativi registrati</Text>
             </View>
           </View>
 
           {/* Índice EUR */}
           <View style={styles.eurCard}>
             <View style={styles.eurHeaderRow}>
-              <Text style={styles.eurCardTitle}>Índice EUR (Aproveitamento Elástico)</Text>
+              <Text style={styles.eurCardTitle}>Indice EUR (Utilizzo Elastico)</Text>
               <View style={styles.eurBadge}>
                 <Text style={styles.eurBadgeValue}>{eurRatio.toFixed(2)}</Text>
               </View>
             </View>
-            <Text style={styles.eurDiagnosis}>{getPortugueseDiagnosis(eurRatio)}</Text>
+            <Text style={styles.eurDiagnosis}>{getItalianDiagnosis(eurRatio)}</Text>
           </View>
 
           {/* Card Próxima Avaliação */}
           <View style={styles.nextEvalCard}>
             <View style={styles.nextEvalHeader}>
               <Calendar size={18} color={Colors.primary} />
-              <Text style={styles.nextEvalTitle}>Próxima Avaliação: em 30 dias</Text>
+              <Text style={styles.nextEvalTitle}>Prossima Valutazione: tra 30 giorni</Text>
             </View>
             <Text style={styles.nextEvalText}>
-              O sistema nervoso central necessita de 4 semanas de treinos balísticos e recuperação para consolidar os ganhos de impulsão antes de um novo teste oficial.
+              Il sistema nervoso centrale necessita di 4 settimane di allenamenti balistici e recupero per consolidare i guadagni di elevazione prima del prossimo test ufficiale.
             </Text>
           </View>
 
@@ -351,7 +351,7 @@ export const BaselineEvaluationScreen: React.FC = () => {
             onPress={() => navigate('Dashboard')}
             activeOpacity={0.88}
           >
-            <Text style={styles.mainActionBtnText}>VER MEU PLANO DE TREINO</Text>
+            <Text style={styles.mainActionBtnText}>VEDI IL MIO PIANO DI ALLENAMENTO</Text>
             <ArrowRight size={20} color="#000000" strokeWidth={3} />
           </TouchableOpacity>
         </ScrollView>

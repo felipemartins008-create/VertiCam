@@ -29,18 +29,18 @@ export class PrescriptionEngine {
     if (eur < 1.10) {
       return {
         deficitType: 'elastic',
-        recommendation: 'Déficit elástico/reativo (EUR < 1.10). Necessita de ênfase no Ciclo Alongamento-Encurtamento (CAE) e pliometria rápida.',
+        recommendation: 'Deficit elastico/reattivo (EUR < 1.10). Necessita di enfasi sul Ciclo Stiramento-Accorciamento (CEA) e pliometria reattiva.',
       };
     }
     if (eur > 1.20) {
       return {
         deficitType: 'concentric_strength',
-        recommendation: 'Déficit de força dinâmica máxima (EUR > 1.20). Excelente capacidade elástica, necessita de aumento da força concêntrica pura.',
+        recommendation: 'Deficit di forza dinamica massima (EUR > 1.20). Eccellente capacità elastica, necessita di incremento della forza concentrica pura.',
       };
     }
     return {
       deficitType: 'balanced',
-      recommendation: 'Perfil neuromuscular equilibrado (1.10 <= EUR <= 1.20). Sinergia ideal entre força concêntrica e restituição elástica.',
+      recommendation: 'Profilo neuromuscolare equilibrato (1.10 <= EUR <= 1.20). Sinergia ottimale tra forza concentrica e restituzione elastica tendinea.',
     };
   }
 
@@ -100,13 +100,13 @@ export class PrescriptionEngine {
 
     if (scorePercentage >= 95) {
       zone = 'GREEN';
-      statusMessage = 'SNC recuperado e capacidade máxima de recrutamento de unidades motoras.';
+      statusMessage = 'SNC recuperato e massima capacità di reclutamento delle unità motorie.';
     } else if (scorePercentage >= 85) {
       zone = 'YELLOW';
-      statusMessage = 'Fadiga residual moderada acumulada. Volume e intensidade ajustados para adaptação técnica.';
+      statusMessage = 'Fatica residua moderata. Volume e intensità calibrati per l\'adattamento tecnico.';
     } else {
       zone = 'RED';
-      statusMessage = 'Exaustão neural aguda. Risco elevado de sobrecarga nos tendões patelar e de Aquiles. Treino balístico suspenso.';
+      statusMessage = 'Esaurimento neurale acuto. Rischio elevato di sovraccarico sui tendini rotuleo e d\'Achille. Allenamento balistico sospeso.';
     }
 
     // 3. Protocollo di Riscaldamento Standardizzato & PAP

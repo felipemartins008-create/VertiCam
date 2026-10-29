@@ -33,19 +33,19 @@ export const BiomechanicalDemonstration: React.FC<BiomechanicalDemonstrationProp
   if (type === 'warmup') {
     const steps = [
       {
-        title: '1. Posição Inicial',
-        description: 'Pés na largura dos ombros, pontas levemente voltadas para fora, peito ereto e abdômen firme.',
-        cue: 'Base estável',
+        title: '1. Posizione Iniziale',
+        description: 'Piedi alla larghezza delle spalle, punte leggermente rivolte verso l\'esterno, busto eretto e addome attivo.',
+        cue: 'Base stabile',
       },
       {
-        title: '2. Descida Controlada (2s)',
-        description: 'Flexione os joelhos e empurre os quadris para trás até a linha de 90° (coxas paralelas ao chão).',
-        cue: 'Joelhos alinhados às pontas dos pés',
+        title: '2. Discesa Controllata (2s)',
+        description: 'Fletti le ginocchia e spingi il bacino all\'indietro fino a 90° (cosce parallele al suolo).',
+        cue: 'Ginocchia allineate alle punte dei piedi',
       },
       {
-        title: '3. Subida Explosiva (1s)',
-        description: 'Empurre o chão com os calcanhares e estenda quadris e joelhos com velocidade e potência.',
-        cue: 'Ativação máxima dos fusos musculares',
+        title: '3. Risalita Esplosiva (1s)',
+        description: 'Spingi sul pavimento con i talloni ed estendi bacino e ginocchia con massima velocità e potenza.',
+        cue: 'Massima attivazione neuromuscolare',
       },
     ];
 
@@ -53,7 +53,7 @@ export const BiomechanicalDemonstration: React.FC<BiomechanicalDemonstrationProp
       <View style={styles.container}>
         <View style={styles.headerRow}>
           <Flame size={16} color="#F97316" />
-          <Text style={styles.headerTitle}>DEMONSTRAÇÃO: AGACHAMENTO (3x10)</Text>
+          <Text style={styles.headerTitle}>DEMO: SQUAT DI RISCALDAMENTO (3x10)</Text>
         </View>
 
         {/* Visual do Movimento (Animação de Passos) */}
@@ -67,7 +67,7 @@ export const BiomechanicalDemonstration: React.FC<BiomechanicalDemonstrationProp
                 activeOpacity={0.8}
               >
                 <Text style={[styles.stepTabText, activeStep === i && styles.stepTabTextActive]}>
-                  Passo {i + 1}
+                  Fase {i + 1}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -84,7 +84,7 @@ export const BiomechanicalDemonstration: React.FC<BiomechanicalDemonstrationProp
                     <View style={styles.legStraight} />
                   </View>
                   <View style={styles.groundLine} />
-                  <Text style={styles.phaseTag}>ERETO (0°)</Text>
+                  <Text style={styles.phaseTag}>ERETTO (0°)</Text>
                 </View>
               )}
               {activeStep === 1 && (
@@ -96,7 +96,7 @@ export const BiomechanicalDemonstration: React.FC<BiomechanicalDemonstrationProp
                     <View style={styles.shinDown} />
                   </View>
                   <View style={styles.groundLine} />
-                  <Text style={[styles.phaseTag, { color: '#F97316' }]}>DESCIDA A 90°</Text>
+                  <Text style={[styles.phaseTag, { color: '#F97316' }]}>DISCESA A 90°</Text>
                 </View>
               )}
               {activeStep === 2 && (
@@ -108,7 +108,7 @@ export const BiomechanicalDemonstration: React.FC<BiomechanicalDemonstrationProp
                     <View style={[styles.legStraight, { backgroundColor: '#10B981' }]} />
                   </View>
                   <View style={styles.groundLine} />
-                  <Text style={[styles.phaseTag, { color: '#10B981' }]}>SUBIDA EXPLOSIVA</Text>
+                  <Text style={[styles.phaseTag, { color: '#10B981' }]}>RISALITA ESPLOSIVA</Text>
                 </View>
               )}
             </View>
@@ -130,24 +130,24 @@ export const BiomechanicalDemonstration: React.FC<BiomechanicalDemonstrationProp
   if (type === 'cmj') {
     const steps = [
       {
-        title: '1. Posição Inicial',
-        description: 'Mãos fixadas nas cristas ilíacas (cintura). Joelhos completamente retos.',
-        tag: 'MÃOS NA CINTURA',
+        title: '1. Posizione Iniziale',
+        description: 'Mani ben salde sulle creste iliache (fianchi). Ginocchia completamente estese.',
+        tag: 'MANI SUI FIANCHI',
       },
       {
-        title: '2. Contramovimento Rápido',
-        description: 'Agache rapidamente até ~90° sem parar embaixo. O tendão estica e acumula energia elástica.',
-        tag: 'ENERGIA ELÁSTICA',
+        title: '2. Contromovimento Rapido',
+        description: 'Accosciati rapidamente fino a ~90° senza fermarti in basso. I tendini accumulano energia elastica.',
+        tag: 'ENERGIA ELASTICA',
       },
       {
-        title: '3. Decolagem Máxima',
-        description: 'Inverta a direção imediatamente e empurre o chão com máxima velocidade balística.',
-        tag: 'POTÊNCIA REATIVA',
+        title: '3. Stacco Massimale',
+        description: 'Inverti la direzione istantaneamente e spingi contro il suolo con massima velocità balistica.',
+        tag: 'POTENZA REATTIVA',
       },
       {
-        title: '4. Voo com Pernas Retas',
-        description: 'No ar, pernas e tornozelos apontando estendidos para baixo até a aterrissagem.',
-        tag: 'PERNAS ESTENDIDAS',
+        title: '4. Volo con Gambe Distese',
+        description: 'In volo, mantieni gambe e caviglie completamente distese verso il basso fino all\'atterraggio.',
+        tag: 'GAMBE DISTESE',
       },
     ];
 
@@ -155,7 +155,7 @@ export const BiomechanicalDemonstration: React.FC<BiomechanicalDemonstrationProp
       <View style={styles.container}>
         <View style={styles.headerRow}>
           <Activity size={16} color={Colors.primary} />
-          <Text style={styles.headerTitle}>DEMONSTRAÇÃO: SALTO CMJ (COM CONTRAMOVIMENTO)</Text>
+          <Text style={styles.headerTitle}>DEMO: SALTO CMJ (CON CONTROMOVIMENTO)</Text>
         </View>
 
         <View style={styles.visualCanvas}>
@@ -186,7 +186,7 @@ export const BiomechanicalDemonstration: React.FC<BiomechanicalDemonstrationProp
                     <View style={styles.legStraight} />
                   </View>
                   <View style={styles.groundLine} />
-                  <Text style={styles.phaseTag}>1. ERETO</Text>
+                  <Text style={styles.phaseTag}>1. ERETTO</Text>
                 </View>
               )}
               {activeStep === 1 && (
@@ -199,7 +199,7 @@ export const BiomechanicalDemonstration: React.FC<BiomechanicalDemonstrationProp
                     <View style={styles.shinDown} />
                   </View>
                   <View style={styles.groundLine} />
-                  <Text style={[styles.phaseTag, { color: Colors.primary }]}>2. FLEXÃO RÁPIDA</Text>
+                  <Text style={[styles.phaseTag, { color: Colors.primary }]}>2. FLESSIONE RAPIDA</Text>
                 </View>
               )}
               {activeStep === 2 && (
@@ -212,7 +212,7 @@ export const BiomechanicalDemonstration: React.FC<BiomechanicalDemonstrationProp
                     <View style={[styles.legStraight, { backgroundColor: Colors.primary }]} />
                   </View>
                   <View style={[styles.groundLine, { borderColor: '#10B981' }]} />
-                  <Text style={[styles.phaseTag, { color: '#10B981' }]}>3. DECOLAGEM</Text>
+                  <Text style={[styles.phaseTag, { color: '#10B981' }]}>3. STACCO</Text>
                 </View>
               )}
               {activeStep === 3 && (
@@ -225,7 +225,7 @@ export const BiomechanicalDemonstration: React.FC<BiomechanicalDemonstrationProp
                     <View style={[styles.legStraight, { backgroundColor: '#38BDF8', height: 42 }]} />
                   </View>
                   <View style={styles.groundLine} />
-                  <Text style={[styles.phaseTag, { color: '#38BDF8' }]}>4. VOO ESTENDIDO</Text>
+                  <Text style={[styles.phaseTag, { color: '#38BDF8' }]}>4. VOLO DISTESO</Text>
                 </View>
               )}
             </View>
@@ -247,24 +247,24 @@ export const BiomechanicalDemonstration: React.FC<BiomechanicalDemonstrationProp
   if (type === 'sj') {
     const steps = [
       {
-        title: '1. Agache a 90° e Pare',
-        description: 'Mãos na cintura, desça até 90° e congele totalmente o corpo.',
-        tag: 'IMÓVEL NA POSIÇÃO',
+        title: '1. Scendi a 90° e Blocca',
+        description: 'Mani sui fianchi, scendi fino a 90° e congela totalmente il movimento.',
+        tag: 'POSIZIONE IMMOBILE',
       },
       {
-        title: '2. Pausa Estática de 2 Segundos',
-        description: 'Segure a posição sem balançar o quadril. A pausa dissipa toda a elasticidade do tendão.',
-        tag: 'ZERO CONTRAMOVIMENTO',
+        title: '2. Pausa Statica di 2 Secondi',
+        description: 'Mantieni la posizione senza oscillare. La pausa dissipa tutta l\'energia elastica dei tendini.',
+        tag: 'ZERO CONTROMOVIMENTO',
       },
       {
-        title: '3. Explosão Concêntrica Pura',
-        description: 'Sem descer mais nenhum centímetro, exploda direto para cima com pura força muscular.',
-        tag: 'FORÇA CONCÊNTRICA PURA',
+        title: '3. Esplosione Concentrica Pura',
+        description: 'Senza scendere neanche un millimetro, esplodi verso l\'alto sfruttando unicamente la forza muscolare.',
+        tag: 'FORZA CONCENTRICA PURA',
       },
       {
-        title: '4. Voo e Aterrissagem',
-        description: 'Mantenha joelhos estendidos e mãos na cintura até tocar o chão.',
-        tag: 'CONTROLE TOTAL',
+        title: '4. Volo e Atterraggio',
+        description: 'Mantieni le ginocchia distese e le mani sui fianchi fino al contatto con il pavimento.',
+        tag: 'CONTROLLO TOTALE',
       },
     ];
 
@@ -273,7 +273,7 @@ export const BiomechanicalDemonstration: React.FC<BiomechanicalDemonstrationProp
         <View style={styles.headerRow}>
           <Activity size={16} color="#A855F7" />
           <Text style={[styles.headerTitle, { color: '#A855F7' }]}>
-            DEMONSTRAÇÃO: SALTO SJ (SEM CONTRAMOVIMENTO)
+            DEMO: SALTO SJ (SQUAT JUMP SENZA CONTROMOVIMENTO)
           </Text>
         </View>
 
@@ -305,7 +305,7 @@ export const BiomechanicalDemonstration: React.FC<BiomechanicalDemonstrationProp
                     <View style={styles.shinDown} />
                   </View>
                   <View style={styles.groundLine} />
-                  <Text style={[styles.phaseTag, { color: '#A855F7' }]}>1. PARADA A 90°</Text>
+                  <Text style={[styles.phaseTag, { color: '#A855F7' }]}>1. STOP A 90°</Text>
                 </View>
               )}
               {activeStep === 1 && (
@@ -318,7 +318,7 @@ export const BiomechanicalDemonstration: React.FC<BiomechanicalDemonstrationProp
                     <View style={[styles.shinDown, { backgroundColor: '#F59E0B' }]} />
                   </View>
                   <View style={styles.groundLine} />
-                  <Text style={[styles.phaseTag, { color: '#F59E0B' }]}>2. SEGURE 2s</Text>
+                  <Text style={[styles.phaseTag, { color: '#F59E0B' }]}>2. PAUSA 2s</Text>
                 </View>
               )}
               {activeStep === 2 && (
@@ -331,7 +331,7 @@ export const BiomechanicalDemonstration: React.FC<BiomechanicalDemonstrationProp
                     <View style={[styles.legStraight, { backgroundColor: '#A855F7' }]} />
                   </View>
                   <View style={styles.groundLine} />
-                  <Text style={[styles.phaseTag, { color: '#A855F7' }]}>3. EXPLOSÃO DIRETA</Text>
+                  <Text style={[styles.phaseTag, { color: '#A855F7' }]}>3. SPINTA PURA</Text>
                 </View>
               )}
               {activeStep === 3 && (
@@ -344,7 +344,7 @@ export const BiomechanicalDemonstration: React.FC<BiomechanicalDemonstrationProp
                     <View style={[styles.legStraight, { backgroundColor: '#A855F7', height: 42 }]} />
                   </View>
                   <View style={styles.groundLine} />
-                  <Text style={[styles.phaseTag, { color: '#A855F7' }]}>4. VOO ESTENDIDO</Text>
+                  <Text style={[styles.phaseTag, { color: '#A855F7' }]}>4. VOLO DISTESO</Text>
                 </View>
               )}
             </View>
@@ -368,28 +368,28 @@ export const BiomechanicalDemonstration: React.FC<BiomechanicalDemonstrationProp
     <View style={styles.container}>
       <View style={styles.headerRow}>
         <Maximize2 size={16} color={Colors.primary} />
-        <Text style={styles.headerTitle}>DEMONSTRAÇÃO: POSICIONAMENTO DA CÂMERA</Text>
+        <Text style={styles.headerTitle}>DEMO: POSIZIONAMENTO DELLO SMARTPHONE</Text>
       </View>
 
       <View style={styles.cameraSetupBox}>
         <View style={styles.setupStep}>
           <Text style={styles.setupStepNum}>1</Text>
           <Text style={styles.setupStepText}>
-            Apoie o smartphone no chão ou em um suporte a <Text style={{ color: Colors.primary, fontWeight: '700' }}>2 a 3 metros de distância</Text>.
+            Appoggia lo smartphone a terra o su un supporto a <Text style={{ color: Colors.primary, fontWeight: '700' }}>2 - 3 metri di distanza</Text>.
           </Text>
         </View>
 
         <View style={styles.setupStep}>
           <Text style={styles.setupStepNum}>2</Text>
           <Text style={styles.setupStepText}>
-            Incline a câmera para que seus <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>pés e a linha do chão fiquem 100% nítidos</Text>.
+            Inclina l'inquadratura in modo che i tuoi <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>piedi e la linea del suolo siano perfettamente visibili</Text>.
           </Text>
         </View>
 
         <View style={styles.setupStep}>
           <Text style={styles.setupStepNum}>3</Text>
           <Text style={styles.setupStepText}>
-            Você terá <Text style={{ color: '#10B981', fontWeight: '700' }}>3 segundos de contagem regressiva</Text> antes do salto para se posicionar com tranquilidade.
+            Avrai un <Text style={{ color: '#10B981', fontWeight: '700' }}>conto alla rovescia di 3 secondi</Text> prima del salto per posizionarti con calma.
           </Text>
         </View>
       </View>

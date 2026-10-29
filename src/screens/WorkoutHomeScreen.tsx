@@ -35,13 +35,13 @@ export const WorkoutHomeScreen: React.FC = () => {
   const isTodayWorkoutDay = workoutDays.includes(todayDayIndex);
 
   const daysList = [
-    { id: 1, label: 'SEG', name: 'Segunda' },
-    { id: 2, label: 'TER', name: 'Terça' },
-    { id: 3, label: 'QUA', name: 'Quarta' },
-    { id: 4, label: 'QUI', name: 'Quinta' },
-    { id: 5, label: 'SEX', name: 'Sexta' },
-    { id: 6, label: 'SÁB', name: 'Sábado' },
-    { id: 0, label: 'DOM', name: 'Domingo' },
+    { id: 1, label: 'LUN', name: 'Lunedì' },
+    { id: 2, label: 'MAR', name: 'Martedì' },
+    { id: 3, label: 'MER', name: 'Mercoledì' },
+    { id: 4, label: 'GIO', name: 'Giovedì' },
+    { id: 5, label: 'VEN', name: 'Venerdì' },
+    { id: 6, label: 'SAB', name: 'Sabato' },
+    { id: 0, label: 'DOM', name: 'Domenica' },
   ];
 
   // Carga OPL estimada
@@ -69,7 +69,7 @@ export const WorkoutHomeScreen: React.FC = () => {
 
         {/* ── SAUDAÇÃO ── */}
         <View style={styles.greetingBox}>
-          <Text style={styles.greetingSub}>Bem-vindo de volta,</Text>
+          <Text style={styles.greetingSub}>Bentornato,</Text>
           <Text style={styles.greetingTitle}>{athleteName} 👋</Text>
         </View>
 
@@ -77,11 +77,11 @@ export const WorkoutHomeScreen: React.FC = () => {
         <View style={styles.routineCard}>
           <View style={styles.routineHeaderRow}>
             <View>
-              <Text style={styles.routineCategory}>SUA SEMANA</Text>
-              <Text style={styles.routineTitle}>Rotina de Potência Neural</Text>
+              <Text style={styles.routineCategory}>LA TUA SETTIMANA</Text>
+              <Text style={styles.routineTitle}>Routine di Potenza Neurale</Text>
             </View>
             <View style={styles.routineDaysPill}>
-              <Text style={styles.routineDaysPillText}>{workoutDays.length}x na semana</Text>
+              <Text style={styles.routineDaysPillText}>{workoutDays.length}x a settimana</Text>
             </View>
           </View>
 
@@ -117,7 +117,7 @@ export const WorkoutHomeScreen: React.FC = () => {
                     )}
                   </View>
                   <Text style={[styles.dayColSub, isToday && styles.dayColSubToday]}>
-                    {isWorkout ? 'Treino' : 'Descanso'}
+                    {isWorkout ? 'Allenamento' : 'Riposo'}
                   </Text>
                 </View>
               );
@@ -130,30 +130,30 @@ export const WorkoutHomeScreen: React.FC = () => {
           <View style={styles.todayCardHeader}>
             <View style={[styles.statusBadge, isTodayWorkoutDay ? styles.statusBadgeGreen : styles.statusBadgeBlue]}>
               <Text style={styles.statusBadgeText}>
-                {isTodayWorkoutDay ? '🟢 HOJE: DIA DE TREINO BALÍSTICO' : '🔵 HOJE: RECUPERAÇÃO NEURAL SNC'}
+                {isTodayWorkoutDay ? '🟢 OGGI: SESSIONE DI POTENZA BALISTICA' : '🔵 OGGI: RECUPERO NEURALE SNC'}
               </Text>
             </View>
           </View>
 
-          <Text style={styles.exerciseMainName}>Salto com Carga (Loaded Jump)</Text>
+          <Text style={styles.exerciseMainName}>Salto con Sovraccarico (Loaded Jump)</Text>
           <Text style={styles.exerciseSubtitle}>
-            Método Científico Prof. Irineu Loturco • Autorregulação simultânea da velocidade
+            Metodo Scientifico Prof. Irineu Loturco • Autoregolazione della velocità
           </Text>
 
           {/* Especificações da Sessão */}
           <View style={styles.exerciseSpecsGrid}>
             <View style={styles.specBox}>
-              <Text style={styles.specLabel}>AQUECIMENTO</Text>
+              <Text style={styles.specLabel}>RISCALDAMENTO</Text>
               <Text style={styles.specValue}>3x10 Squat</Text>
             </View>
 
             <View style={styles.specBox}>
-              <Text style={styles.specLabel}>CHECK NEURAL</Text>
-              <Text style={styles.specValue}>1x CMJ Câmera</Text>
+              <Text style={styles.specLabel}>CHECK NEURALE</Text>
+              <Text style={styles.specValue}>1x CMJ Videocamera</Text>
             </View>
 
             <View style={styles.specBox}>
-              <Text style={styles.specLabel}>CARGA OPL</Text>
+              <Text style={styles.specLabel}>CARICO OPL</Text>
               <Text style={[styles.specValue, { color: Colors.primary }]}>{initialLoadKg} kg</Text>
             </View>
           </View>
@@ -162,7 +162,7 @@ export const WorkoutHomeScreen: React.FC = () => {
           <View style={styles.loturcoBanner}>
             <ShieldCheck size={14} color={Colors.primary} />
             <Text style={styles.loturcoBannerText}>
-              A câmera monitora cada repetição. Se a impulsão cair mais de 10%, a série é encerrada automaticamente para preservar o sistema nervoso central.
+              La telecamera monitora ogni singola ripetizione. Se l'elevazione cala oltre il 10%, la serie termina in automatico per preservare il sistema nervoso centrale.
             </Text>
           </View>
 
@@ -174,7 +174,7 @@ export const WorkoutHomeScreen: React.FC = () => {
           >
             <Play size={18} color="#000000" fill="#000000" />
             <Text style={styles.startWorkoutButtonText}>
-              {isTodayWorkoutDay ? 'INICIAR TREINO' : 'INICIAR SESSÃO MESMO ASSIM'}
+              {isTodayWorkoutDay ? 'INIZIA ALLENAMENTO' : 'INIZIA COMUNQUE LA SESSIONE'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -183,27 +183,27 @@ export const WorkoutHomeScreen: React.FC = () => {
         <View style={styles.baselineStatusCard}>
           <View style={styles.baselineHeader}>
             <TrendingUp size={16} color={Colors.primary} />
-            <Text style={styles.baselineTitle}>Sua Linha de Base Atual</Text>
+            <Text style={styles.baselineTitle}>La Tua Baseline Attuale</Text>
           </View>
 
           <View style={styles.baselineMetricsRow}>
             <View style={styles.baselineMetricItem}>
-              <Text style={styles.baselineMetricLabel}>IMPULSÃO CMJ</Text>
+              <Text style={styles.baselineMetricLabel}>ELEVAZIONE CMJ</Text>
               <Text style={styles.baselineMetricValue}>{baselineCmj} cm</Text>
             </View>
 
             <View style={styles.baselineDivider} />
 
             <View style={styles.baselineMetricItem}>
-              <Text style={styles.baselineMetricLabel}>ÍNDICE EUR</Text>
+              <Text style={styles.baselineMetricLabel}>INDICE EUR</Text>
               <Text style={styles.baselineMetricValue}>{athleteBaseline.eur_ratio?.toFixed(2) || '1.08'}</Text>
             </View>
 
             <View style={styles.baselineDivider} />
 
             <View style={styles.baselineMetricItem}>
-              <Text style={styles.baselineMetricLabel}>PRÓXIMO TESTE</Text>
-              <Text style={styles.baselineMetricValue}>30 dias</Text>
+              <Text style={styles.baselineMetricLabel}>PROSSIMO TEST</Text>
+              <Text style={styles.baselineMetricValue}>30 giorni</Text>
             </View>
           </View>
         </View>

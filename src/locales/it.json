@@ -117,7 +117,7 @@
     "jumpHeight": "La Tua Elevazione",
     "flightTime": "Tempo di Volo",
     "attackReach": "Portata in Attacco",
-    "standingReach": "Portata da Fermo",
+    "standingReach": "Altezza a Braccio Teso",
     "benchmark": "Livello Pallavolistico",
     "benchmarkPro": "SuperLega / Nazionale Italiana 🇮🇹",
     "benchmarkGood": "Serie A2 / Serie B FIPAV",
@@ -167,9 +167,9 @@
     },
     "paymentMethods": "Pagamenti sicuri:",
     "methods": ["Apple Pay", "Google Pay", "Carta di credito", "Satispay"],
-    "guarantee": "Garanzia di rimborso 14 giorni • Disdici in qualsiasi momento",
+    "guarantee": "Garanzia 100% soddisfatti o rimborsati di 30 giorni • Disdici in qualsiasi momento",
     "cta": "Inizia la prova ora",
-    "terms": "Abbonamento con rinnovo automatico. Conforme alle normative GDPR europee."
+    "terms": "Abbonamento con rinnovo automatico fino a disdetta. Puoi disdire in qualsiasi momento dal tuo account. Conforme al GDPR europeo."
   },
   "dashboard": {
     "tabs": {

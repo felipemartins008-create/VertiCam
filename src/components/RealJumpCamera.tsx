@@ -302,10 +302,10 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
           </View>
           <View>
             <Text style={styles.title}>
-              {jumpType === 'CMJ' ? 'Salto com Contramovimento' : 'Salto sem Contramovimento'}
+              {jumpType === 'CMJ' ? 'Salto con Contromovimento' : 'Salto senza Contromovimento'}
             </Text>
             <Text style={styles.subtitle}>
-              Tentativa {attemptNumber} de {totalAttempts} • Câmera 240 FPS
+              Tentativo {attemptNumber} di {totalAttempts} • Videocamera 240 FPS
             </Text>
           </View>
         </View>
@@ -318,7 +318,7 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
           >
             <RefreshCw size={16} color={Colors.primary} />
             <Text style={styles.facingToggleText}>
-              {facingMode === 'user' ? 'Frontal' : 'Traseira'}
+              {facingMode === 'user' ? 'Frontale' : 'Posteriore'}
             </Text>
           </TouchableOpacity>
         )}
@@ -330,7 +330,7 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
           {cameraError ? (
             <View style={styles.errorContainer}>
               <AlertCircle size={40} color="#EF4444" />
-              <Text style={styles.errorTitle}>Câmera Não Conectada</Text>
+              <Text style={styles.errorTitle}>Fotocamera non rilevata</Text>
               <Text style={styles.errorSubtitle}>{cameraError}</Text>
               <TouchableOpacity
                 style={styles.retryBtn}
@@ -338,7 +338,7 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
                 activeOpacity={0.88}
               >
                 <RefreshCw size={16} color="#000000" />
-                <Text style={styles.retryBtnText}>Tentar Novamente</Text>
+                <Text style={styles.retryBtnText}>Riprova</Text>
               </TouchableOpacity>
             </View>
           ) : (
@@ -359,14 +359,14 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
               {/* Guia de Alinhamento do Chão & Corpo */}
               <View style={styles.overlayGuidelines}>
                 <View style={styles.guideTopLine}>
-                  <Text style={styles.guideText}>ENQUADRE A CABEÇA AQUI</Text>
+                  <Text style={styles.guideText}>INQUADRA LA TESTA QUI</Text>
                 </View>
                 <View style={styles.guideCenterCross}>
                   <View style={styles.crossH} />
                   <View style={styles.crossV} />
                 </View>
                 <View style={styles.guideBottomLine}>
-                  <Text style={styles.guideText}>LINHA DO CHÃO (PÉS AQUI)</Text>
+                  <Text style={styles.guideText}>LINEA DEL SUOLO (PIEDI QUI)</Text>
                 </View>
               </View>
 
@@ -382,14 +382,14 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
               {cameraMode === 'countdown' && (
                 <View style={styles.countdownOverlay}>
                   <Text style={styles.countdownBigNumber}>{countdown}</Text>
-                  <Text style={styles.countdownPrompt}>Posicione-se para o salto...</Text>
+                  <Text style={styles.countdownPrompt}>Posizionati per il salto...</Text>
                 </View>
               )}
 
               {/* Overlay Gravando */}
               {cameraMode === 'recording' && (
                 <View style={styles.recordingOverlay}>
-                  <Text style={styles.recordingPrompt}>SALTE AGORA COM FORÇA MÁXIMA!</Text>
+                  <Text style={styles.recordingPrompt}>SALTA ADESSO CON MASSIMA ESPLOSIVITÀ!</Text>
                 </View>
               )}
             </View>
@@ -404,7 +404,7 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
                 activeOpacity={0.88}
               >
                 <Play size={20} color="#000000" fill="#000000" />
-                <Text style={styles.recordActionBtnText}>INICIAR GRAVAÇÃO DO SALTO</Text>
+                <Text style={styles.recordActionBtnText}>INIZIA REGISTRAZIONE DEL SALTO</Text>
               </TouchableOpacity>
             )}
 
@@ -414,7 +414,7 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
                 onPress={stopRecordingSession}
                 activeOpacity={0.88}
               >
-                <Text style={[styles.recordActionBtnText, { color: '#FFFFFF' }]}>PARAR GRAVAÇÃO</Text>
+                <Text style={[styles.recordActionBtnText, { color: '#FFFFFF' }]}>FERMA REGISTRAZIONE</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -427,7 +427,7 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
           {/* Card Resultado Imediato */}
           <View style={styles.realResultCard}>
             <View style={styles.resultCol}>
-              <Text style={styles.resultLabel}>ALTURA REAL DO SEU SALTO</Text>
+              <Text style={styles.resultLabel}>ALTEZZA REALE DEL TUO SALTO</Text>
               <Text style={styles.resultValueCm}>
                 {calculatedHeightCm.toFixed(1)} <Text style={{ fontSize: 18 }}>cm</Text>
               </Text>
@@ -436,7 +436,7 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
             <View style={styles.resultDivider} />
 
             <View style={styles.resultCol}>
-              <Text style={styles.resultLabel}>TEMPO DE VOO MEDIDO</Text>
+              <Text style={styles.resultLabel}>TEMPO DI VOLO RILEVATO</Text>
               <Text style={styles.resultFlightTime}>{(flightTime * 1000).toFixed(0)} ms</Text>
               <Text style={styles.resultFlightSec}>({flightTime.toFixed(3)}s)</Text>
             </View>
@@ -540,15 +540,15 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
               }}
             />
 
-            {/* Botões para Marcar DECOLAGEM e ATERRISSAGEM */}
+            {/* Botões para Marcar STACCO e ATTERRAGGIO */}
             <View style={styles.markButtonsRow}>
               <TouchableOpacity
                 style={[styles.markBtn, styles.markTakeoffBtn]}
                 onPress={markTakeoff}
                 activeOpacity={0.88}
               >
-                <Text style={styles.markBtnTitle}>📍 DEFINIR DECOLAGEM</Text>
-                <Text style={styles.markBtnSub}>Momento que o pé sai: {takeoffTime.toFixed(2)}s</Text>
+                <Text style={styles.markBtnTitle}>📍 IMPOSTA STACCO</Text>
+                <Text style={styles.markBtnSub}>Istante in cui i piedi lasciano terra: {takeoffTime.toFixed(2)}s</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -556,8 +556,8 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
                 onPress={markLanding}
                 activeOpacity={0.88}
               >
-                <Text style={styles.markBtnTitle}>📍 DEFINIR ATERRISSAGEM</Text>
-                <Text style={styles.markBtnSub}>Momento que o pé toca: {landingTime.toFixed(2)}s</Text>
+                <Text style={styles.markBtnTitle}>📍 IMPOSTA ATTERRAGGIO</Text>
+                <Text style={styles.markBtnSub}>Istante del primo contatto al suolo: {landingTime.toFixed(2)}s</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -570,7 +570,7 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
               activeOpacity={0.8}
             >
               <RotateCcw size={16} color="#94A3B8" />
-              <Text style={styles.retakeBtnText}>Repetir Salto</Text>
+              <Text style={styles.retakeBtnText}>Ripeti Salto</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -580,7 +580,7 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
             >
               <Check size={18} color="#000000" strokeWidth={3} />
               <Text style={styles.confirmJumpBtnText}>
-                CONFIRMAR {calculatedHeightCm.toFixed(1)} CM
+                CONFERMA {calculatedHeightCm.toFixed(1)} CM
               </Text>
             </TouchableOpacity>
           </View>

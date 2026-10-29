@@ -37,35 +37,35 @@ export const WebSidebar: React.FC = () => {
   const navItems: NavItem[] = [
     {
       id: 'home',
-      label: 'Início',
+      label: 'Home',
       Icon: Home,
       onPress: () => goTab('workouts'),
       isActive: isDash('workouts') && !inJumpFlow && currentScreen !== 'DailyCheckin',
     },
     {
       id: 'checkin',
-      label: 'Check-in Prontidão',
+      label: 'Check-in Prontezza',
       Icon: Activity,
       onPress: () => navigate('DailyCheckin'),
       isActive: currentScreen === 'DailyCheckin',
     },
     {
       id: 'treningi',
-      label: 'Treinos',
+      label: 'Allenamenti',
       Icon: Dumbbell,
       onPress: () => goTab('workouts'),
       isActive: currentScreen === 'WorkoutPlayer',
     },
     {
       id: 'pomiary',
-      label: 'Avaliações',
+      label: 'Valutazioni',
       Icon: BarChart2,
       onPress: () => goTab('evaluations'),
       isActive: isDash('evaluations'),
     },
     {
       id: 'wyskok',
-      label: 'Medir Salto',
+      label: 'Misura Salto',
       Icon: Camera,
       onPress: () => navigate('CameraIntro'),
       isActive: inJumpFlow,
@@ -75,7 +75,7 @@ export const WebSidebar: React.FC = () => {
   const accountItems: NavItem[] = [
     {
       id: 'profil',
-      label: 'Meu Perfil',
+      label: 'Il Mio Profilo',
       Icon: User,
       onPress: () => goTab('profile'),
       isActive: isDash('profile'),
@@ -89,7 +89,7 @@ export const WebSidebar: React.FC = () => {
     },
     {
       id: 'logout',
-      label: 'Sair',
+      label: 'Esci',
       Icon: LogOut,
       onPress: () => navigate('Welcome'),
       isActive: false,
@@ -135,12 +135,12 @@ export const WebSidebar: React.FC = () => {
   };
 
   const positionLabel: Record<string, string> = {
-    outside: 'Ponteiro',
-    opposite: 'Oposto',
-    middle: 'Central',
-    setter: 'Levantador',
-    libero: 'Líbero',
-    beach: 'Vôlei de Praia',
+    outside: 'Schiacciatore',
+    opposite: 'Opposto',
+    middle: 'Centrale',
+    setter: 'Palleggiatore',
+    libero: 'Libero',
+    beach: 'Beach Volley',
   };
 
   return (

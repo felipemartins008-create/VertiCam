@@ -420,7 +420,7 @@ export const QuizScreen: React.FC = () => {
       weeksRange = '9–10 settimane';
       monthsHighlight = '2,5 MESI';
       daysToAdd = 68;
-      phaseBadge = 'Forza Reattiva (EUR)';
+      phaseBadge = 'Forza Reattiva & Riflessa';
     } else if (gainCm <= 39) {
       weeksCount = 12;
       weeksRange = '11–12 settimane';
@@ -1130,7 +1130,7 @@ export const QuizScreen: React.FC = () => {
               Quanto vuoi aumentare il tuo salto?
             </Text>
             <Text style={[styles.mainSubtitle, !isDesktop && styles.mainSubtitleMobile]}>
-              Trascina la régua per definire il tuo obiettivo in centimetri
+              Trascina il cursore per definire il tuo obiettivo in centimetri
             </Text>
 
             <View style={[styles.rulerScreenLayout, isDesktop && styles.rulerScreenLayoutDesktop]}>
@@ -1453,7 +1453,7 @@ export const QuizScreen: React.FC = () => {
           <View style={styles.stepContainer}>
             <Text style={styles.mainTitle}>Cosa speri di ottenere di più con questo piano?</Text>
             <Text style={styles.mainSubtitle}>
-              Scegli tutti quelli che si applicano
+              Puoi selezionare più risposte
             </Text>
 
             <View style={styles.optionsListWrap}>
@@ -1947,7 +1947,7 @@ export const QuizScreen: React.FC = () => {
               <View style={styles.reachEstimateBox}>
                 <Activity size={18} color={Colors.primary} />
                 <Text style={styles.reachEstimateText}>
-                  Portata da fermo stimata: <Text style={{ color: '#FFFFFF', fontWeight: '900' }}>{standingReach} cm</Text> • Potenziale in attacco a rete con VertiCam: <Text style={{ color: Colors.primary, fontWeight: '900' }}>{totalAttackReach} cm</Text> ({clearanceOverNet > 0 ? `+${clearanceOverNet} cm sopra la rete!` : 'piena altezza a rete'})
+                  Altezza a braccio teso stimata: <Text style={{ color: '#FFFFFF', fontWeight: '900' }}>{standingReach} cm</Text> • Potenziale in attacco a rete con VertiCam: <Text style={{ color: Colors.primary, fontWeight: '900' }}>{totalAttackReach} cm</Text> ({clearanceOverNet > 0 ? `+${clearanceOverNet} cm sopra la rete!` : 'piena altezza a rete'})
                 </Text>
               </View>
             </View>
@@ -2240,7 +2240,7 @@ export const QuizScreen: React.FC = () => {
               {/* Box de Termos e Cancelamento */}
               <View style={styles.subscriptionTermsBox}>
                 <Text style={styles.subscriptionTermsText}>
-                  Se non annulli prima del termine del piano selezionato, accetti che VertiCam addebiterà automaticamente il rinnovo fino alla cancellazione. Cancella in qualsiasi momento con un clic nel tuo account.
+                  Salvo disdetta prima della scadenza del periodo selezionato, l'abbonamento si rinnoverà automaticamente. Puoi disdire in qualsiasi momento con un semplice clic direttamente dal tuo account.
                 </Text>
               </View>
 
@@ -2497,7 +2497,7 @@ export const QuizScreen: React.FC = () => {
               {/* Box de Termos e Cancelamento */}
               <View style={styles.subscriptionTermsBox}>
                 <Text style={styles.subscriptionTermsText}>
-                  Se non annulli prima del termine del piano selezionato, accetti che VertiCam addebiterà automaticamente il rinnovo fino alla cancellazione. Cancella in qualsiasi momento con un clic nel tuo account.
+                  Salvo disdetta prima della scadenza del periodo selezionato, l'abbonamento si rinnoverà automaticamente. Puoi disdire in qualsiasi momento con un semplice clic direttamente dal tuo account.
                 </Text>
               </View>
 
@@ -2507,7 +2507,7 @@ export const QuizScreen: React.FC = () => {
                 <View style={{ flex: 1 }}>
                   <Text style={styles.guaranteeFinalTitle}>GARANZIA 100% SODDISFATTI O RIMBORSATI</Text>
                   <Text style={styles.guaranteeFinalText}>
-                    Prova VertiCam per 14 giorni. Se non vedi un incremento concreto del tuo salto verticale o non sei pienamente soddisfatto, ti rimborsiamo ogni singolo centesimo.
+                    Prova VertiCam per 30 giorni. Se non vedi un incremento concreto del tuo salto verticale o non sei pienamente soddisfatto, ti rimborsiamo ogni singolo centesimo.
                   </Text>
                 </View>
               </View>
