@@ -234,10 +234,10 @@ export const StripeEmbeddedCheckoutModal: React.FC<StripeEmbeddedCheckoutModalPr
     highlight: false,
   };
 
-  const renderSummaryContent = () => (
+  const renderSummaryContentDesktop = () => (
     <>
       {/* Brand & Security Header */}
-      <View style={[styles.brandRow, !isDesktop && styles.brandRowMobile]}>
+      <View style={styles.brandRow}>
         <View style={styles.brandBadge}>
           <Text style={styles.brandTitle}>
             Verti<Text style={{ color: Colors.primary }}>Cam</Text>
@@ -338,15 +338,79 @@ export const StripeEmbeddedCheckoutModal: React.FC<StripeEmbeddedCheckoutModalPr
     </>
   );
 
+  const renderSummaryContentMobile = () => (
+    <View style={styles.mobileSummaryContainer}>
+      {/* Brand row + SSL Badge (com espaço para o botão X à direita) */}
+      <View style={styles.mobileBrandRow}>
+        <View style={styles.brandBadge}>
+          <Text style={styles.brandTitleMobile}>
+            Verti<Text style={{ color: Colors.primary }}>Cam</Text>
+          </Text>
+          <View style={styles.proPill}>
+            <Text style={styles.proPillText}>PRO</Text>
+          </View>
+        </View>
+
+        <View style={styles.securityLiveBadgeMobile}>
+          <Lock size={10} color="#10B981" strokeWidth={2.5} />
+          <Text style={styles.securityLiveTextMobile}>256-Bit SSL</Text>
+        </View>
+      </View>
+
+      {/* Cartão de Resumo do Plano Minimalista */}
+      <View style={styles.mobilePlanCard}>
+        <View style={styles.mobilePlanInfo}>
+          <View style={styles.mobilePlanTitleRow}>
+            <Text style={styles.mobilePlanTitle}>{planInfo.title}</Text>
+            {planInfo.savings && (
+              <View style={styles.mobileSavingsBadge}>
+                <Sparkles size={10} color="#00E5FF" strokeWidth={2.5} />
+                <Text style={styles.mobileSavingsText}>{planInfo.savings}</Text>
+              </View>
+            )}
+          </View>
+          <Text style={styles.mobilePlanCadence} numberOfLines={1}>{planInfo.cadence}</Text>
+        </View>
+
+        <View style={styles.mobilePriceColumn}>
+          <Text style={styles.mobilePriceValue}>{planInfo.priceTotal}</Text>
+          <Text style={styles.mobilePriceCadence}>/ {planInfo.duration.toLowerCase()}</Text>
+        </View>
+      </View>
+
+      {/* Micro-pills de confiança inline (ocupam mínima altura vertical) */}
+      <View style={styles.mobileTrustRow}>
+        <View style={styles.mobileTrustPill}>
+          <Check size={10} color="#00E5FF" strokeWidth={3} />
+          <Text style={styles.mobileTrustPillText}>Accesso Totale IA</Text>
+        </View>
+        <View style={styles.mobileTrustPill}>
+          <RotateCcw size={10} color="#FBBF24" strokeWidth={2.5} />
+          <Text style={styles.mobileTrustPillText}>30gg Garanzia</Text>
+        </View>
+        <View style={styles.mobileTrustPill}>
+          <ShieldCheck size={10} color="#10B981" strokeWidth={2.5} />
+          <Text style={styles.mobileTrustPillText}>Stripe Certificato</Text>
+        </View>
+      </View>
+    </View>
+  );
+
   const renderPaymentHeader = () => (
     <View style={[styles.paymentHeader, !isDesktop && styles.paymentHeaderMobile]}>
       <View style={styles.paymentHeaderLeft}>
-        <View style={styles.lockBadgeSolid}>
-          <Lock size={15} color="#0F172A" strokeWidth={2.5} />
+        <View style={[styles.lockBadgeSolid, !isDesktop && styles.lockBadgeSolidMobile]}>
+          <Lock size={isDesktop ? 15 : 12} color="#0F172A" strokeWidth={2.5} />
         </View>
         <View>
-          <Text style={styles.paymentHeaderTitle}>Pagamento Protetto</Text>
-          <Text style={styles.paymentHeaderSubtitle}>Transazione crittografata con standard bancario</Text>
+          <Text style={[styles.paymentHeaderTitle, !isDesktop && styles.paymentHeaderTitleMobile]}>
+            {isDesktop ? 'Pagamento Protetto' : 'Metodo di Pagamento'}
+          </Text>
+          <Text style={styles.paymentHeaderSubtitle}>
+            {isDesktop
+              ? 'Transazione crittografata con standard bancario'
+              : 'Transazione protetta con crittografia bancaria'}
+          </Text>
         </View>
       </View>
     </View>
@@ -357,25 +421,28 @@ export const StripeEmbeddedCheckoutModal: React.FC<StripeEmbeddedCheckoutModalPr
       <TouchableOpacity
         style={[
           styles.paymentMethodTab,
+          !isDesktop && styles.paymentMethodTabMobile,
           paymentMethod === 'card' && styles.paymentMethodTabActive,
         ]}
         onPress={() => setPaymentMethod('card')}
         activeOpacity={0.85}
       >
-        <CreditCard size={15} color={paymentMethod === 'card' ? '#0F172A' : '#64748B'} strokeWidth={2.2} />
+        <CreditCard size={isDesktop ? 15 : 14} color={paymentMethod === 'card' ? '#0F172A' : '#64748B'} strokeWidth={2.2} />
         <Text
           style={[
             styles.paymentMethodTabText,
+            !isDesktop && styles.paymentMethodTabTextMobile,
             paymentMethod === 'card' && styles.paymentMethodTabTextActive,
           ]}
         >
-          Carta / Apple & Google Pay
+          {isDesktop ? 'Carta / Apple & Google Pay' : 'Carta / Apple Pay'}
         </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={[
           styles.paymentMethodTab,
+          !isDesktop && styles.paymentMethodTabMobile,
           paymentMethod === 'paypal' && styles.paymentMethodTabActivePaypal,
         ]}
         onPress={() => setPaymentMethod('paypal')}
@@ -388,6 +455,7 @@ export const StripeEmbeddedCheckoutModal: React.FC<StripeEmbeddedCheckoutModalPr
         <Text
           style={[
             styles.paymentMethodTabText,
+            !isDesktop && styles.paymentMethodTabTextMobile,
             paymentMethod === 'paypal' && styles.paymentMethodTabTextActivePaypal,
           ]}
         >
@@ -399,23 +467,23 @@ export const StripeEmbeddedCheckoutModal: React.FC<StripeEmbeddedCheckoutModalPr
 
   const renderCardBadges = () => (
     <View style={[styles.cardBadgesRow, !isDesktop && styles.cardBadgesRowMobile]}>
-      <View style={styles.cardBadgePill}>
-        <Text style={styles.cardBadgeText}>VISA</Text>
+      <View style={[styles.cardBadgePill, !isDesktop && styles.cardBadgePillMobile]}>
+        <Text style={[styles.cardBadgeText, !isDesktop && styles.cardBadgeTextMobile]}>VISA</Text>
       </View>
-      <View style={styles.cardBadgePill}>
-        <Text style={styles.cardBadgeText}>Mastercard</Text>
+      <View style={[styles.cardBadgePill, !isDesktop && styles.cardBadgePillMobile]}>
+        <Text style={[styles.cardBadgeText, !isDesktop && styles.cardBadgeTextMobile]}>Mastercard</Text>
       </View>
-      <View style={styles.cardBadgePill}>
-        <Text style={styles.cardBadgeText}>Apple Pay</Text>
+      <View style={[styles.cardBadgePill, !isDesktop && styles.cardBadgePillMobile]}>
+        <Text style={[styles.cardBadgeText, !isDesktop && styles.cardBadgeTextMobile]}>Apple Pay</Text>
       </View>
-      <View style={styles.cardBadgePill}>
-        <Text style={styles.cardBadgeText}>Google Pay</Text>
+      <View style={[styles.cardBadgePill, !isDesktop && styles.cardBadgePillMobile]}>
+        <Text style={[styles.cardBadgeText, !isDesktop && styles.cardBadgeTextMobile]}>Google Pay</Text>
       </View>
-      <View style={[styles.cardBadgePill, styles.cardBadgePillPaypal]}>
-        <Text style={styles.cardBadgePaypalText}>PayPal</Text>
+      <View style={[styles.cardBadgePill, styles.cardBadgePillPaypal, !isDesktop && styles.cardBadgePillMobile]}>
+        <Text style={[styles.cardBadgePaypalText, !isDesktop && styles.cardBadgeTextMobile]}>PayPal</Text>
       </View>
-      <View style={[styles.cardBadgePill, { borderColor: '#E2E8F0' }]}>
-        <Text style={[styles.cardBadgeText, { color: '#6366F1' }]}>Klarna</Text>
+      <View style={[styles.cardBadgePill, { borderColor: '#E2E8F0' }, !isDesktop && styles.cardBadgePillMobile]}>
+        <Text style={[styles.cardBadgeText, !isDesktop && styles.cardBadgeTextMobile, { color: '#6366F1' }]}>Klarna</Text>
       </View>
     </View>
   );
@@ -572,18 +640,18 @@ export const StripeEmbeddedCheckoutModal: React.FC<StripeEmbeddedCheckoutModalPr
           {/* Close button float */}
           <TouchableOpacity
             onPress={onClose}
-            style={styles.floatingCloseBtn}
+            style={[styles.floatingCloseBtn, !isDesktop && styles.floatingCloseBtnMobile]}
             activeOpacity={0.75}
             hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
           >
-            <X size={18} color="#64748B" strokeWidth={2.5} />
+            <X size={isDesktop ? 18 : 16} color="#64748B" strokeWidth={2.5} />
           </TouchableOpacity>
 
           {isDesktop ? (
             <View style={styles.mainLayoutDesktop}>
               {/* ── COLONNA SINISTRA: RIEPILOGO ORDINE & GARANZIE (DARK FINTECH AUTHORITY) ── */}
               <View style={styles.leftSummaryColumnDesktop}>
-                {renderSummaryContent()}
+                {renderSummaryContentDesktop()}
               </View>
 
               {/* ── COLONNA DESTRA: PAGAMENTO STRIPE SEAMLESS (#FFFFFF) ── */}
@@ -609,10 +677,8 @@ export const StripeEmbeddedCheckoutModal: React.FC<StripeEmbeddedCheckoutModalPr
               keyboardShouldPersistTaps="handled"
               bounces={true}
             >
-              {/* ── TOP: RIEPILOGO ORDINE & GARANZIE (DARK) ── */}
-              <View style={styles.leftSummaryColumnMobile}>
-                {renderSummaryContent()}
-              </View>
+              {/* ── TOP: RIEPILOGO ORDINE COMPATTO & MINIMALISTA (DARK) ── */}
+              {renderSummaryContentMobile()}
 
               {/* ── BOTTOM: PAGAMENTO SICURO & METODI (WHITE) ── */}
               <View style={styles.rightPaymentColumnMobile}>
@@ -656,8 +722,10 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   modalCardMobile: {
-    height: '92%',
-    maxHeight: '94%',
+    maxHeight: '92%',
+    width: '100%',
+    maxWidth: 440,
+    borderRadius: 18,
   },
   modalCardDesktop: {
     minHeight: 640,
@@ -669,7 +737,7 @@ const styles = StyleSheet.create({
   },
   mobileMainScrollContent: {
     flexGrow: 1,
-    paddingBottom: 40,
+    paddingBottom: 24,
   },
   floatingCloseBtn: {
     position: 'absolute',
@@ -683,6 +751,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     zIndex: 50,
   },
+  floatingCloseBtnMobile: {
+    top: 10,
+    right: 10,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+  },
   mainLayout: {
     flex: 1,
     flexDirection: 'column',
@@ -691,7 +766,128 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
 
-  // ── COLONNA SINISTRA (Dark Luxury Authority) ──
+  // ── COLONNA SINISTRA MOBILE MINIMAL (Fintech Clean) ──
+  mobileSummaryContainer: {
+    backgroundColor: '#090D1A',
+    paddingHorizontal: 14,
+    paddingTop: 12,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  mobileBrandRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingRight: 36,
+    marginBottom: 8,
+  },
+  brandTitleMobile: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: -0.4,
+  },
+  securityLiveBadgeMobile: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.25)',
+  },
+  securityLiveTextMobile: {
+    color: '#10B981',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  mobilePlanCard: {
+    backgroundColor: '#12172A',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+    marginBottom: 8,
+  },
+  mobilePlanInfo: {
+    flex: 1,
+  },
+  mobilePlanTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flexWrap: 'wrap',
+  },
+  mobilePlanTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  mobileSavingsBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: 'rgba(0, 229, 255, 0.14)',
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 229, 255, 0.3)',
+  },
+  mobileSavingsText: {
+    color: '#00E5FF',
+    fontSize: 9,
+    fontWeight: '800',
+  },
+  mobilePlanCadence: {
+    fontSize: 10.5,
+    color: '#94A3B8',
+    marginTop: 1,
+  },
+  mobilePriceColumn: {
+    alignItems: 'flex-end',
+  },
+  mobilePriceValue: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: -0.3,
+  },
+  mobilePriceCadence: {
+    fontSize: 10,
+    color: '#64748B',
+    fontWeight: '600',
+  },
+  mobileTrustRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 4,
+  },
+  mobileTrustPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  mobileTrustPillText: {
+    fontSize: 9.5,
+    color: '#94A3B8',
+    fontWeight: '600',
+  },
+
+  // ── COLONNA SINISTRA DESKTOP (Dark Luxury Authority) ──
   leftSummaryColumn: {
     backgroundColor: '#090D1A',
     padding: 24,
@@ -932,14 +1128,14 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
   },
   paymentHeaderMobile: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 10,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 8,
   },
   paymentHeaderLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 10,
   },
   lockBadgeSolid: {
     width: 36,
@@ -949,16 +1145,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  lockBadgeSolidMobile: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+  },
   paymentHeaderTitle: {
     fontSize: 16,
     fontWeight: '800',
     color: '#0F172A',
     letterSpacing: -0.2,
   },
+  paymentHeaderTitleMobile: {
+    fontSize: 13.5,
+  },
   paymentHeaderSubtitle: {
-    fontSize: 12,
+    fontSize: 11.5,
     color: '#64748B',
-    marginTop: 2,
+    marginTop: 1,
   },
   cardBadgesRow: {
     flexDirection: 'row',
@@ -971,8 +1175,9 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   cardBadgesRowMobile: {
-    paddingHorizontal: 20,
-    paddingBottom: 12,
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+    gap: 4,
   },
   cardBadgePill: {
     paddingHorizontal: 8,
@@ -982,11 +1187,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E2E8F0',
   },
+  cardBadgePillMobile: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
   cardBadgeText: {
     fontSize: 10,
     fontWeight: '700',
     color: '#475569',
     letterSpacing: 0.3,
+  },
+  cardBadgeTextMobile: {
+    fontSize: 9,
   },
   cardBadgePillPaypal: {
     borderColor: '#0079C1',
@@ -1007,8 +1219,9 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
   },
   paymentMethodTabsRowMobile: {
-    paddingHorizontal: 20,
-    paddingBottom: 12,
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+    gap: 6,
   },
   paymentMethodTab: {
     flex: 1,
@@ -1021,6 +1234,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8FAFC',
     borderWidth: 1.5,
     borderColor: '#E2E8F0',
+  },
+  paymentMethodTabMobile: {
+    height: 38,
+    borderRadius: 10,
+    gap: 6,
   },
   paymentMethodTabActive: {
     backgroundColor: '#FFFFFF',
@@ -1044,6 +1262,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     color: '#64748B',
+  },
+  paymentMethodTabTextMobile: {
+    fontSize: 11.5,
   },
   paymentMethodTabTextActive: {
     color: '#0F172A',
@@ -1241,8 +1462,8 @@ const styles = StyleSheet.create({
     minHeight: 460,
   },
   paymentBodyMobile: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
   },
   stripeMountArea: {
     width: '100%',
