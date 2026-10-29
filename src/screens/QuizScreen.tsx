@@ -529,17 +529,59 @@ export const QuizScreen: React.FC = () => {
   const isShowcasePausedRef = React.useRef<boolean>(false);
   const pauseTimeoutRef = React.useRef<any>(null);
 
+  // Função infalível de rolagem suave compatível com Web (DOM direto) e React Native
+  const scrollToShowcaseIndex = (index: number, smooth: boolean = true) => {
+    const targetX = index * 179;
+    const ref = showcaseScrollRef.current as any;
+    if (!ref) return;
+
+    // 1. Acesso direto ao elemento DOM nativo (garante animação fluida no WebKit / Chrome / Safari)
+    const domNode: HTMLElement | null =
+      ref.getScrollableNode?.() || ref._node || (ref.tagName ? ref : null);
+
+    if (domNode) {
+      if (smooth && typeof domNode.scrollTo === 'function') {
+        try {
+          domNode.scrollTo({
+            left: targetX,
+            behavior: 'smooth',
+          });
+        } catch (e) {
+          domNode.scrollLeft = targetX;
+        }
+      } else {
+        domNode.scrollLeft = targetX;
+      }
+    }
+
+    // 2. Chamada auxiliar na API do React Native
+    try {
+      ref.scrollTo?.({ x: targetX, y: 0, animated: smooth });
+    } catch (e) {}
+  };
+
+  const goToPhone = (phoneIndex: number) => {
+    isShowcasePausedRef.current = true;
+    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+
+    const targetIndex = 5 + phoneIndex;
+    currentShowcaseIndexRef.current = targetIndex;
+    setShowcaseActiveIndex(phoneIndex);
+    scrollToShowcaseIndex(targetIndex, true);
+
+    pauseTimeoutRef.current = setTimeout(() => {
+      isShowcasePausedRef.current = false;
+    }, 4000);
+  };
+
   // Auto-play contínuo em loop para os celulares no Step 13 (Apenas Mobile - Desktop permanece 100% estático)
   useEffect(() => {
     if (currentStep !== 13 || isDesktop) return;
 
     // Posiciona suavemente no conjunto central sem animação para permitir scroll infinito em ambas direções
     const initTimer = setTimeout(() => {
-      showcaseScrollRef.current?.scrollTo({
-        x: currentShowcaseIndexRef.current * 179,
-        animated: false,
-      });
-    }, 120);
+      scrollToShowcaseIndex(currentShowcaseIndexRef.current, false);
+    }, 150);
 
     const interval = setInterval(() => {
       if (isShowcasePausedRef.current) return;
@@ -548,22 +590,16 @@ export const QuizScreen: React.FC = () => {
       currentShowcaseIndexRef.current = nextIndex;
       setShowcaseActiveIndex(nextIndex % showcaseFeatures.length);
 
-      showcaseScrollRef.current?.scrollTo({
-        x: nextIndex * 179,
-        animated: true,
-      });
+      scrollToShowcaseIndex(nextIndex, true);
 
       // Se passou do segundo conjunto (>= 10), reseta silenciosamente para o conjunto do meio
       if (nextIndex >= 10) {
         setTimeout(() => {
           currentShowcaseIndexRef.current = 5;
-          showcaseScrollRef.current?.scrollTo({
-            x: 5 * 179,
-            animated: false,
-          });
-        }, 420);
+          scrollToShowcaseIndex(5, false);
+        }, 550);
       }
-    }, 2600);
+    }, 2800);
 
     return () => {
       clearTimeout(initTimer);
@@ -578,29 +614,36 @@ export const QuizScreen: React.FC = () => {
   };
 
   const handleShowcaseScrollEndDrag = () => {
+    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
     pauseTimeoutRef.current = setTimeout(() => {
       isShowcasePausedRef.current = false;
-    }, 3200);
+    }, 3500);
+  };
+
+  const handleShowcaseScroll = (e: any) => {
+    const offsetX = e.nativeEvent?.contentOffset?.x;
+    if (typeof offsetX === 'number' && offsetX >= 0) {
+      const idx = Math.round(offsetX / 179);
+      const activeIdx = ((idx % 5) + 5) % 5;
+      if (activeIdx !== showcaseActiveIndex) {
+        setShowcaseActiveIndex(activeIdx);
+      }
+    }
   };
 
   const handleShowcaseMomentumScrollEnd = (e: any) => {
-    const offsetX = e.nativeEvent.contentOffset.x;
+    const offsetX = e.nativeEvent?.contentOffset?.x;
+    if (typeof offsetX !== 'number') return;
     const index = Math.round(offsetX / 179);
     currentShowcaseIndexRef.current = index;
-    setShowcaseActiveIndex(index % showcaseFeatures.length);
+    setShowcaseActiveIndex(((index % 5) + 5) % 5);
 
     if (index >= 10) {
       currentShowcaseIndexRef.current = 5 + (index % 5);
-      showcaseScrollRef.current?.scrollTo({
-        x: currentShowcaseIndexRef.current * 179,
-        animated: false,
-      });
+      scrollToShowcaseIndex(currentShowcaseIndexRef.current, false);
     } else if (index < 5) {
       currentShowcaseIndexRef.current = 5 + (index % 5);
-      showcaseScrollRef.current?.scrollTo({
-        x: currentShowcaseIndexRef.current * 179,
-        animated: false,
-      });
+      scrollToShowcaseIndex(currentShowcaseIndexRef.current, false);
     }
   };
 
@@ -2249,44 +2292,68 @@ export const QuizScreen: React.FC = () => {
                     ref={showcaseScrollRef}
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    snapToInterval={179}
                     decelerationRate="fast"
-                    contentContainerStyle={styles.screensShowcaseScroll}
+                    style={{ width: '100%' }}
+                    contentContainerStyle={[
+                      styles.screensShowcaseScroll,
+                      {
+                        paddingHorizontal: Math.max(16, Math.round((width - 165) / 2)),
+                      },
+                    ]}
+                    onScroll={handleShowcaseScroll}
+                    scrollEventThrottle={32}
                     onScrollBeginDrag={handleShowcaseScrollBeginDrag}
                     onScrollEndDrag={handleShowcaseScrollEndDrag}
                     onMomentumScrollEnd={handleShowcaseMomentumScrollEnd}
                   >
-                    {loopedShowcaseFeatures.map((feat, idx) => (
-                      <View key={idx} style={styles.screenMockupCardMobile}>
-                        <View style={[styles.phoneFrameContainer, feat.isHighlight && styles.phoneFrameHighlight]}>
-                          {feat.isHighlight && <View pointerEvents="none" style={styles.phoneGlowBlob} />}
-                          <Image
-                            source={feat.image}
-                            style={[
-                              styles.phoneMockupImageMobile,
-                              feat.isHighlight && styles.phoneMockupImageHighlightMobile,
-                            ]}
-                            resizeMode="contain"
-                          />
-                        </View>
-                        <Text style={[styles.mockupCardTitle, feat.isHighlight && { color: Colors.primary }]}>
-                          {feat.title}
-                        </Text>
-                        <Text style={styles.mockupCardSubtitle}>{feat.subtitle}</Text>
-                      </View>
-                    ))}
+                    {loopedShowcaseFeatures.map((feat, idx) => {
+                      const isActive = (idx % 5) === showcaseActiveIndex;
+                      return (
+                        <TouchableOpacity
+                          key={idx}
+                          activeOpacity={0.9}
+                          onPress={() => goToPhone(idx % 5)}
+                          style={[
+                            styles.screenMockupCardMobile,
+                            isActive && styles.screenMockupCardMobileActive,
+                          ]}
+                        >
+                          <View style={[styles.phoneFrameContainer, feat.isHighlight && styles.phoneFrameHighlight]}>
+                            {feat.isHighlight && <View pointerEvents="none" style={styles.phoneGlowBlob} />}
+                            <Image
+                              source={feat.image}
+                              style={[
+                                styles.phoneMockupImageMobile,
+                                feat.isHighlight && styles.phoneMockupImageHighlightMobile,
+                              ]}
+                              resizeMode="contain"
+                            />
+                          </View>
+                          <Text style={[styles.mockupCardTitle, (feat.isHighlight || isActive) && { color: Colors.primary }]}>
+                            {feat.title}
+                          </Text>
+                          <Text style={styles.mockupCardSubtitle}>{feat.subtitle}</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
                   </ScrollView>
 
                   {/* Dots de Paginação Interativos com Indicador Ativo */}
                   <View style={styles.showcaseDotsRow}>
                     {showcaseFeatures.map((_, i) => (
-                      <View
+                      <TouchableOpacity
                         key={i}
-                        style={[
-                          styles.showcaseDot,
-                          showcaseActiveIndex === i && styles.showcaseDotActive,
-                        ]}
-                      />
+                        activeOpacity={0.7}
+                        onPress={() => goToPhone(i)}
+                        style={styles.showcaseDotTouchArea}
+                      >
+                        <View
+                          style={[
+                            styles.showcaseDot,
+                            showcaseActiveIndex === i && styles.showcaseDotActive,
+                          ]}
+                        />
+                      </TouchableOpacity>
                     ))}
                   </View>
                 </View>
@@ -4911,6 +4978,10 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     backgroundColor: Colors.primary,
   },
+  showcaseDotTouchArea: {
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+  },
   screenMockupCard: {
     width: 180,
     alignItems: 'center',
@@ -4918,6 +4989,12 @@ const styles = StyleSheet.create({
   screenMockupCardMobile: {
     width: 165,
     alignItems: 'center',
+    opacity: 0.85,
+    transform: [{ scale: 0.96 }],
+  },
+  screenMockupCardMobileActive: {
+    opacity: 1,
+    transform: [{ scale: 1 }],
   },
   // Nessuna ombra sul contenitore: su web shadow* diventa box-shadow rettangolare.
   phoneFrameContainer: {
