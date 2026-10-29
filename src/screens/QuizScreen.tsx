@@ -831,7 +831,7 @@ export const QuizScreen: React.FC = () => {
         contentContainerStyle={[
           styles.scrollContainer,
           !isDesktop && styles.scrollContainerMobile,
-          [4, 5, 6, 7, 10, 11].includes(currentStep) && { paddingBottom: 120 },
+          [4, 5, 6, 7, 8, 10, 11].includes(currentStep) && { paddingBottom: 120 },
         ]}
         showsVerticalScrollIndicator={false}
       >
@@ -2340,13 +2340,13 @@ export const QuizScreen: React.FC = () => {
       </ScrollView>
 
       {/* ── BARRA FLUTTUANTE INFERIORE (STEPS COM BOTÃO DE PROSSEGUIR ESTILO BETTERME) ── */}
-      {[4, 5, 6, 7, 10, 11].includes(currentStep) && (() => {
+      {[4, 5, 6, 7, 8, 10, 11].includes(currentStep) && (() => {
         let label = 'PROSSIMO PASSO';
         let action = handleNextStep;
 
         if (currentStep === 4) {
           action = handleProceedFromGain;
-        } else if (currentStep === 7) {
+        } else if (currentStep === 7 || currentStep === 8) {
           label = 'CONTINUA';
         } else if (currentStep === 10) {
           label = 'CONFERMA IL PESO';
@@ -2372,7 +2372,7 @@ export const QuizScreen: React.FC = () => {
       })()}
 
       {/* Floating Help Button (oculto nos steps com barra flutuante, no loader 12 e na oferta 13) */}
-      {![4, 5, 6, 7, 10, 11, 12, 13].includes(currentStep) && (
+      {![4, 5, 6, 7, 8, 10, 11, 12, 13].includes(currentStep) && (
         <TouchableOpacity style={styles.floatingHelpBtn} activeOpacity={0.8}>
           <HelpCircle size={15} color="#000000" />
           <Text style={styles.floatingHelpText}>Aiuto</Text>
