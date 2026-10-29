@@ -317,14 +317,14 @@ export const StripeEmbeddedCheckoutModal: React.FC<StripeEmbeddedCheckoutModalPr
         </View>
       </View>
 
-      {/* Garanzia Rimborso 30 Giorni */}
+      {/* Garanzia Rimborso 7 Giorni */}
       <View style={styles.guaranteeBox}>
         <View style={styles.guaranteeHeader}>
           <RotateCcw size={15} color="#FBBF24" strokeWidth={2.5} />
           <Text style={styles.guaranteeTitle}>Garanzia 100% Soddisfatti o Rimborsati</Text>
         </View>
         <Text style={styles.guaranteeText}>
-          Testa VertiCam Pro per 30 giorni. Se non registri un aumento concreto della tua elevazione, ti rimborsiamo l'intero importo senza domande.
+          Testa VertiCam Pro per 7 giorni. Se non registri un aumento concreto della tua elevazione, ti rimborsiamo l'intero importo senza domande.
         </Text>
       </View>
 
@@ -391,7 +391,7 @@ export const StripeEmbeddedCheckoutModal: React.FC<StripeEmbeddedCheckoutModalPr
         <Text style={styles.mobileTrustDot}>•</Text>
         <View style={styles.mobileTrustItem}>
           <RotateCcw size={10} color="#00E5FF" strokeWidth={2.5} />
-          <Text style={styles.mobileTrustText}>30gg Garanzia</Text>
+          <Text style={styles.mobileTrustText}>7gg Garanzia</Text>
         </View>
         <Text style={styles.mobileTrustDot}>•</Text>
         <View style={styles.mobileTrustItem}>

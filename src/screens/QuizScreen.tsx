@@ -2507,7 +2507,7 @@ export const QuizScreen: React.FC = () => {
                 <View style={{ flex: 1 }}>
                   <Text style={styles.guaranteeFinalTitle}>GARANZIA 100% SODDISFATTI O RIMBORSATI</Text>
                   <Text style={styles.guaranteeFinalText}>
-                    Prova VertiCam per 30 giorni. Se non vedi un incremento concreto del tuo salto verticale o non sei pienamente soddisfatto, ti rimborsiamo ogni singolo centesimo.
+                    Prova VertiCam per 7 giorni. Se non vedi un incremento concreto del tuo salto verticale o non sei pienamente soddisfatto, ti rimborsiamo ogni singolo centesimo.
                   </Text>
                 </View>
               </View>

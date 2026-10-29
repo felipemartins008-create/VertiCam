@@ -167,7 +167,7 @@
     },
     "paymentMethods": "Pagamenti sicuri:",
     "methods": ["Apple Pay", "Google Pay", "Carta di credito", "Satispay"],
-    "guarantee": "Garanzia 100% soddisfatti o rimborsati di 30 giorni • Disdici in qualsiasi momento",
+    "guarantee": "Garanzia 100% soddisfatti o rimborsati di 7 giorni • Disdici in qualsiasi momento",
     "cta": "Inizia la prova ora",
     "terms": "Abbonamento con rinnovo automatico fino a disdetta. Puoi disdire in qualsiasi momento dal tuo account. Conforme al GDPR europeo."
   },
