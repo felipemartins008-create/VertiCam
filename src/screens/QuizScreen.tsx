@@ -679,6 +679,7 @@ export const QuizScreen: React.FC = () => {
             styles.headerBar,
             currentStep === 12 && { justifyContent: 'center' },
             currentStep === 13 && styles.headerBarOffer,
+            currentStep === 13 && !isDesktop && styles.headerBarOfferMobile,
           ]}
         >
           <View style={[styles.headerLeft, currentStep === 12 && { justifyContent: 'center', gap: 0 }]}>
@@ -687,7 +688,7 @@ export const QuizScreen: React.FC = () => {
                 <ArrowLeft size={18} color="#FFFFFF" />
               </TouchableOpacity>
             )}
-            <Text style={styles.betterMeLogoText}>
+            <Text style={[styles.betterMeLogoText, !isDesktop && styles.betterMeLogoTextMobile]}>
               Verti<Text style={{ color: Colors.primary }}>Cam</Text>
             </Text>
           </View>
@@ -707,34 +708,46 @@ export const QuizScreen: React.FC = () => {
 
           {/* Timer di Urgenza Header (Step 13 - Offerta BetterMe) */}
           {currentStep === 13 && (
-            <View style={styles.headerOfferTimerBox}>
-              <Text style={styles.headerOfferTimerLabel}>
-                {isDesktop ? 'Lo sconto è riservato per:' : 'Sconto riservato:'}
-              </Text>
-              <View style={styles.betterMeTimerWidget}>
-                <View style={styles.timerDigitUnitCol}>
-                  <Text style={styles.betterMeTimerDigits}>{countdownMins}</Text>
-                  <Text style={styles.betterMeTimerUnitText}>minuti</Text>
+            <View style={[styles.headerOfferTimerBox, !isDesktop && styles.headerOfferTimerBoxMobile]}>
+              {isDesktop ? (
+                <Text style={styles.headerOfferTimerLabel}>Lo sconto è riservato per:</Text>
+              ) : (
+                <Flame size={13} color="#FF9100" />
+              )}
+              <View style={[styles.betterMeTimerWidget, !isDesktop && styles.betterMeTimerWidgetMobile]}>
+                <View style={[styles.timerDigitUnitCol, !isDesktop && styles.timerDigitUnitColMobile]}>
+                  <Text style={[styles.betterMeTimerDigits, !isDesktop && styles.betterMeTimerDigitsMobile]}>
+                    {countdownMins}
+                  </Text>
+                  <Text style={[styles.betterMeTimerUnitText, !isDesktop && styles.betterMeTimerUnitTextMobile]}>
+                    minuti
+                  </Text>
                 </View>
 
-                <Text style={styles.betterMeTimerColon}>:</Text>
+                <Text style={[styles.betterMeTimerColon, !isDesktop && styles.betterMeTimerColonMobile]}>:</Text>
 
-                <View style={styles.timerDigitUnitCol}>
-                  <Text style={styles.betterMeTimerDigits}>{countdownSecs}</Text>
-                  <Text style={styles.betterMeTimerUnitText}>secondi</Text>
+                <View style={[styles.timerDigitUnitCol, !isDesktop && styles.timerDigitUnitColMobile]}>
+                  <Text style={[styles.betterMeTimerDigits, !isDesktop && styles.betterMeTimerDigitsMobile]}>
+                    {countdownSecs}
+                  </Text>
+                  <Text style={[styles.betterMeTimerUnitText, !isDesktop && styles.betterMeTimerUnitTextMobile]}>
+                    secondi
+                  </Text>
                 </View>
               </View>
             </View>
           )}
 
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: isDesktop ? 12 : 8 }}>
             {currentStep === 13 && (
               <TouchableOpacity
-                style={styles.headerOfferCtaBtn}
+                style={[styles.headerOfferCtaBtn, !isDesktop && styles.headerOfferCtaBtnMobile]}
                 activeOpacity={0.85}
                 onPress={handleCheckout}
               >
-                <Text style={styles.headerOfferCtaText}>OTTIENI IL MIO PIANO</Text>
+                <Text style={[styles.headerOfferCtaText, !isDesktop && styles.headerOfferCtaTextMobile]}>
+                  {isDesktop ? 'OTTIENI IL MIO PIANO' : 'OTTIENI'}
+                </Text>
               </TouchableOpacity>
             )}
 
@@ -1905,12 +1918,12 @@ export const QuizScreen: React.FC = () => {
         {currentStep === 13 && (
           <View style={styles.offerPageWrapper}>
             {/* ── 1. TITOLO PRINCIPALE ── */}
-            <Text style={styles.offerHeadline}>
+            <Text style={[styles.offerHeadline, isDesktop && styles.offerHeadlineDesktop]}>
               Il tuo piano di salto personalizzato è pronto!
             </Text>
 
             {/* ── 2. CARD COMPARATIVA PRIMA / DOPO (STILE BETTERME) ── */}
-            <View style={styles.offerComparisonCard}>
+            <View style={[styles.offerComparisonCard, !isDesktop && styles.offerComparisonCardMobile]}>
               {/* Header Tab: Ora vs Il tuo obiettivo */}
               <View style={styles.offerComparisonTabsHeader}>
                 <View style={styles.offerTabHalf}>
@@ -1936,7 +1949,7 @@ export const QuizScreen: React.FC = () => {
               </View>
 
               {/* Parametri di Confronto in Basso */}
-              <View style={styles.offerMetricsComparisonRow}>
+              <View style={[styles.offerMetricsComparisonRow, !isDesktop && styles.offerMetricsComparisonRowMobile]}>
                 {/* Colonna Sinistra (Ora) */}
                 <View style={styles.offerMetricCol}>
                   <Text style={styles.offerMetricCategory}>Elevazione attuale</Text>
@@ -1973,7 +1986,7 @@ export const QuizScreen: React.FC = () => {
 
             {/* ── 3. SEZIONE: SCEGLI IL TUO PIANO (MODELLATO SU BETTERME) ── */}
             <View style={styles.offerPricingSection}>
-              <Text style={styles.offerHeadline}>
+              <Text style={[styles.offerHeadline, isDesktop && styles.offerHeadlineDesktop]}>
                 Ottieni risultati visibili in 4 settimane!
               </Text>
 
@@ -2117,7 +2130,9 @@ export const QuizScreen: React.FC = () => {
 
             {/* ── 4. SEZIONE: COSA INCLUDE IL TUO PIANO (MODELLATO SU VERTICAM) ── */}
             <View style={styles.offerWhatIncludesSection}>
-              <Text style={styles.offerHeadline}>Cosa include il tuo piano</Text>
+              <Text style={[styles.offerHeadline, isDesktop && styles.offerHeadlineDesktop]}>
+                Cosa include il tuo piano
+              </Text>
 
               {/* Showcase dei 5 Telefoni VertiCam */}
               {isDesktop ? (
@@ -2143,31 +2158,39 @@ export const QuizScreen: React.FC = () => {
                   ))}
                 </View>
               ) : (
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.screensShowcaseScroll}
-                >
-                  {showcaseFeatures.map((feat, idx) => (
-                    <View key={idx} style={styles.screenMockupCardMobile}>
-                      <View style={[styles.phoneFrameContainer, feat.isHighlight && styles.phoneFrameHighlight]}>
-                        {feat.isHighlight && <View pointerEvents="none" style={styles.phoneGlowBlob} />}
-                        <Image
-                          source={feat.image}
-                          style={[
-                            styles.phoneMockupImageMobile,
-                            feat.isHighlight && styles.phoneMockupImageHighlight,
-                          ]}
-                          resizeMode="contain"
-                        />
+                <View style={styles.mobileShowcaseContainer}>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    snapToInterval={179}
+                    decelerationRate="fast"
+                    contentContainerStyle={styles.screensShowcaseScroll}
+                  >
+                    {showcaseFeatures.map((feat, idx) => (
+                      <View key={idx} style={styles.screenMockupCardMobile}>
+                        <View style={[styles.phoneFrameContainer, feat.isHighlight && styles.phoneFrameHighlight]}>
+                          {feat.isHighlight && <View pointerEvents="none" style={styles.phoneGlowBlob} />}
+                          <Image
+                            source={feat.image}
+                            style={[
+                              styles.phoneMockupImageMobile,
+                              feat.isHighlight && styles.phoneMockupImageHighlightMobile,
+                            ]}
+                            resizeMode="contain"
+                          />
+                        </View>
+                        <Text style={[styles.mockupCardTitle, feat.isHighlight && { color: Colors.primary }]}>
+                          {feat.title}
+                        </Text>
+                        <Text style={styles.mockupCardSubtitle}>{feat.subtitle}</Text>
                       </View>
-                      <Text style={[styles.mockupCardTitle, feat.isHighlight && { color: Colors.primary }]}>
-                        {feat.title}
-                      </Text>
-                      <Text style={styles.mockupCardSubtitle}>{feat.subtitle}</Text>
-                    </View>
-                  ))}
-                </ScrollView>
+                    ))}
+                  </ScrollView>
+                  <View style={styles.showcaseSwipeHintRow}>
+                    <Text style={styles.showcaseSwipeHintText}>Scorri per esplorare le 5 funzionalità</Text>
+                    <ChevronRight size={14} color="#8A8D9B" />
+                  </View>
+                </View>
               )}
 
               {/* Banner Inferior: Piano di recupero e nutrizione personalizzato */}
@@ -2183,7 +2206,7 @@ export const QuizScreen: React.FC = () => {
 
             {/* ── 5. SEZIONE: RE-PITCH RISULTATI IN 4 SETTIMANE ── */}
             <View style={styles.rePitchSection}>
-              <Text style={styles.offerHeadline}>
+              <Text style={[styles.offerHeadline, isDesktop && styles.offerHeadlineDesktop]}>
                 Ottieni risultati visibili in 4 settimane!
               </Text>
 
@@ -2430,6 +2453,10 @@ const styles = StyleSheet.create({
     height: 70,
     paddingHorizontal: 20,
   },
+  headerBarOfferMobile: {
+    height: 58,
+    paddingHorizontal: 12,
+  },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -2454,6 +2481,9 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: '#FFFFFF',
     letterSpacing: -0.5,
+  },
+  betterMeLogoTextMobile: {
+    fontSize: 19,
   },
   headerMenuBtn: {
     width: 38,
@@ -4300,6 +4330,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
+  headerOfferTimerBoxMobile: {
+    gap: 6,
+  },
   headerOfferTimerLabel: {
     color: '#FFFFFF',
     fontSize: 14,
@@ -4311,9 +4344,15 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: 4,
   },
+  betterMeTimerWidgetMobile: {
+    gap: 2,
+  },
   timerDigitUnitCol: {
     alignItems: 'center',
     minWidth: 32,
+  },
+  timerDigitUnitColMobile: {
+    minWidth: 20,
   },
   betterMeTimerDigits: {
     color: '#FFFFFF',
@@ -4322,6 +4361,12 @@ const styles = StyleSheet.create({
     lineHeight: 28,
     letterSpacing: 0.5,
   },
+  betterMeTimerDigitsMobile: {
+    fontSize: 16,
+    lineHeight: 18,
+    fontWeight: '800',
+    letterSpacing: 0.2,
+  },
   betterMeTimerColon: {
     color: '#FFFFFF',
     fontSize: 24,
@@ -4329,12 +4374,21 @@ const styles = StyleSheet.create({
     lineHeight: 26,
     marginHorizontal: 1,
   },
+  betterMeTimerColonMobile: {
+    fontSize: 15,
+    lineHeight: 17,
+    marginHorizontal: 0,
+  },
   betterMeTimerUnitText: {
     color: '#8A8D9B',
     fontSize: 9.5,
     fontWeight: '600',
     marginTop: 1,
     textTransform: 'lowercase',
+  },
+  betterMeTimerUnitTextMobile: {
+    fontSize: 8,
+    marginTop: 0,
   },
   headerOfferCtaBtn: {
     backgroundColor: '#EBE5D8',
@@ -4344,11 +4398,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  headerOfferCtaBtnMobile: {
+    paddingVertical: 6,
+    paddingHorizontal: 11,
+    borderRadius: 16,
+  },
   headerOfferCtaText: {
     color: '#1C1C1E',
     fontSize: 12.5,
     fontWeight: '900',
     letterSpacing: 0.6,
+  },
+  headerOfferCtaTextMobile: {
+    fontSize: 10.5,
+    fontWeight: '900',
+    letterSpacing: 0.2,
   },
 
   // ── STEP 13: OFFERTA MODELLATA BETTERME ──
@@ -4360,13 +4424,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   offerHeadline: {
-    fontSize: 28,
-    fontWeight: '900',
+    fontSize: 22,
+    fontWeight: '800',
     color: '#FFFFFF',
     textAlign: 'center',
+    letterSpacing: -0.4,
+    marginBottom: 20,
+    maxWidth: 620,
+    lineHeight: 28,
+  },
+  offerHeadlineDesktop: {
+    fontSize: 28,
+    fontWeight: '900',
     letterSpacing: -0.5,
     marginBottom: 24,
-    maxWidth: 620,
+    lineHeight: 34,
   },
   offerComparisonCard: {
     width: '100%',
@@ -4377,6 +4449,10 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.08)',
     overflow: 'hidden',
     marginBottom: 36,
+  },
+  offerComparisonCardMobile: {
+    borderRadius: 18,
+    marginBottom: 24,
   },
   offerComparisonTabsHeader: {
     flexDirection: 'row',
@@ -4415,6 +4491,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 20,
     backgroundColor: '#11141C',
+  },
+  offerMetricsComparisonRowMobile: {
+    padding: 14,
   },
   offerMetricCol: {
     flex: 1,
@@ -4662,6 +4741,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 14,
   },
+  securityBadgesRowMobile: {
+    gap: 8,
+    maxWidth: 340,
+    paddingHorizontal: 8,
+  },
   securityBadgeItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -4697,12 +4781,28 @@ const styles = StyleSheet.create({
     marginTop: 24,
     marginBottom: 32,
   },
+  mobileShowcaseContainer: {
+    width: '100%',
+    alignItems: 'center',
+  },
   screensShowcaseScroll: {
     paddingHorizontal: 16,
     paddingVertical: 12,
     gap: 14,
     alignItems: 'flex-start',
-    marginBottom: 28,
+    marginBottom: 12,
+  },
+  showcaseSwipeHintRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    marginBottom: 20,
+  },
+  showcaseSwipeHintText: {
+    color: '#8A8D9B',
+    fontSize: 11.5,
+    fontWeight: '600',
   },
   screenMockupCard: {
     width: 180,
@@ -4757,6 +4857,11 @@ const styles = StyleSheet.create({
     ...(Platform.OS === 'web' && {
       filter: 'drop-shadow(0px 0px 4px rgba(0, 229, 255, 0.35))',
     }),
+  },
+  phoneMockupImageHighlightMobile: {
+    width: 140,
+    height: 262,
+    transform: [{ translateY: -4 }],
   },
   phoneMockupImageMobile: {
     width: 132,
