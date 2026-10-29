@@ -340,36 +340,40 @@ export const StripeEmbeddedCheckoutModal: React.FC<StripeEmbeddedCheckoutModalPr
 
   const renderSummaryContentMobile = () => (
     <View style={styles.mobileSummaryContainer}>
-      {/* Brand row + SSL Badge (com espaço para o botão X à direita) */}
-      <View style={styles.mobileBrandRow}>
-        <View style={styles.brandBadge}>
-          <Text style={styles.brandTitleMobile}>
+      {/* 1. Header Bar: Brand on Left, Sleek Integrated Close Button on Right */}
+      <View style={styles.mobileTopBar}>
+        <View style={styles.mobileBrandWrap}>
+          <Text style={styles.mobileBrandTitle}>
             Verti<Text style={{ color: Colors.primary }}>Cam</Text>
           </Text>
-          <View style={styles.proPill}>
-            <Text style={styles.proPillText}>PRO</Text>
+          <View style={styles.mobileProBadge}>
+            <Text style={styles.mobileProText}>PRO</Text>
           </View>
         </View>
 
-        <View style={styles.securityLiveBadgeMobile}>
-          <Lock size={10} color="#10B981" strokeWidth={2.5} />
-          <Text style={styles.securityLiveTextMobile}>256-Bit SSL</Text>
-        </View>
+        <TouchableOpacity
+          onPress={onClose}
+          style={styles.mobileCloseBtn}
+          activeOpacity={0.75}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <X size={15} color="#94A3B8" strokeWidth={2.5} />
+        </TouchableOpacity>
       </View>
 
-      {/* Cartão de Resumo do Plano Minimalista */}
-      <View style={styles.mobilePlanCard}>
-        <View style={styles.mobilePlanInfo}>
+      {/* 2. Sleek Plan Card with clean typography & breathing room */}
+      <View style={styles.mobilePlanHeroCard}>
+        <View style={styles.mobilePlanHeroLeft}>
           <View style={styles.mobilePlanTitleRow}>
             <Text style={styles.mobilePlanTitle}>{planInfo.title}</Text>
             {planInfo.savings && (
-              <View style={styles.mobileSavingsBadge}>
-                <Sparkles size={10} color="#00E5FF" strokeWidth={2.5} />
-                <Text style={styles.mobileSavingsText}>{planInfo.savings}</Text>
+              <View style={styles.mobileSavingsPill}>
+                <Sparkles size={9} color="#00E5FF" strokeWidth={2.5} />
+                <Text style={styles.mobileSavingsPillText}>{planInfo.savings}</Text>
               </View>
             )}
           </View>
-          <Text style={styles.mobilePlanCadence} numberOfLines={1}>{planInfo.cadence}</Text>
+          <Text style={styles.mobilePlanCadence}>{planInfo.cadence}</Text>
         </View>
 
         <View style={styles.mobilePriceColumn}>
@@ -378,19 +382,21 @@ export const StripeEmbeddedCheckoutModal: React.FC<StripeEmbeddedCheckoutModalPr
         </View>
       </View>
 
-      {/* Micro-pills de confiança inline (ocupam mínima altura vertical) */}
-      <View style={styles.mobileTrustRow}>
-        <View style={styles.mobileTrustPill}>
-          <Check size={10} color="#00E5FF" strokeWidth={3} />
-          <Text style={styles.mobileTrustPillText}>Accesso Totale IA</Text>
+      {/* 3. Subtle unified trust strip (cyan & soft slate) */}
+      <View style={styles.mobileTrustLine}>
+        <View style={styles.mobileTrustItem}>
+          <Lock size={10} color="#00E5FF" strokeWidth={2.5} />
+          <Text style={styles.mobileTrustText}>SSL 256-Bit</Text>
         </View>
-        <View style={styles.mobileTrustPill}>
-          <RotateCcw size={10} color="#FBBF24" strokeWidth={2.5} />
-          <Text style={styles.mobileTrustPillText}>30gg Garanzia</Text>
+        <Text style={styles.mobileTrustDot}>•</Text>
+        <View style={styles.mobileTrustItem}>
+          <RotateCcw size={10} color="#00E5FF" strokeWidth={2.5} />
+          <Text style={styles.mobileTrustText}>30gg Garanzia</Text>
         </View>
-        <View style={styles.mobileTrustPill}>
-          <ShieldCheck size={10} color="#10B981" strokeWidth={2.5} />
-          <Text style={styles.mobileTrustPillText}>Stripe Certificato</Text>
+        <Text style={styles.mobileTrustDot}>•</Text>
+        <View style={styles.mobileTrustItem}>
+          <ShieldCheck size={10} color="#00E5FF" strokeWidth={2.5} />
+          <Text style={styles.mobileTrustText}>Stripe Sicuro</Text>
         </View>
       </View>
     </View>
@@ -637,15 +643,17 @@ export const StripeEmbeddedCheckoutModal: React.FC<StripeEmbeddedCheckoutModalPr
     >
       <View style={styles.modalOverlay}>
         <View style={[styles.modalCard, isDesktop ? styles.modalCardDesktop : styles.modalCardMobile]}>
-          {/* Close button float */}
-          <TouchableOpacity
-            onPress={onClose}
-            style={[styles.floatingCloseBtn, !isDesktop && styles.floatingCloseBtnMobile]}
-            activeOpacity={0.75}
-            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-          >
-            <X size={isDesktop ? 18 : 16} color="#64748B" strokeWidth={2.5} />
-          </TouchableOpacity>
+          {/* Close button float (Desktop only - mobile has integrated button) */}
+          {isDesktop && (
+            <TouchableOpacity
+              onPress={onClose}
+              style={styles.floatingCloseBtn}
+              activeOpacity={0.75}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            >
+              <X size={18} color="#64748B" strokeWidth={2.5} />
+            </TouchableOpacity>
+          )}
 
           {isDesktop ? (
             <View style={styles.mainLayoutDesktop}>
@@ -766,58 +774,70 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
 
-  // ── COLONNA SINISTRA MOBILE MINIMAL (Fintech Clean) ──
+  // ── COLONNA SINISTRA MOBILE MINIMAL (Fintech Clean & Luxury) ──
   mobileSummaryContainer: {
     backgroundColor: '#090D1A',
-    paddingHorizontal: 14,
-    paddingTop: 12,
-    paddingBottom: 10,
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.06)',
   },
-  mobileBrandRow: {
+  mobileTopBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  mobileBrandWrap: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    paddingRight: 36,
-    marginBottom: 8,
   },
-  brandTitleMobile: {
-    fontSize: 16,
+  mobileBrandTitle: {
+    fontSize: 17,
     fontWeight: '900',
     color: '#FFFFFF',
     letterSpacing: -0.4,
   },
-  securityLiveBadgeMobile: {
-    flexDirection: 'row',
+  mobileProBadge: {
+    backgroundColor: 'rgba(0, 229, 255, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 229, 255, 0.35)',
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
+    borderRadius: 5,
+  },
+  mobileProText: {
+    color: '#00E5FF',
+    fontSize: 9.5,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  mobileCloseBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(16, 185, 129, 0.12)',
-    paddingHorizontal: 7,
-    paddingVertical: 2.5,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.25)',
+    justifyContent: 'center',
   },
-  securityLiveTextMobile: {
-    color: '#10B981',
-    fontSize: 10,
-    fontWeight: '700',
-  },
-  mobilePlanCard: {
-    backgroundColor: '#12172A',
-    borderRadius: 10,
+  mobilePlanHeroCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderRadius: 12,
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.07)',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 8,
-    marginBottom: 8,
+    marginBottom: 10,
   },
-  mobilePlanInfo: {
+  mobilePlanHeroLeft: {
     flex: 1,
   },
   mobilePlanTitleRow: {
@@ -825,66 +845,67 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     flexWrap: 'wrap',
+    marginBottom: 2,
   },
   mobilePlanTitle: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '800',
     color: '#FFFFFF',
   },
-  mobileSavingsBadge: {
+  mobileSavingsPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
     backgroundColor: 'rgba(0, 229, 255, 0.14)',
     paddingHorizontal: 6,
     paddingVertical: 1.5,
-    borderRadius: 6,
+    borderRadius: 5,
     borderWidth: 1,
     borderColor: 'rgba(0, 229, 255, 0.3)',
   },
-  mobileSavingsText: {
+  mobileSavingsPillText: {
     color: '#00E5FF',
-    fontSize: 9,
+    fontSize: 9.5,
     fontWeight: '800',
   },
   mobilePlanCadence: {
-    fontSize: 10.5,
+    fontSize: 11,
     color: '#94A3B8',
-    marginTop: 1,
   },
   mobilePriceColumn: {
     alignItems: 'flex-end',
   },
   mobilePriceValue: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '900',
     color: '#FFFFFF',
-    letterSpacing: -0.3,
+    letterSpacing: -0.4,
   },
   mobilePriceCadence: {
     fontSize: 10,
     color: '#64748B',
     fontWeight: '600',
   },
-  mobileTrustRow: {
+  mobileTrustLine: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 4,
+    justifyContent: 'center',
+    gap: 8,
+    paddingTop: 2,
   },
-  mobileTrustPill: {
+  mobileTrustItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-    borderRadius: 6,
   },
-  mobileTrustPillText: {
-    fontSize: 9.5,
+  mobileTrustText: {
+    fontSize: 10.5,
     color: '#94A3B8',
     fontWeight: '600',
+  },
+  mobileTrustDot: {
+    fontSize: 11,
+    color: 'rgba(255, 255, 255, 0.2)',
   },
 
   // ── COLONNA SINISTRA DESKTOP (Dark Luxury Authority) ──
