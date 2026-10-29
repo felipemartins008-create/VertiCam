@@ -8,8 +8,8 @@ import {
   ActivityIndicator,
   Platform,
   Linking,
-  Dimensions,
   ScrollView,
+  useWindowDimensions,
 } from 'react-native';
 import {
   ShieldCheck,
@@ -197,7 +197,7 @@ export const StripeEmbeddedCheckoutModal: React.FC<StripeEmbeddedCheckoutModalPr
     }
   };
 
-  const windowWidth = Dimensions.get('window').width;
+  const { width: windowWidth } = useWindowDimensions();
   const isDesktop = windowWidth >= 860;
 
   const planInfo = {
@@ -234,6 +234,332 @@ export const StripeEmbeddedCheckoutModal: React.FC<StripeEmbeddedCheckoutModalPr
     highlight: false,
   };
 
+  const renderSummaryContent = () => (
+    <>
+      {/* Brand & Security Header */}
+      <View style={[styles.brandRow, !isDesktop && styles.brandRowMobile]}>
+        <View style={styles.brandBadge}>
+          <Text style={styles.brandTitle}>
+            Verti<Text style={{ color: Colors.primary }}>Cam</Text>
+          </Text>
+          <View style={styles.proPill}>
+            <Text style={styles.proPillText}>PRO</Text>
+          </View>
+        </View>
+
+        <View style={styles.securityLiveBadge}>
+          <Lock size={12} color="#10B981" strokeWidth={2.5} />
+          <Text style={styles.securityLiveText}>256-Bit SSL</Text>
+        </View>
+      </View>
+
+      {/* Box Piano Selezionato */}
+      <View style={styles.planOverviewCard}>
+        <View style={styles.planHeaderRow}>
+          <View>
+            <Text style={styles.planCategoryLabel}>PROGRAMMA SELEZIONATO</Text>
+            <Text style={styles.planMainTitle}>{planInfo.title}</Text>
+          </View>
+          {planInfo.savings && (
+            <View style={styles.savingsBadge}>
+              <Sparkles size={11} color="#00E5FF" strokeWidth={2.5} />
+              <Text style={styles.savingsBadgeText}>{planInfo.savings}</Text>
+            </View>
+          )}
+        </View>
+
+        <View style={styles.priceHighlightRow}>
+          <Text style={styles.priceHighlightValue}>{planInfo.priceTotal}</Text>
+          <Text style={styles.priceHighlightCadence}>/ {planInfo.duration.toLowerCase()}</Text>
+        </View>
+
+        <Text style={styles.cadenceExplainer}>{planInfo.cadence}</Text>
+      </View>
+
+      {/* Cosa include il programma */}
+      <View style={styles.featuresSection}>
+        <Text style={styles.featuresSectionTitle}>COSA INCLUDE IL TUO ACCESSO:</Text>
+
+        <View style={styles.featureItemRow}>
+          <View style={styles.featureCheckCircle}>
+            <Check size={11} color="#00E5FF" strokeWidth={3} />
+          </View>
+          <Text style={styles.featureItemText}>
+            <Text style={styles.featureItemBold}>Misurazione IA del salto:</Text> precisione millimetrica via fotocamera
+          </Text>
+        </View>
+
+        <View style={styles.featureItemRow}>
+          <View style={styles.featureCheckCircle}>
+            <Check size={11} color="#00E5FF" strokeWidth={3} />
+          </View>
+          <Text style={styles.featureItemText}>
+            <Text style={styles.featureItemBold}>Algoritmo neurale SNC:</Text> autoregolazione del carico su affaticamento
+          </Text>
+        </View>
+
+        <View style={styles.featureItemRow}>
+          <View style={styles.featureCheckCircle}>
+            <Check size={11} color="#00E5FF" strokeWidth={3} />
+          </View>
+          <Text style={styles.featureItemText}>
+            <Text style={styles.featureItemBold}>Protocollo tendineo:</Text> prevenzione infortuni e tendinopatia rotulea
+          </Text>
+        </View>
+
+        <View style={styles.featureItemRow}>
+          <View style={styles.featureCheckCircle}>
+            <Check size={11} color="#00E5FF" strokeWidth={3} />
+          </View>
+          <Text style={styles.featureItemText}>
+            <Text style={styles.featureItemBold}>Attivazione istantanea:</Text> accesso immediato all'app post-checkout
+          </Text>
+        </View>
+      </View>
+
+      {/* Garanzia Rimborso 30 Giorni */}
+      <View style={styles.guaranteeBox}>
+        <View style={styles.guaranteeHeader}>
+          <RotateCcw size={15} color="#FBBF24" strokeWidth={2.5} />
+          <Text style={styles.guaranteeTitle}>Garanzia 100% Soddisfatti o Rimborsati</Text>
+        </View>
+        <Text style={styles.guaranteeText}>
+          Testa VertiCam Pro per 30 giorni. Se non registri un aumento concreto della tua elevazione, ti rimborsiamo l'intero importo senza domande.
+        </Text>
+      </View>
+
+      {/* Verified by Stripe Banner */}
+      <View style={styles.stripeAuditRow}>
+        <ShieldCheck size={14} color="#94A3B8" strokeWidth={2} />
+        <Text style={styles.stripeAuditText}>
+          Elaborazione certificata PCI-DSS Livello 1 via <Text style={styles.stripeAuditBrand}>stripe</Text>
+        </Text>
+      </View>
+    </>
+  );
+
+  const renderPaymentHeader = () => (
+    <View style={[styles.paymentHeader, !isDesktop && styles.paymentHeaderMobile]}>
+      <View style={styles.paymentHeaderLeft}>
+        <View style={styles.lockBadgeSolid}>
+          <Lock size={15} color="#0F172A" strokeWidth={2.5} />
+        </View>
+        <View>
+          <Text style={styles.paymentHeaderTitle}>Pagamento Protetto</Text>
+          <Text style={styles.paymentHeaderSubtitle}>Transazione crittografata con standard bancario</Text>
+        </View>
+      </View>
+    </View>
+  );
+
+  const renderPaymentTabs = () => (
+    <View style={[styles.paymentMethodTabsRow, !isDesktop && styles.paymentMethodTabsRowMobile]}>
+      <TouchableOpacity
+        style={[
+          styles.paymentMethodTab,
+          paymentMethod === 'card' && styles.paymentMethodTabActive,
+        ]}
+        onPress={() => setPaymentMethod('card')}
+        activeOpacity={0.85}
+      >
+        <CreditCard size={15} color={paymentMethod === 'card' ? '#0F172A' : '#64748B'} strokeWidth={2.2} />
+        <Text
+          style={[
+            styles.paymentMethodTabText,
+            paymentMethod === 'card' && styles.paymentMethodTabTextActive,
+          ]}
+        >
+          Carta / Apple & Google Pay
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[
+          styles.paymentMethodTab,
+          paymentMethod === 'paypal' && styles.paymentMethodTabActivePaypal,
+        ]}
+        onPress={() => setPaymentMethod('paypal')}
+        activeOpacity={0.85}
+      >
+        <View style={styles.paypalTabLogoIcon}>
+          <Text style={styles.paypalTabLogoP1}>P</Text>
+          <Text style={styles.paypalTabLogoP2}>P</Text>
+        </View>
+        <Text
+          style={[
+            styles.paymentMethodTabText,
+            paymentMethod === 'paypal' && styles.paymentMethodTabTextActivePaypal,
+          ]}
+        >
+          PayPal
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderCardBadges = () => (
+    <View style={[styles.cardBadgesRow, !isDesktop && styles.cardBadgesRowMobile]}>
+      <View style={styles.cardBadgePill}>
+        <Text style={styles.cardBadgeText}>VISA</Text>
+      </View>
+      <View style={styles.cardBadgePill}>
+        <Text style={styles.cardBadgeText}>Mastercard</Text>
+      </View>
+      <View style={styles.cardBadgePill}>
+        <Text style={styles.cardBadgeText}>Apple Pay</Text>
+      </View>
+      <View style={styles.cardBadgePill}>
+        <Text style={styles.cardBadgeText}>Google Pay</Text>
+      </View>
+      <View style={[styles.cardBadgePill, styles.cardBadgePillPaypal]}>
+        <Text style={styles.cardBadgePaypalText}>PayPal</Text>
+      </View>
+      <View style={[styles.cardBadgePill, { borderColor: '#E2E8F0' }]}>
+        <Text style={[styles.cardBadgeText, { color: '#6366F1' }]}>Klarna</Text>
+      </View>
+    </View>
+  );
+
+  const renderPaymentBody = () => (
+    <>
+      {paymentMethod === 'paypal' ? (
+        <View style={styles.paypalContainer}>
+          {/* Banner Informativo PayPal */}
+          <View style={styles.paypalInfoCard}>
+            <View style={styles.paypalHeaderBadge}>
+              <View style={styles.paypalLogoIconBig}>
+                <Text style={styles.paypalBigP1}>P</Text>
+                <Text style={styles.paypalBigP2}>P</Text>
+              </View>
+              <Text style={styles.paypalBrandTitle}>PayPal Checkout</Text>
+            </View>
+            <Text style={styles.paypalExplainerText}>
+              Paga in modo rapido e sicuro tramite il tuo conto PayPal, oppure dividi l'importo in 3 rate a tasso zero.
+            </Text>
+          </View>
+
+          {/* Prezzo e Riepilogo per PayPal */}
+          <View style={styles.paypalOrderSummaryRow}>
+            <View>
+              <Text style={styles.paypalOrderLabel}>TOTALE DA CORRISPONDERE</Text>
+              <Text style={styles.paypalOrderPlanName}>{planInfo.title}</Text>
+            </View>
+            <Text style={styles.paypalOrderTotal}>{planInfo.priceTotal}</Text>
+          </View>
+
+          {/* Botão Oficial PayPal Amarelo */}
+          <TouchableOpacity
+            style={styles.paypalMainBtn}
+            onPress={handlePayPalCheckout}
+            disabled={paypalLoading}
+            activeOpacity={0.88}
+          >
+            {paypalLoading ? (
+              <ActivityIndicator size="small" color="#003087" />
+            ) : (
+              <View style={styles.paypalBtnContent}>
+                <View style={styles.paypalLogoBtnIcon}>
+                  <Text style={styles.paypalBtnP1}>P</Text>
+                  <Text style={styles.paypalBtnP2}>P</Text>
+                </View>
+                <Text style={styles.paypalBtnLabel}>
+                  Paga con <Text style={styles.paypalBtnBrand}>PayPal</Text>
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
+
+          {/* Botão Secundário Paga in 3 Rate */}
+          <TouchableOpacity
+            style={styles.paypalInstallmentBtn}
+            onPress={handlePayPalCheckout}
+            disabled={paypalLoading}
+            activeOpacity={0.88}
+          >
+            <View style={styles.installmentBtnContent}>
+              <Text style={styles.installmentBtnTitle}>
+                Paga in 3 rate da {installmentAmount}
+              </Text>
+              <Text style={styles.installmentBtnSub}>
+                Senza interessi né costi aggiuntivi con PayPal
+              </Text>
+            </View>
+            <ChevronRight size={18} color="#003087" strokeWidth={2.5} />
+          </TouchableOpacity>
+
+          {/* Vantaggi Sicurezza PayPal */}
+          <View style={styles.paypalSecurityList}>
+            <View style={styles.paypalSecurityItem}>
+              <ShieldCheck size={16} color="#0079C1" strokeWidth={2.2} />
+              <Text style={styles.paypalSecurityItemText}>
+                <Text style={styles.boldDark}>Protezione Acquisti PayPal:</Text> rimborso completo garantito su ordini idonei
+              </Text>
+            </View>
+            <View style={styles.paypalSecurityItem}>
+              <Lock size={16} color="#0079C1" strokeWidth={2.2} />
+              <Text style={styles.paypalSecurityItemText}>
+                <Text style={styles.boldDark}>Zero condivisione dati:</Text> i dettagli della tua carta non vengono comunicati al venditore
+              </Text>
+            </View>
+            <View style={styles.paypalSecurityItem}>
+              <Sparkles size={16} color="#0079C1" strokeWidth={2.2} />
+              <Text style={styles.paypalSecurityItemText}>
+                <Text style={styles.boldDark}>Sblocco Immediato:</Text> accesso immediato all'app e ai test del salto post-acquisto
+              </Text>
+            </View>
+          </View>
+        </View>
+      ) : (
+        <>
+          {loading && (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#0F172A" />
+              <Text style={styles.loadingMainText}>Connessione sicura a Stripe...</Text>
+              <Text style={styles.loadingSubText}>Inizializzazione del gateway bancario crittografato</Text>
+            </View>
+          )}
+
+          {errorMessage && (
+            <View style={styles.errorBox}>
+              <AlertCircle size={28} color="#D97706" style={{ marginBottom: 10 }} />
+              <Text style={styles.errorBoxTitle}>Completa l'acquisto in sicurezza</Text>
+              <Text style={styles.errorBoxText}>
+                Fai clic sul pulsante qui sotto per aprire il modulo di pagamento protetto ufficiale di Stripe:
+              </Text>
+              <TouchableOpacity
+                style={styles.errorFallbackBtn}
+                onPress={handleFallbackDirectCheckout}
+                activeOpacity={0.88}
+              >
+                <Text style={styles.errorFallbackBtnText}>Vai al Pagamento Sicuro ({planInfo.priceTotal})</Text>
+                <ExternalLink size={15} color="#FFFFFF" strokeWidth={2.5} />
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {Platform.OS === 'web' && (
+            <View
+              // @ts-ignore
+              id="stripe-checkout-mount"
+              style={[
+                styles.stripeMountArea,
+                (loading || errorMessage) && { display: 'none' },
+              ]}
+            />
+          )}
+        </>
+      )}
+
+      {/* Footer di Fiducia */}
+      <View style={styles.paymentFooterNote}>
+        <Lock size={12} color="#94A3B8" />
+        <Text style={styles.paymentFooterText}>
+          I tuoi dati finanziari sono inviati direttamente a Stripe tramite crittografia TLS 1.3 e non vengono mai memorizzati sui nostri server.
+        </Text>
+      </View>
+    </>
+  );
+
   return (
     <Modal
       visible={visible}
@@ -242,7 +568,7 @@ export const StripeEmbeddedCheckoutModal: React.FC<StripeEmbeddedCheckoutModalPr
       onRequestClose={onClose}
     >
       <View style={styles.modalOverlay}>
-        <View style={[styles.modalCard, isDesktop && styles.modalCardDesktop]}>
+        <View style={[styles.modalCard, isDesktop ? styles.modalCardDesktop : styles.modalCardMobile]}>
           {/* Close button float */}
           <TouchableOpacity
             onPress={onClose}
@@ -253,335 +579,52 @@ export const StripeEmbeddedCheckoutModal: React.FC<StripeEmbeddedCheckoutModalPr
             <X size={18} color="#64748B" strokeWidth={2.5} />
           </TouchableOpacity>
 
-          <View style={[styles.mainLayout, isDesktop && styles.mainLayoutDesktop]}>
-            {/* ── COLONNA SINISTRA: RIEPILOGO ORDINE & GARANZIE (DARK FINTECH AUTHORITY) ── */}
-            <View style={[styles.leftSummaryColumn, isDesktop && styles.leftSummaryColumnDesktop]}>
-              {/* Brand & Security Header */}
-              <View style={styles.brandRow}>
-                <View style={styles.brandBadge}>
-                  <Text style={styles.brandTitle}>
-                    Verti<Text style={{ color: Colors.primary }}>Cam</Text>
-                  </Text>
-                  <View style={styles.proPill}>
-                    <Text style={styles.proPillText}>PRO</Text>
-                  </View>
-                </View>
-
-                <View style={styles.securityLiveBadge}>
-                  <Lock size={12} color="#10B981" strokeWidth={2.5} />
-                  <Text style={styles.securityLiveText}>256-Bit SSL</Text>
-                </View>
+          {isDesktop ? (
+            <View style={styles.mainLayoutDesktop}>
+              {/* ── COLONNA SINISTRA: RIEPILOGO ORDINE & GARANZIE (DARK FINTECH AUTHORITY) ── */}
+              <View style={styles.leftSummaryColumnDesktop}>
+                {renderSummaryContent()}
               </View>
 
-              {/* Box Piano Selezionato */}
-              <View style={styles.planOverviewCard}>
-                <View style={styles.planHeaderRow}>
-                  <View>
-                    <Text style={styles.planCategoryLabel}>PROGRAMMA SELEZIONATO</Text>
-                    <Text style={styles.planMainTitle}>{planInfo.title}</Text>
-                  </View>
-                  {planInfo.savings && (
-                    <View style={styles.savingsBadge}>
-                      <Sparkles size={11} color="#00E5FF" strokeWidth={2.5} />
-                      <Text style={styles.savingsBadgeText}>{planInfo.savings}</Text>
-                    </View>
-                  )}
-                </View>
+              {/* ── COLONNA DESTRA: PAGAMENTO STRIPE SEAMLESS (#FFFFFF) ── */}
+              <View style={styles.rightPaymentColumnDesktop}>
+                {renderPaymentHeader()}
+                {renderPaymentTabs()}
+                {renderCardBadges()}
 
-                <View style={styles.priceHighlightRow}>
-                  <Text style={styles.priceHighlightValue}>{planInfo.priceTotal}</Text>
-                  <Text style={styles.priceHighlightCadence}>/ {planInfo.duration.toLowerCase()}</Text>
-                </View>
-
-                <Text style={styles.cadenceExplainer}>{planInfo.cadence}</Text>
-              </View>
-
-              {/* Cosa include il programma */}
-              <View style={styles.featuresSection}>
-                <Text style={styles.featuresSectionTitle}>COSA INCLUDE IL TUO ACCESSO:</Text>
-                
-                <View style={styles.featureItemRow}>
-                  <View style={styles.featureCheckCircle}>
-                    <Check size={11} color="#00E5FF" strokeWidth={3} />
-                  </View>
-                  <Text style={styles.featureItemText}>
-                    <Text style={styles.featureItemBold}>Misurazione IA del salto:</Text> precisione millimetrica via fotocamera
-                  </Text>
-                </View>
-
-                <View style={styles.featureItemRow}>
-                  <View style={styles.featureCheckCircle}>
-                    <Check size={11} color="#00E5FF" strokeWidth={3} />
-                  </View>
-                  <Text style={styles.featureItemText}>
-                    <Text style={styles.featureItemBold}>Algoritmo neurale SNC:</Text> autoregolazione del carico su affaticamento
-                  </Text>
-                </View>
-
-                <View style={styles.featureItemRow}>
-                  <View style={styles.featureCheckCircle}>
-                    <Check size={11} color="#00E5FF" strokeWidth={3} />
-                  </View>
-                  <Text style={styles.featureItemText}>
-                    <Text style={styles.featureItemBold}>Protocollo tendineo:</Text> prevenzione infortuni e tendinopatia rotulea
-                  </Text>
-                </View>
-
-                <View style={styles.featureItemRow}>
-                  <View style={styles.featureCheckCircle}>
-                    <Check size={11} color="#00E5FF" strokeWidth={3} />
-                  </View>
-                  <Text style={styles.featureItemText}>
-                    <Text style={styles.featureItemBold}>Attivazione istantanea:</Text> accesso immediato all'app post-checkout
-                  </Text>
-                </View>
-              </View>
-
-              {/* Garanzia Rimborso 30 Giorni */}
-              <View style={styles.guaranteeBox}>
-                <View style={styles.guaranteeHeader}>
-                  <RotateCcw size={15} color="#FBBF24" strokeWidth={2.5} />
-                  <Text style={styles.guaranteeTitle}>Garanzia 100% Soddisfatti o Rimborsati</Text>
-                </View>
-                <Text style={styles.guaranteeText}>
-                  Testa VertiCam Pro per 30 giorni. Se non registri un aumento concreto della tua elevazione, ti rimborsiamo l'intero importo senza domande.
-                </Text>
-              </View>
-
-              {/* Verified by Stripe Banner */}
-              <View style={styles.stripeAuditRow}>
-                <ShieldCheck size={14} color="#94A3B8" strokeWidth={2} />
-                <Text style={styles.stripeAuditText}>
-                  Elaborazione certificata PCI-DSS Livello 1 via <Text style={styles.stripeAuditBrand}>stripe</Text>
-                </Text>
+                <ScrollView
+                  style={styles.paymentScroll}
+                  contentContainerStyle={styles.paymentScrollContent}
+                  showsVerticalScrollIndicator={false}
+                >
+                  {renderPaymentBody()}
+                </ScrollView>
               </View>
             </View>
-
-            {/* ── COLONNA DESTRA: PAGAMENTO STRIPE SEAMLESS (#FFFFFF) ── */}
-            <View style={[styles.rightPaymentColumn, isDesktop && styles.rightPaymentColumnDesktop]}>
-              {/* Header Pagamento Sicuro */}
-              <View style={styles.paymentHeader}>
-                <View style={styles.paymentHeaderLeft}>
-                  <View style={styles.lockBadgeSolid}>
-                    <Lock size={15} color="#0F172A" strokeWidth={2.5} />
-                  </View>
-                  <View>
-                    <Text style={styles.paymentHeaderTitle}>Pagamento Protetto</Text>
-                    <Text style={styles.paymentHeaderSubtitle}>Transazione crittografata con standard bancario</Text>
-                  </View>
-                </View>
+          ) : (
+            <ScrollView
+              style={styles.mobileMainScroll}
+              contentContainerStyle={styles.mobileMainScrollContent}
+              showsVerticalScrollIndicator={true}
+              keyboardShouldPersistTaps="handled"
+              bounces={true}
+            >
+              {/* ── TOP: RIEPILOGO ORDINE & GARANZIE (DARK) ── */}
+              <View style={styles.leftSummaryColumnMobile}>
+                {renderSummaryContent()}
               </View>
 
-              {/* Selettore Metodo di Pagamento (Carta vs PayPal) */}
-              <View style={styles.paymentMethodTabsRow}>
-                <TouchableOpacity
-                  style={[
-                    styles.paymentMethodTab,
-                    paymentMethod === 'card' && styles.paymentMethodTabActive,
-                  ]}
-                  onPress={() => setPaymentMethod('card')}
-                  activeOpacity={0.85}
-                >
-                  <CreditCard size={15} color={paymentMethod === 'card' ? '#0F172A' : '#64748B'} strokeWidth={2.2} />
-                  <Text
-                    style={[
-                      styles.paymentMethodTabText,
-                      paymentMethod === 'card' && styles.paymentMethodTabTextActive,
-                    ]}
-                  >
-                    Carta / Apple & Google Pay
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[
-                    styles.paymentMethodTab,
-                    paymentMethod === 'paypal' && styles.paymentMethodTabActivePaypal,
-                  ]}
-                  onPress={() => setPaymentMethod('paypal')}
-                  activeOpacity={0.85}
-                >
-                  <View style={styles.paypalTabLogoIcon}>
-                    <Text style={styles.paypalTabLogoP1}>P</Text>
-                    <Text style={styles.paypalTabLogoP2}>P</Text>
-                  </View>
-                  <Text
-                    style={[
-                      styles.paymentMethodTabText,
-                      paymentMethod === 'paypal' && styles.paymentMethodTabTextActivePaypal,
-                    ]}
-                  >
-                    PayPal
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              {/* Circuiti Accettati Logos / Badges */}
-              <View style={styles.cardBadgesRow}>
-                <View style={styles.cardBadgePill}>
-                  <Text style={styles.cardBadgeText}>VISA</Text>
-                </View>
-                <View style={styles.cardBadgePill}>
-                  <Text style={styles.cardBadgeText}>Mastercard</Text>
-                </View>
-                <View style={styles.cardBadgePill}>
-                  <Text style={styles.cardBadgeText}>Apple Pay</Text>
-                </View>
-                <View style={styles.cardBadgePill}>
-                  <Text style={styles.cardBadgeText}>Google Pay</Text>
-                </View>
-                <View style={[styles.cardBadgePill, styles.cardBadgePillPaypal]}>
-                  <Text style={styles.cardBadgePaypalText}>PayPal</Text>
-                </View>
-                <View style={[styles.cardBadgePill, { borderColor: '#E2E8F0' }]}>
-                  <Text style={[styles.cardBadgeText, { color: '#6366F1' }]}>Klarna</Text>
+              {/* ── BOTTOM: PAGAMENTO SICURO & METODI (WHITE) ── */}
+              <View style={styles.rightPaymentColumnMobile}>
+                {renderPaymentHeader()}
+                {renderPaymentTabs()}
+                {renderCardBadges()}
+                <View style={styles.paymentBodyMobile}>
+                  {renderPaymentBody()}
                 </View>
               </View>
-
-              {/* Content / Stripe Iframe Container oppure PayPal View */}
-              <ScrollView
-                style={styles.paymentScroll}
-                contentContainerStyle={styles.paymentScrollContent}
-                showsVerticalScrollIndicator={false}
-              >
-                {paymentMethod === 'paypal' ? (
-                  <View style={styles.paypalContainer}>
-                    {/* Banner Informativo PayPal */}
-                    <View style={styles.paypalInfoCard}>
-                      <View style={styles.paypalHeaderBadge}>
-                        <View style={styles.paypalLogoIconBig}>
-                          <Text style={styles.paypalBigP1}>P</Text>
-                          <Text style={styles.paypalBigP2}>P</Text>
-                        </View>
-                        <Text style={styles.paypalBrandTitle}>PayPal Checkout</Text>
-                      </View>
-                      <Text style={styles.paypalExplainerText}>
-                        Paga in modo rapido e sicuro tramite il tuo conto PayPal, oppure dividi l'importo in 3 rate a tasso zero.
-                      </Text>
-                    </View>
-
-                    {/* Prezzo e Riepilogo per PayPal */}
-                    <View style={styles.paypalOrderSummaryRow}>
-                      <View>
-                        <Text style={styles.paypalOrderLabel}>TOTALE DA CORRISPONDERE</Text>
-                        <Text style={styles.paypalOrderPlanName}>{planInfo.title}</Text>
-                      </View>
-                      <Text style={styles.paypalOrderTotal}>{planInfo.priceTotal}</Text>
-                    </View>
-
-                    {/* Botão Oficial PayPal Amarelo */}
-                    <TouchableOpacity
-                      style={styles.paypalMainBtn}
-                      onPress={handlePayPalCheckout}
-                      disabled={paypalLoading}
-                      activeOpacity={0.88}
-                    >
-                      {paypalLoading ? (
-                        <ActivityIndicator size="small" color="#003087" />
-                      ) : (
-                        <View style={styles.paypalBtnContent}>
-                          <View style={styles.paypalLogoBtnIcon}>
-                            <Text style={styles.paypalBtnP1}>P</Text>
-                            <Text style={styles.paypalBtnP2}>P</Text>
-                          </View>
-                          <Text style={styles.paypalBtnLabel}>
-                            Paga con <Text style={styles.paypalBtnBrand}>PayPal</Text>
-                          </Text>
-                        </View>
-                      )}
-                    </TouchableOpacity>
-
-                    {/* Botão Secundário Paga in 3 Rate */}
-                    <TouchableOpacity
-                      style={styles.paypalInstallmentBtn}
-                      onPress={handlePayPalCheckout}
-                      disabled={paypalLoading}
-                      activeOpacity={0.88}
-                    >
-                      <View style={styles.installmentBtnContent}>
-                        <Text style={styles.installmentBtnTitle}>
-                          Paga in 3 rate da {installmentAmount}
-                        </Text>
-                        <Text style={styles.installmentBtnSub}>
-                          Senza interessi né costi aggiuntivi con PayPal
-                        </Text>
-                      </View>
-                      <ChevronRight size={18} color="#003087" strokeWidth={2.5} />
-                    </TouchableOpacity>
-
-                    {/* Vantaggi Sicurezza PayPal */}
-                    <View style={styles.paypalSecurityList}>
-                      <View style={styles.paypalSecurityItem}>
-                        <ShieldCheck size={16} color="#0079C1" strokeWidth={2.2} />
-                        <Text style={styles.paypalSecurityItemText}>
-                          <Text style={styles.boldDark}>Protezione Acquisti PayPal:</Text> rimborso completo garantito su ordini idonei
-                        </Text>
-                      </View>
-                      <View style={styles.paypalSecurityItem}>
-                        <Lock size={16} color="#0079C1" strokeWidth={2.2} />
-                        <Text style={styles.paypalSecurityItemText}>
-                          <Text style={styles.boldDark}>Zero condivisione dati:</Text> i dettagli della tua carta non vengono comunicati al venditore
-                        </Text>
-                      </View>
-                      <View style={styles.paypalSecurityItem}>
-                        <Sparkles size={16} color="#0079C1" strokeWidth={2.2} />
-                        <Text style={styles.paypalSecurityItemText}>
-                          <Text style={styles.boldDark}>Sblocco Immediato:</Text> accesso immediato all'app e ai test del salto post-acquisto
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                ) : (
-                  <>
-                    {loading && (
-                      <View style={styles.loadingContainer}>
-                        <ActivityIndicator size="large" color="#0F172A" />
-                        <Text style={styles.loadingMainText}>Connessione sicura a Stripe...</Text>
-                        <Text style={styles.loadingSubText}>Inizializzazione del gateway bancario crittografato</Text>
-                      </View>
-                    )}
-
-                    {errorMessage && (
-                      <View style={styles.errorBox}>
-                        <AlertCircle size={28} color="#D97706" style={{ marginBottom: 10 }} />
-                        <Text style={styles.errorBoxTitle}>Completa l'acquisto in sicurezza</Text>
-                        <Text style={styles.errorBoxText}>
-                          Fai clic sul pulsante qui sotto per aprire il modulo di pagamento protetto ufficiale di Stripe:
-                        </Text>
-                        <TouchableOpacity
-                          style={styles.errorFallbackBtn}
-                          onPress={handleFallbackDirectCheckout}
-                          activeOpacity={0.88}
-                        >
-                          <Text style={styles.errorFallbackBtnText}>Vai al Pagamento Sicuro ({planInfo.priceTotal})</Text>
-                          <ExternalLink size={15} color="#FFFFFF" strokeWidth={2.5} />
-                        </TouchableOpacity>
-                      </View>
-                    )}
-
-                    {Platform.OS === 'web' && (
-                      <View
-                        // @ts-ignore
-                        id="stripe-checkout-mount"
-                        style={[
-                          styles.stripeMountArea,
-                          (loading || errorMessage) && { display: 'none' },
-                        ]}
-                      />
-                    )}
-                  </>
-                )}
-
-                {/* Footer di Fiducia */}
-                <View style={styles.paymentFooterNote}>
-                  <Lock size={12} color="#94A3B8" />
-                  <Text style={styles.paymentFooterText}>
-                    I tuoi dati finanziari sono inviati direttamente a Stripe tramite crittografia TLS 1.3 e non vengono mai memorizzati sui nostri server.
-                  </Text>
-                </View>
-              </ScrollView>
-            </View>
-          </View>
+            </ScrollView>
+          )}
         </View>
       </View>
     </Modal>
@@ -612,8 +655,21 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
   },
+  modalCardMobile: {
+    height: '92%',
+    maxHeight: '94%',
+  },
   modalCardDesktop: {
     minHeight: 640,
+    height: 'auto',
+  },
+  mobileMainScroll: {
+    width: '100%',
+    flex: 1,
+  },
+  mobileMainScrollContent: {
+    flexGrow: 1,
+    paddingBottom: 40,
   },
   floatingCloseBtn: {
     position: 'absolute',
@@ -642,6 +698,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.08)',
   },
+  leftSummaryColumnMobile: {
+    backgroundColor: '#090D1A',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+  },
   leftSummaryColumnDesktop: {
     width: 380,
     borderBottomWidth: 0,
@@ -655,6 +719,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 20,
+  },
+  brandRowMobile: {
+    paddingRight: 40,
   },
   brandBadge: {
     flexDirection: 'row',
@@ -847,6 +914,12 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     minHeight: 520,
   },
+  rightPaymentColumnMobile: {
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    display: 'flex',
+    flexDirection: 'column',
+  },
   rightPaymentColumnDesktop: {
     minHeight: 640,
   },
@@ -857,6 +930,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 28,
     paddingTop: 24,
     paddingBottom: 12,
+  },
+  paymentHeaderMobile: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 10,
   },
   paymentHeaderLeft: {
     flexDirection: 'row',
@@ -892,6 +970,10 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F1F5F9',
     flexWrap: 'wrap',
   },
+  cardBadgesRowMobile: {
+    paddingHorizontal: 20,
+    paddingBottom: 12,
+  },
   cardBadgePill: {
     paddingHorizontal: 8,
     paddingVertical: 3,
@@ -923,6 +1005,10 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingHorizontal: 28,
     paddingBottom: 14,
+  },
+  paymentMethodTabsRowMobile: {
+    paddingHorizontal: 20,
+    paddingBottom: 12,
   },
   paymentMethodTab: {
     flex: 1,
@@ -1153,6 +1239,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 12,
     minHeight: 460,
+  },
+  paymentBodyMobile: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
   },
   stripeMountArea: {
     width: '100%',
