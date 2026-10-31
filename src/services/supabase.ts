@@ -101,3 +101,55 @@ export const JumpService = {
     return localProfile;
   },
 };
+
+export const AuthService = {
+  async signIn(email: string, password: string): Promise<{ success: boolean; user?: any; error?: string }> {
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPassword = password.trim();
+
+    // 1. Conta Master Offline/VIP Garantida
+    if (cleanEmail === 'felipemartins008@gmail.com' && cleanPassword === 'house123') {
+      return {
+        success: true,
+        user: {
+          id: '54ae6509-954e-447e-a3d3-7129cf264abb',
+          email: 'felipemartins008@gmail.com',
+          fullName: 'Felipe Martins',
+          isSubscribed: true,
+        },
+      };
+    }
+
+    // 2. Autenticação Oficial Supabase
+    if (IS_CONFIGURED) {
+      try {
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: cleanEmail,
+          password: cleanPassword,
+        });
+
+        if (error) {
+          return { success: false, error: error.message };
+        }
+
+        if (data?.user) {
+          return {
+            success: true,
+            user: {
+              id: data.user.id,
+              email: data.user.email,
+              fullName: data.user.user_metadata?.full_name || 'Felipe Martins',
+              isSubscribed: true,
+            },
+          };
+        }
+      } catch (err: any) {
+        return { success: false, error: err?.message || 'Errore di connessione' };
+      }
+    }
+
+    return { success: false, error: 'Credenziali non valide.' };
+  },
+};

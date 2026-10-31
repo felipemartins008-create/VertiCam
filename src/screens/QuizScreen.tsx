@@ -49,6 +49,7 @@ import {
 } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
 import { useApp } from '../context/AppContext';
+import { AuthService } from '../services/supabase';
 import { VolleyballPosition } from '../types';
 import { estimateStandingReach } from '../utils/jumpPhysics';
 
