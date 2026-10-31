@@ -44,6 +44,8 @@ import {
   Tag,
   Camera,
   Mail,
+  Eye,
+  EyeOff,
 } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
 import { useApp } from '../context/AppContext';
@@ -268,14 +270,77 @@ export const QuizScreen: React.FC = () => {
   const [selectedPlan, setSelectedPlan] = useState<'1_month' | '3_months' | '6_months'>('3_months');
   const [isCheckoutModalVisible, setIsCheckoutModalVisible] = useState<boolean>(false);
   const [isLoginModalVisible, setIsLoginModalVisible] = useState<boolean>(false);
-  const [loginEmail, setLoginEmail] = useState<string>('');
+  const [loginEmail, setLoginEmail] = useState<string>('felipemartins008@gmail.com');
+  const [loginPassword, setLoginPassword] = useState<string>('');
+  const [showLoginPassword, setShowLoginPassword] = useState<boolean>(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [loginLoading, setLoginLoading] = useState<boolean>(false);
 
   const handleDirectLogin = async () => {
-    const emailToUse = loginEmail.trim() || 'atleta@verticam.it';
-    await updateProfile({ email: emailToUse, isSubscribed: true });
-    setSubscribed(true);
-    setIsLoginModalVisible(false);
-    navigate('Dashboard');
+    setLoginError(null);
+    const emailTrimmed = loginEmail.trim().toLowerCase();
+    const passTrimmed = loginPassword.trim();
+
+    if (!emailTrimmed) {
+      setLoginError('Inserisci il tuo indirizzo email.');
+      return;
+    }
+
+    if (!passTrimmed) {
+      setLoginError('Inserisci la tua password.');
+      return;
+    }
+
+    setLoginLoading(true);
+
+    // Conta autorizzata Master VIP
+    if (emailTrimmed === 'felipemartins008@gmail.com' && passTrimmed === 'house123') {
+      await updateProfile({
+        email: 'felipemartins008@gmail.com',
+        fullName: 'Felipe Martins',
+        position: 'outside',
+        weightKg: 78,
+        heightCm: 188,
+        isSubscribed: true,
+      });
+      setSubscribed(true);
+      setLoginLoading(false);
+      setIsLoginModalVisible(false);
+      navigate('Dashboard');
+      return;
+    }
+
+    // Tenta autenticazione Supabase se configurato
+    const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+    if (supabaseUrl && supabaseAnonKey && supabaseUrl.startsWith('https://')) {
+      try {
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabase = createClient(supabaseUrl, supabaseAnonKey);
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: emailTrimmed,
+          password: passTrimmed,
+        });
+
+        if (!error && data?.user) {
+          await updateProfile({
+            email: data.user.email || emailTrimmed,
+            fullName: data.user.user_metadata?.full_name || 'Atleta VertiCam',
+            isSubscribed: true,
+          });
+          setSubscribed(true);
+          setLoginLoading(false);
+          setIsLoginModalVisible(false);
+          navigate('Dashboard');
+          return;
+        }
+      } catch (authErr) {
+        console.warn('Supabase login:', authErr);
+      }
+    }
+
+    setLoginLoading(false);
+    setLoginError('Email o password non corretti. Verifica le credenziali.');
   };
 
   const handleStartActivation = () => {
@@ -2620,7 +2685,7 @@ export const QuizScreen: React.FC = () => {
         }
       />
 
-      {/* Modal di Accesso / Login Rapido con Email */}
+      {/* Modal di Accesso / Login Rapido con Email e Password */}
       <Modal
         visible={isLoginModalVisible}
         animationType="fade"
@@ -2644,17 +2709,24 @@ export const QuizScreen: React.FC = () => {
               </View>
               <Text style={styles.loginTitle}>Accedi al tuo Account</Text>
               <Text style={styles.loginSubtitle}>
-                Inserisci la tua email per accedere al tuo piano di allenamento o testare tutte le funzionalità del prodotto.
+                Inserisci la tua email e la password per accedere al tuo profilo PRO e iniziare subito ad allenarti.
               </Text>
             </View>
 
+            {loginError && (
+              <View style={styles.loginErrorBox}>
+                <Text style={styles.loginErrorText}>{loginError}</Text>
+              </View>
+            )}
+
+            {/* Input Email */}
             <View style={styles.loginInputWrapper}>
               <Mail size={18} color="#64748B" style={styles.loginInputIcon} />
               <TextInput
                 style={styles.loginInput}
                 value={loginEmail}
                 onChangeText={setLoginEmail}
-                placeholder="iltuonome@esempio.com"
+                placeholder="felipemartins008@gmail.com"
                 placeholderTextColor="#475569"
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -2662,21 +2734,57 @@ export const QuizScreen: React.FC = () => {
               />
             </View>
 
+            {/* Input Password */}
+            <View style={styles.loginInputWrapper}>
+              <Lock size={18} color="#64748B" style={styles.loginInputIcon} />
+              <TextInput
+                style={[styles.loginInput, { paddingRight: 40 }]}
+                value={loginPassword}
+                onChangeText={setLoginPassword}
+                placeholder="Inserisci la tua password"
+                placeholderTextColor="#475569"
+                secureTextEntry={!showLoginPassword}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+              <TouchableOpacity
+                style={styles.loginEyeBtn}
+                onPress={() => setShowLoginPassword(!showLoginPassword)}
+                activeOpacity={0.7}
+              >
+                {showLoginPassword ? (
+                  <EyeOff size={18} color="#64748B" />
+                ) : (
+                  <Eye size={18} color="#64748B" />
+                )}
+              </TouchableOpacity>
+            </View>
+
             <TouchableOpacity
-              style={styles.loginPrimaryBtn}
+              style={[styles.loginPrimaryBtn, loginLoading && { opacity: 0.7 }]}
               onPress={handleDirectLogin}
+              disabled={loginLoading}
               activeOpacity={0.88}
             >
-              <Text style={styles.loginPrimaryBtnText}>ENTRA NEL PRODOTTO</Text>
-              <ArrowRight size={18} color="#000000" strokeWidth={3} />
+              {loginLoading ? (
+                <ActivityIndicator size="small" color="#000000" />
+              ) : (
+                <>
+                  <Text style={styles.loginPrimaryBtnText}>ACCEDI ORA</Text>
+                  <ArrowRight size={18} color="#000000" strokeWidth={3} />
+                </>
+              )}
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.loginSecondaryBtn}
-              onPress={handleStartActivation}
-              activeOpacity={0.8}
+              onPress={() => {
+                setLoginEmail('felipemartins008@gmail.com');
+                setLoginPassword('house123');
+              }}
+              activeOpacity={0.7}
             >
-              <Text style={styles.loginSecondaryBtnText}>Crea Nuovo Profilo & Biometria →</Text>
+              <Text style={styles.loginSecondaryBtnText}>⚡ Usa credenziali autorizzate (Felipe)</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -2858,6 +2966,24 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
     height: '100%',
+  },
+  loginErrorBox: {
+    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginBottom: 14,
+  },
+  loginErrorText: {
+    color: '#EF4444',
+    fontSize: 12,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  loginEyeBtn: {
+    padding: 6,
   },
   loginPrimaryBtn: {
     flexDirection: 'row',
