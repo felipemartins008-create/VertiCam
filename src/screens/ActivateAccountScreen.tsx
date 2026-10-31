@@ -66,21 +66,21 @@ export const ActivateAccountScreen: React.FC = () => {
     setErrorMessage(null);
 
     if (!email || !email.includes('@')) {
-      setErrorMessage('Por favor, insira um endereço de e-mail válido.');
+      setErrorMessage('Inserisci un indirizzo email valido.');
       return;
     }
 
     if (password.length < 6) {
-      setErrorMessage('A senha deve conter pelo menos 6 caracteres.');
+      setErrorMessage('La password deve contenere almeno 6 caratteri.');
       return;
     }
 
     if (password !== confirmPassword) {
-      setErrorMessage('As senhas não coincidem. Verifique e tente novamente.');
+      setErrorMessage('Le password non coincidono. Verifica e riprova.');
       return;
     }
 
-    // Passa para o Passo 2 (Biometria)
+    // Passa al Passo 2 (Dati Biometrici)
     setStep('biometrics');
   };
 
@@ -92,17 +92,17 @@ export const ActivateAccountScreen: React.FC = () => {
     const legNum = parseFloat(legLengthCm);
 
     if (isNaN(weightNum) || weightNum < 40 || weightNum > 160) {
-      setErrorMessage('Insira um peso válido entre 40 e 160 kg.');
+      setErrorMessage('Inserisci un peso valido compreso tra 40 e 160 kg.');
       return;
     }
 
     if (isNaN(heightNum) || heightNum < 140 || heightNum > 230) {
-      setErrorMessage('Insira uma altura válida entre 140 e 230 cm.');
+      setErrorMessage('Inserisci un\'altezza valida compresa tra 140 e 230 cm.');
       return;
     }
 
     if (isNaN(legNum) || legNum < 60 || legNum > 130) {
-      setErrorMessage('Insira um comprimento de perna válido entre 60 e 130 cm.');
+      setErrorMessage('Inserisci una lunghezza delle gambe valida tra 60 e 130 cm.');
       return;
     }
 
@@ -145,31 +145,31 @@ export const ActivateAccountScreen: React.FC = () => {
 
       setSubscribed(true);
 
-      // 3. Avança para o Tutorial de Onboarding
+      // 3. Avanza al Tutorial di Onboarding
       setTimeout(() => {
         setLoading(false);
         navigate('OnboardingTutorial');
       }, 500);
     } catch (err: any) {
       setLoading(false);
-      setErrorMessage(err?.message || 'Ocorreu um erro ao salvar. Tente novamente.');
+      setErrorMessage(err?.message || 'Si è verificato un errore durante il salvataggio. Riprova.');
     }
   };
 
   const positions: { id: VolleyballPosition; label: string }[] = [
-    { id: 'outside', label: 'Ponteiro' },
-    { id: 'opposite', label: 'Oposto' },
-    { id: 'middle', label: 'Central' },
-    { id: 'setter', label: 'Levantador' },
-    { id: 'libero', label: 'Líbero' },
-    { id: 'beach', label: 'Vôlei de Praia' },
+    { id: 'outside', label: 'Schiacciatore' },
+    { id: 'opposite', label: 'Opposto' },
+    { id: 'middle', label: 'Centrale' },
+    { id: 'setter', label: 'Palleggiatore' },
+    { id: 'libero', label: 'Libero' },
+    { id: 'beach', label: 'Beach Volley' },
   ];
 
   const equipments: { id: 'dumbbells' | 'barbell' | 'weight_vest' | 'bodyweight'; label: string }[] = [
-    { id: 'dumbbells', label: 'Halteres / Pesos de mão' },
-    { id: 'barbell', label: 'Barra com anilhas' },
-    { id: 'weight_vest', label: 'Colete com peso / Zavorra' },
-    { id: 'bodyweight', label: 'Peso corporal / Garrafas com areia' },
+    { id: 'dumbbells', label: 'Manubri / Pesi manuali' },
+    { id: 'barbell', label: 'Bilanciere con dischi' },
+    { id: 'weight_vest', label: 'Gilet zavorrato / Sovraccarico' },
+    { id: 'bodyweight', label: 'Corpo libero / Zavorre fai da te' },
   ];
 
   return (
@@ -204,11 +204,11 @@ export const ActivateAccountScreen: React.FC = () => {
               <View style={styles.headerBox}>
                 <View style={styles.shieldPill}>
                   <ShieldCheck size={14} color={Colors.primary} strokeWidth={2.5} />
-                  <Text style={styles.shieldPillText}>PAGAMENTO CONFIRMADO</Text>
+                  <Text style={styles.shieldPillText}>PAGAMENTO CONFERMATO</Text>
                 </View>
-                <Text style={styles.title}>Crie seu Acesso</Text>
+                <Text style={styles.title}>Crea il tuo Accesso</Text>
                 <Text style={styles.subtitle}>
-                  Defina a sua senha para acessar o VertiCam Pro de qualquer smartphone ou computador.
+                  Imposta la tua password per accedere a VertiCam Pro da qualsiasi smartphone o computer.
                 </Text>
               </View>
 
@@ -221,14 +221,14 @@ export const ActivateAccountScreen: React.FC = () => {
               {/* Formulário de Credenciais */}
               <View style={styles.formSection}>
                 <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Endereço de E-mail</Text>
+                  <Text style={styles.inputLabel}>Indirizzo Email</Text>
                   <View style={styles.inputWrapper}>
                     <Mail size={18} color="#64748B" style={styles.inputIcon} />
                     <TextInput
                       style={styles.input}
                       value={email}
                       onChangeText={setEmail}
-                      placeholder="seunome@exemplo.com"
+                      placeholder="iltuonome@esempio.com"
                       placeholderTextColor="#475569"
                       keyboardType="email-address"
                       autoCapitalize="none"
@@ -238,14 +238,14 @@ export const ActivateAccountScreen: React.FC = () => {
                 </View>
 
                 <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Crie uma Senha</Text>
+                  <Text style={styles.inputLabel}>Crea una Password</Text>
                   <View style={styles.inputWrapper}>
                     <Lock size={18} color="#64748B" style={styles.inputIcon} />
                     <TextInput
                       style={[styles.input, { paddingRight: 45 }]}
                       value={password}
                       onChangeText={setPassword}
-                      placeholder="Mínimo de 6 caracteres"
+                      placeholder="Minimo 6 caratteri"
                       placeholderTextColor="#475569"
                       secureTextEntry={!showPassword}
                       autoCapitalize="none"
@@ -266,14 +266,14 @@ export const ActivateAccountScreen: React.FC = () => {
                 </View>
 
                 <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Confirme a Senha</Text>
+                  <Text style={styles.inputLabel}>Conferma la Password</Text>
                   <View style={styles.inputWrapper}>
                     <Lock size={18} color="#64748B" style={styles.inputIcon} />
                     <TextInput
                       style={[styles.input, { paddingRight: 45 }]}
                       value={confirmPassword}
                       onChangeText={setConfirmPassword}
-                      placeholder="Digite a senha novamente"
+                      placeholder="Digita nuovamente la password"
                       placeholderTextColor="#475569"
                       secureTextEntry={!showPassword}
                       autoCapitalize="none"
@@ -287,7 +287,7 @@ export const ActivateAccountScreen: React.FC = () => {
                   onPress={handleCredentialsSubmit}
                   activeOpacity={0.88}
                 >
-                  <Text style={styles.primaryBtnText}>Continuar: Dados Biométricos</Text>
+                  <Text style={styles.primaryBtnText}>Continua: Parametri Biometrici</Text>
                   <ArrowRight size={18} color="#000000" strokeWidth={2.5} />
                 </TouchableOpacity>
               </View>
@@ -298,11 +298,11 @@ export const ActivateAccountScreen: React.FC = () => {
               <View style={styles.headerBox}>
                 <View style={[styles.shieldPill, { backgroundColor: 'rgba(0, 229, 255, 0.12)', borderColor: 'rgba(0, 229, 255, 0.3)' }]}>
                   <Activity size={14} color={Colors.primary} strokeWidth={2.5} />
-                  <Text style={styles.shieldPillText}>MÉTODO LOTURCO & BOSCO</Text>
+                  <Text style={styles.shieldPillText}>METODO LOTURCO & BOSCO</Text>
                 </View>
-                <Text style={styles.title}>Parâmetros Biométricos</Text>
+                <Text style={styles.title}>Parametri Biometrici</Text>
                 <Text style={styles.subtitle}>
-                  Estes dados são essenciais para a IA calcular com precisão a potência mecânica (Watts) e prescrever a carga exata de salto.
+                  Questi dati sono essenziali per l'IA per calcolare con precisione la potenza meccanica (Watt) e prescrivere il sovraccarico esatto di salto.
                 </Text>
               </View>
 
@@ -316,7 +316,7 @@ export const ActivateAccountScreen: React.FC = () => {
                 {/* Peso e Altura em 2 colunas */}
                 <View style={styles.rowTwoCols}>
                   <View style={[styles.inputGroup, { flex: 1 }]}>
-                    <Text style={styles.inputLabel}>Peso Corporal (kg)</Text>
+                    <Text style={styles.inputLabel}>Peso Corporeo (kg)</Text>
                     <View style={styles.inputWrapper}>
                       <Weight size={18} color="#64748B" style={styles.inputIcon} />
                       <TextInput
@@ -331,7 +331,7 @@ export const ActivateAccountScreen: React.FC = () => {
                   </View>
 
                   <View style={[styles.inputGroup, { flex: 1 }]}>
-                    <Text style={styles.inputLabel}>Altura (cm)</Text>
+                    <Text style={styles.inputLabel}>Altezza (cm)</Text>
                     <View style={styles.inputWrapper}>
                       <Ruler size={18} color="#64748B" style={styles.inputIcon} />
                       <TextInput
@@ -349,14 +349,14 @@ export const ActivateAccountScreen: React.FC = () => {
                 {/* Comprimento da Perna (Trocânter ao solo) */}
                 <View style={styles.inputGroup}>
                   <View style={styles.labelWithHelp}>
-                    <Text style={styles.inputLabel}>Comprimento da Perna (cm)</Text>
+                    <Text style={styles.inputLabel}>Lunghezza Gamba (cm)</Text>
                     <TouchableOpacity
                       onPress={() => setShowLegHelp(!showLegHelp)}
                       activeOpacity={0.7}
                       style={styles.helpBtn}
                     >
                       <HelpCircle size={14} color={Colors.primary} />
-                      <Text style={styles.helpBtnText}>Como medir?</Text>
+                      <Text style={styles.helpBtnText}>Come misurare?</Text>
                     </TouchableOpacity>
                   </View>
 
@@ -374,18 +374,18 @@ export const ActivateAccountScreen: React.FC = () => {
 
                   {showLegHelp && (
                     <View style={styles.legHelpCard}>
-                      <Text style={styles.legHelpTitle}>📐 Medição Padrão Loturco/Bosco:</Text>
+                      <Text style={styles.legHelpTitle}>📐 Misurazione Standard Loturco/Bosco:</Text>
                       <Text style={styles.legHelpBody}>
-                        Em pé com tênis esportivo, meça com uma fita métrica a distância entre o <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>grande trocânter</Text> (o osso lateral saliente do quadril) até o <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>chão</Text>.
+                        In piedi con scarpe sportive, misura con un metro a nastro la distanza tra il <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>grande trocantere</Text> (l'osso laterale sporgente dell'anca) e il <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>suolo</Text>.
                       </Text>
-                      <Text style={styles.legHelpSub}>Geralmente corresponde a cerca de 48% a 53% da sua altura total.</Text>
+                      <Text style={styles.legHelpSub}>Generalmente corrisponde a circa il 48% - 53% della tua altezza totale.</Text>
                     </View>
                   )}
                 </View>
 
                 {/* Posição em quadra */}
                 <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Posição Principal</Text>
+                  <Text style={styles.inputLabel}>Ruolo Principale</Text>
                   <View style={styles.chipsGrid}>
                     {positions.map((p) => {
                       const selected = position === p.id;
@@ -408,7 +408,7 @@ export const ActivateAccountScreen: React.FC = () => {
 
                 {/* Equipamento disponível */}
                 <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Equipamento Disponível para Saltos com Carga</Text>
+                  <Text style={styles.inputLabel}>Attrezzatura Disponibile per Salti con Sovraccarico</Text>
                   <View style={styles.equipmentColumn}>
                     {equipments.map((eq) => {
                       const selected = equipment === eq.id;
@@ -441,7 +441,7 @@ export const ActivateAccountScreen: React.FC = () => {
                     <ActivityIndicator size="small" color="#000000" />
                   ) : (
                     <>
-                      <Text style={styles.primaryBtnText}>Concluir e Iniciar Tutorial</Text>
+                      <Text style={styles.primaryBtnText}>Concludi e Inizia Tutorial</Text>
                       <ArrowRight size={18} color="#000000" strokeWidth={2.5} />
                     </>
                   )}
@@ -452,7 +452,7 @@ export const ActivateAccountScreen: React.FC = () => {
                   style={styles.backBtn}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.backBtnText}>Voltar às credenciais</Text>
+                  <Text style={styles.backBtnText}>Torna alle credenziali</Text>
                 </TouchableOpacity>
               </View>
             </>

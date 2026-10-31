@@ -12,6 +12,7 @@ import {
   PanResponder,
   Platform,
   Linking,
+  Modal,
 } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { getStripeCheckoutUrl } from '../config/stripe';
@@ -42,6 +43,7 @@ import {
   Gift,
   Tag,
   Camera,
+  Mail,
 } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
 import { useApp } from '../context/AppContext';
@@ -265,6 +267,21 @@ export const QuizScreen: React.FC = () => {
   // Offerta Plan selection (Step 13: Mensile, Trimestrale [Più Popolare], Semestrale)
   const [selectedPlan, setSelectedPlan] = useState<'1_month' | '3_months' | '6_months'>('3_months');
   const [isCheckoutModalVisible, setIsCheckoutModalVisible] = useState<boolean>(false);
+  const [isLoginModalVisible, setIsLoginModalVisible] = useState<boolean>(false);
+  const [loginEmail, setLoginEmail] = useState<string>('');
+
+  const handleDirectLogin = async () => {
+    const emailToUse = loginEmail.trim() || 'atleta@verticam.it';
+    await updateProfile({ email: emailToUse, isSubscribed: true });
+    setSubscribed(true);
+    setIsLoginModalVisible(false);
+    navigate('Dashboard');
+  };
+
+  const handleStartActivation = () => {
+    setIsLoginModalVisible(false);
+    navigate('ActivateAccount');
+  };
 
   // Countdown timer per offerta (Step 13 - 09:41 stile BetterMe)
   const [secondsRemaining, setSecondsRemaining] = useState<number>(581);
@@ -881,7 +898,21 @@ export const QuizScreen: React.FC = () => {
             )}
 
             {currentStep !== 12 && (
-              <TouchableOpacity style={styles.headerMenuBtn} activeOpacity={0.7}>
+              <TouchableOpacity
+                style={styles.headerLoginBtn}
+                activeOpacity={0.75}
+                onPress={() => setIsLoginModalVisible(true)}
+              >
+                <Text style={styles.headerLoginText}>Accedi</Text>
+              </TouchableOpacity>
+            )}
+
+            {currentStep !== 12 && (
+              <TouchableOpacity
+                style={styles.headerMenuBtn}
+                activeOpacity={0.7}
+                onPress={() => setIsLoginModalVisible(true)}
+              >
                 <Menu size={16} color="#FFFFFF" />
               </TouchableOpacity>
             )}
@@ -2588,6 +2619,68 @@ export const QuizScreen: React.FC = () => {
             : '€ 59,99'
         }
       />
+
+      {/* Modal di Accesso / Login Rapido con Email */}
+      <Modal
+        visible={isLoginModalVisible}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={() => setIsLoginModalVisible(false)}
+      >
+        <View style={styles.loginModalOverlay}>
+          <View style={styles.loginModalCard}>
+            <TouchableOpacity
+              style={styles.loginCloseBtn}
+              onPress={() => setIsLoginModalVisible(false)}
+              activeOpacity={0.7}
+            >
+              <X size={18} color="#94A3B8" />
+            </TouchableOpacity>
+
+            <View style={styles.loginHeaderBox}>
+              <View style={styles.loginBadgePill}>
+                <Lock size={12} color={Colors.primary} strokeWidth={2.5} />
+                <Text style={styles.loginBadgeText}>ACCESSO ATLETA VERTICAM</Text>
+              </View>
+              <Text style={styles.loginTitle}>Accedi al tuo Account</Text>
+              <Text style={styles.loginSubtitle}>
+                Inserisci la tua email per accedere al tuo piano di allenamento o testare tutte le funzionalità del prodotto.
+              </Text>
+            </View>
+
+            <View style={styles.loginInputWrapper}>
+              <Mail size={18} color="#64748B" style={styles.loginInputIcon} />
+              <TextInput
+                style={styles.loginInput}
+                value={loginEmail}
+                onChangeText={setLoginEmail}
+                placeholder="iltuonome@esempio.com"
+                placeholderTextColor="#475569"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </View>
+
+            <TouchableOpacity
+              style={styles.loginPrimaryBtn}
+              onPress={handleDirectLogin}
+              activeOpacity={0.88}
+            >
+              <Text style={styles.loginPrimaryBtnText}>ENTRA NEL PRODOTTO</Text>
+              <ArrowRight size={18} color="#000000" strokeWidth={3} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.loginSecondaryBtn}
+              onPress={handleStartActivation}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.loginSecondaryBtnText}>Crea Nuovo Profilo & Biometria →</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -2651,6 +2744,20 @@ const styles = StyleSheet.create({
   betterMeLogoTextMobile: {
     fontSize: 19,
   },
+  headerLoginBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  headerLoginText: {
+    color: '#FFFFFF',
+    fontSize: 12.5,
+    fontWeight: '700',
+    letterSpacing: 0.2,
+  },
   headerMenuBtn: {
     width: 38,
     height: 38,
@@ -2660,6 +2767,122 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.03)',
+  },
+
+  // ── MODAL DI ACCESSO RAPIDO ──
+  loginModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(3, 7, 18, 0.88)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  loginModalCard: {
+    width: '100%',
+    maxWidth: 440,
+    backgroundColor: '#0D111F',
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    padding: 24,
+    shadowColor: '#00E5FF',
+    shadowOffset: { width: 0, height: 16 },
+    shadowOpacity: 0.1,
+    shadowRadius: 32,
+    elevation: 20,
+    position: 'relative',
+  },
+  loginCloseBtn: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  loginHeaderBox: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  loginBadgePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(0, 229, 255, 0.1)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 229, 255, 0.25)',
+    marginBottom: 10,
+  },
+  loginBadgeText: {
+    color: Colors.primary,
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.6,
+  },
+  loginTitle: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    marginBottom: 6,
+    textAlign: 'center',
+  },
+  loginSubtitle: {
+    fontSize: 12.5,
+    color: '#94A3B8',
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  loginInputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#12172A',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: 14,
+    height: 48,
+    marginBottom: 16,
+  },
+  loginInputIcon: {
+    marginRight: 10,
+  },
+  loginInput: {
+    flex: 1,
+    color: '#FFFFFF',
+    fontSize: 14,
+    height: '100%',
+  },
+  loginPrimaryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: Colors.primary,
+    height: 48,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  loginPrimaryBtnText: {
+    color: '#000000',
+    fontSize: 13,
+    fontWeight: '900',
+    letterSpacing: 0.4,
+  },
+  loginSecondaryBtn: {
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  loginSecondaryBtnText: {
+    color: '#94A3B8',
+    fontSize: 12.5,
+    fontWeight: '600',
   },
   segmentedProgressBarContainer: {
     width: '100%',

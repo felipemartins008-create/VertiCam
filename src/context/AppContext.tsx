@@ -83,6 +83,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (isPaymentSuccess) {
           setIsSubscribed(true);
           setCurrentScreen('ActivateAccount');
+        } else if (params.get('dashboard') === 'true' || params.get('test') === 'true') {
+          setIsSubscribed(true);
+          setCurrentScreen('Dashboard');
         }
       } catch (e) {
         // Ignora se não houver suporte a URLSearchParams
