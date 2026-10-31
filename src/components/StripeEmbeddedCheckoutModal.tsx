@@ -658,9 +658,13 @@ export const StripeEmbeddedCheckoutModal: React.FC<StripeEmbeddedCheckoutModalPr
           {isDesktop ? (
             <View style={styles.mainLayoutDesktop}>
               {/* ── COLONNA SINISTRA: RIEPILOGO ORDINE & GARANZIE (DARK FINTECH AUTHORITY) ── */}
-              <View style={styles.leftSummaryColumnDesktop}>
+              <ScrollView
+                style={styles.leftSummaryColumnDesktop}
+                contentContainerStyle={styles.leftSummaryContentDesktop}
+                showsVerticalScrollIndicator={false}
+              >
                 {renderSummaryContentDesktop()}
-              </View>
+              </ScrollView>
 
               {/* ── COLONNA DESTRA: PAGAMENTO STRIPE SEAMLESS (#FFFFFF) ── */}
               <View style={styles.rightPaymentColumnDesktop}>
@@ -737,7 +741,8 @@ const styles = StyleSheet.create({
   },
   modalCardDesktop: {
     minHeight: 640,
-    height: 'auto',
+    maxHeight: '94%',
+    height: 680,
   },
   mobileMainScroll: {
     width: '100%',
@@ -771,6 +776,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   mainLayoutDesktop: {
+    flex: 1,
     flexDirection: 'row',
   },
 
@@ -925,10 +931,15 @@ const styles = StyleSheet.create({
   },
   leftSummaryColumnDesktop: {
     width: 380,
-    borderBottomWidth: 0,
+    maxWidth: 380,
+    backgroundColor: '#090D1A',
     borderRightWidth: 1,
     borderRightColor: 'rgba(255, 255, 255, 0.08)',
-    padding: 32,
+    height: '100%',
+  },
+  leftSummaryContentDesktop: {
+    padding: 28,
+    flexGrow: 1,
     justifyContent: 'space-between',
   },
   brandRow: {
@@ -1138,6 +1149,11 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   rightPaymentColumnDesktop: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
     minHeight: 640,
   },
   paymentHeader: {
