@@ -28,6 +28,7 @@ import { useApp } from '../context/AppContext';
 import { Colors } from '../theme/colors';
 import { VertiCamLogo } from '../components/VertiCamLogo';
 import { VolleyballPosition } from '../types';
+import { AuthService } from '../services/supabase';
 
 export const ActivateAccountScreen: React.FC = () => {
   const { navigate, setSubscribed, updateProfile, updateBaseline } = useApp();
@@ -109,21 +110,12 @@ export const ActivateAccountScreen: React.FC = () => {
     setLoading(true);
 
     try {
-      // 1. Registro Supabase se configurado
-      const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
-      const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
-
-      if (supabaseUrl && supabaseAnonKey && supabaseUrl.startsWith('https://')) {
-        try {
-          const { createClient } = await import('@supabase/supabase-js');
-          const supabase = createClient(supabaseUrl, supabaseAnonKey);
-          await supabase.auth.signUp({
-            email: email.trim(),
-            password: password,
-          });
-        } catch (authErr) {
-          console.warn('Auth fallback:', authErr);
-        }
+      // 1. Registro do novo atleta no Supabase Oficial
+      const authResult = await AuthService.signUp(email.trim(), password);
+      if (!authResult.success && authResult.error && !authResult.error.includes('already registered')) {
+        setLoading(false);
+        setErrorMessage(authResult.error);
+        return;
       }
 
       // 2. Salva no perfil do atleta e na linha de base

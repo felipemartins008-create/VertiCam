@@ -65,7 +65,7 @@ const RULER_MIN_CM = 0;
 const RULER_MAX_CM = 60;
 
 export const QuizScreen: React.FC = () => {
-  const { userProfile, updateProfile, navigate, setSubscribed } = useApp();
+  const { userProfile, updateProfile, navigate, setSubscribed, reloadUserData } = useApp();
   const { width } = useWindowDimensions();
   const isDesktop = width >= 768;
 
@@ -294,54 +294,23 @@ export const QuizScreen: React.FC = () => {
 
     setLoginLoading(true);
 
-    // Conta autorizzata Master VIP
-    if (emailTrimmed === 'felipemartins008@gmail.com' && passTrimmed === 'house123') {
-      await updateProfile({
-        email: 'felipemartins008@gmail.com',
-        fullName: 'Felipe Martins',
-        position: 'outside',
-        weightKg: 78,
-        heightCm: 188,
-        isSubscribed: true,
-      });
-      setSubscribed(true);
-      setLoginLoading(false);
-      setIsLoginModalVisible(false);
-      navigate('Dashboard');
-      return;
-    }
-
-    // Tenta autenticazione Supabase se configurato
-    const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
-    if (supabaseUrl && supabaseAnonKey && supabaseUrl.startsWith('https://')) {
-      try {
-        const { createClient } = await import('@supabase/supabase-js');
-        const supabase = createClient(supabaseUrl, supabaseAnonKey);
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: emailTrimmed,
-          password: passTrimmed,
-        });
-
-        if (!error && data?.user) {
-          await updateProfile({
-            email: data.user.email || emailTrimmed,
-            fullName: data.user.user_metadata?.full_name || 'Atleta VertiCam',
-            isSubscribed: true,
-          });
-          setSubscribed(true);
-          setLoginLoading(false);
-          setIsLoginModalVisible(false);
-          navigate('Dashboard');
-          return;
-        }
-      } catch (authErr) {
-        console.warn('Supabase login:', authErr);
+    try {
+      const authResult = await AuthService.signIn(emailTrimmed, passTrimmed);
+      if (authResult.success) {
+        setSubscribed(true);
+        await reloadUserData();
+        setLoginLoading(false);
+        setIsLoginModalVisible(false);
+        navigate('Dashboard');
+        return;
+      } else {
+        setLoginLoading(false);
+        setLoginError(authResult.error || 'Email o password non corretti. Verifica le credenziali.');
       }
+    } catch (err: any) {
+      setLoginLoading(false);
+      setLoginError(err?.message || 'Errore di connessione. Riprova.');
     }
-
-    setLoginLoading(false);
-    setLoginError('Email o password non corretti. Verifica le credenziali.');
   };
 
   const handleStartActivation = () => {

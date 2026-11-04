@@ -8,7 +8,7 @@ import {
   PrescriptionOutput,
 } from '../types';
 import { INITIAL_USER_PROFILE, WORKOUT_MODULES } from '../data/mockData';
-import { JumpService } from '../services/supabase';
+import { JumpService, AuthService } from '../services/supabase';
 import { PrescriptionEngine } from '../services/prescriptionEngine';
 
 export type ScreenName =
@@ -57,6 +57,7 @@ interface AppContextType {
   setSubscribed: (status: boolean) => void;
   startWorkout: (module: WorkoutModule) => void;
   runDailyCheckin: (dailyCMJHeightCm: number) => PrescriptionOutput;
+  reloadUserData: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -92,23 +93,64 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     }
 
-    // Inicialização de dados
+    // Inicialização de dados segura
     const initData = async () => {
+      try {
+        // 1. Verifica se já existe sessão salva no Supabase
+        const sessionUser = await AuthService.getCurrentSessionUser();
+        if (sessionUser) {
+          setIsSubscribed(true);
+          setUserProfile((prev) => ({
+            ...prev,
+            email: sessionUser.email,
+            fullName: sessionUser.fullName,
+            isSubscribed: true,
+          }));
+        }
+
+        // 2. Carrega perfil do banco (se existir)
+        const profile = await JumpService.getUserProfile();
+        if (profile) {
+          setUserProfile(profile);
+        }
+
+        // 3. Carrega histórico de saltos do banco
+        const history = await JumpService.getJumpHistory();
+        setJumpHistory(history);
+        if (history.length > 0) {
+          const lastJump = history[history.length - 1];
+          setLatestJumpResult(lastJump);
+          const pres = PrescriptionEngine.generateDailyPrescription(DEFAULT_BASELINE, lastJump.jumpHeightCm);
+          setDailyPrescription(pres);
+        } else {
+          const pres = PrescriptionEngine.generateDailyPrescription(DEFAULT_BASELINE, 50.0);
+          setDailyPrescription(pres);
+        }
+      } catch (e) {
+        console.warn('Aviso: Erro silencioso ao inicializar dados:', e);
+      }
+    };
+    initData();
+  }, []);
+
+  const reloadUserData = async () => {
+    try {
+      const profile = await JumpService.getUserProfile();
+      if (profile) {
+        setUserProfile(profile);
+      }
       const history = await JumpService.getJumpHistory();
       setJumpHistory(history);
       if (history.length > 0) {
         const lastJump = history[history.length - 1];
         setLatestJumpResult(lastJump);
-        // Gera prescrição padrão baseada no último salto
         const pres = PrescriptionEngine.generateDailyPrescription(DEFAULT_BASELINE, lastJump.jumpHeightCm);
         setDailyPrescription(pres);
-      } else {
-        const pres = PrescriptionEngine.generateDailyPrescription(DEFAULT_BASELINE, 50.0);
-        setDailyPrescription(pres);
       }
-    };
-    initData();
-  }, []);
+    } catch (e) {
+      console.warn('Erro ao recarregar dados do usuário:', e);
+    }
+  };
 
   const navigate = (screen: ScreenName) => {
     setCurrentScreen(screen);
@@ -205,6 +247,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setSubscribed: setSubscribedStatus,
         startWorkout,
         runDailyCheckin,
+        reloadUserData,
       }}
     >
       {children}

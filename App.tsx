@@ -1,5 +1,5 @@
 import React from 'react';
-import { Platform, StatusBar, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Platform, StatusBar, StyleSheet, View, Text, TouchableOpacity, useWindowDimensions } from 'react-native';
 import { AppProvider, useApp } from './src/context/AppContext';
 import { WelcomeScreen } from './src/screens/WelcomeScreen';
 import { QuizScreen } from './src/screens/QuizScreen';
@@ -91,13 +91,61 @@ const RootNavigator: React.FC = () => {
   );
 };
 
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, ErrorBoundaryState> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: any) {
+    console.error('App ErrorBoundary caught:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <View style={{ flex: 1, backgroundColor: '#0B0F19', justifyContent: 'center', alignItems: 'center', padding: 24 }}>
+          <Text style={{ color: '#00E5FF', fontSize: 20, fontWeight: '800', marginBottom: 12 }}>VertiCam PRO</Text>
+          <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '700', textAlign: 'center', marginBottom: 8 }}>
+            Si è verificato un errore imprevisto
+          </Text>
+          <Text style={{ color: '#94A3B8', fontSize: 13, textAlign: 'center', marginBottom: 24, maxWidth: 400 }}>
+            {this.state.error?.message || 'Ricarica la pagina per continuare.'}
+          </Text>
+          <TouchableOpacity
+            style={{ backgroundColor: '#00E5FF', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 10 }}
+            onPress={() => {
+              this.setState({ hasError: false, error: null });
+              if (typeof window !== 'undefined') window.location.reload();
+            }}
+          >
+            <Text style={{ color: '#090D1A', fontWeight: '800' }}>Ricarica l'App</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function App() {
   return (
-    <AppProvider>
-      <View style={{ flex: 1, backgroundColor: Colors.background }}>
-        <RootNavigator />
-      </View>
-    </AppProvider>
+    <ErrorBoundary>
+      <AppProvider>
+        <View style={{ flex: 1, backgroundColor: Colors.background }}>
+          <RootNavigator />
+        </View>
+      </AppProvider>
+    </ErrorBoundary>
   );
 }
 

@@ -1,15 +1,7 @@
 import { JumpTestResult, UserProfile } from '../types';
+import { supabase, isSupabaseConfigured } from './supabaseClient';
 
-// Modo offline por padrão — só tenta Supabase se as variáveis de ambiente estiverem configuradas
-const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
-const IS_CONFIGURED = !!(
-  SUPABASE_URL &&
-  SUPABASE_ANON_KEY &&
-  SUPABASE_URL.startsWith('https://')
-);
-
-// Dados locais em memória — funcionam sem internet ou Supabase
+// Fallback de dados locais em memória caso esteja sem rede ou offline
 let localJumpTests: JumpTestResult[] = [
   {
     id: 'test-1',
@@ -50,20 +42,26 @@ export const JumpService = {
     };
     localJumpTests.push(newRecord);
 
-    if (IS_CONFIGURED) {
+    if (isSupabaseConfigured) {
       try {
-        const { createClient } = await import('@supabase/supabase-js');
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        await supabase.from('jump_tests').insert([{
-          flight_time_seconds: test.flightTimeSeconds,
-          jump_height_cm: test.jumpHeightCm,
-          attack_reach_cm: test.attackReachCm,
-          standing_reach_cm: test.standingReachCm,
-          video_url: test.videoUri,
-          is_personal_record: test.isRecord,
-        }]);
-      } catch {
-        // silently fallback to local
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data, error } = await supabase.from('jump_tests').insert([{
+            user_id: user.id,
+            flight_time_seconds: test.flightTimeSeconds,
+            jump_height_cm: test.jumpHeightCm,
+            attack_reach_cm: test.attackReachCm,
+            standing_reach_cm: test.standingReachCm,
+            video_url: test.videoUri,
+            is_personal_record: test.isRecord,
+          }]).select().single();
+
+          if (!error && data) {
+            newRecord.id = data.id;
+          }
+        }
+      } catch (err) {
+        console.warn('Erro ao salvar salto no Supabase, mantido localmente:', err);
       }
     }
 
@@ -71,33 +69,107 @@ export const JumpService = {
   },
 
   async getJumpHistory(): Promise<JumpTestResult[]> {
-    // Retorna dados locais imediatamente — sem chamadas de rede
+    if (isSupabaseConfigured) {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data, error } = await supabase
+            .from('jump_tests')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: true });
+
+          if (!error && data && data.length > 0) {
+            return data.map((row) => ({
+              id: row.id,
+              flightTimeSeconds: Number(row.flight_time_seconds),
+              jumpHeightCm: Number(row.jump_height_cm),
+              attackReachCm: Number(row.attack_reach_cm),
+              standingReachCm: Number(row.standing_reach_cm),
+              date: row.created_at ? row.created_at.split('T')[0] : '2026-11-03',
+              isRecord: !!row.is_personal_record,
+              videoUri: row.video_url || undefined,
+            }));
+          }
+        }
+      } catch (err) {
+        console.warn('Erro ao buscar histórico no Supabase:', err);
+      }
+    }
+
     return [...localJumpTests];
   },
 
   async saveUserProfile(profile: UserProfile): Promise<void> {
     localProfile = profile;
-    // Salva no Supabase em background se configurado
-    if (IS_CONFIGURED) {
+    if (isSupabaseConfigured) {
       try {
-        const { createClient } = await import('@supabase/supabase-js');
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        await supabase.from('profiles').upsert([{
-          position: profile.position,
-          training_level: profile.level,
-          pain_points: profile.goals,
-          age: profile.age,
-          height_cm: profile.heightCm,
-          weight_kg: profile.weightKg,
-          standing_reach_cm: profile.standingReachCm,
-        }]);
-      } catch {
-        // silently fallback
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.from('profiles').upsert([{
+            user_id: user.id,
+            email: user.email,
+            full_name: profile.fullName || (profile as any).name || user.user_metadata?.full_name || 'Atleta VertiCam',
+            position: profile.position,
+            training_level: profile.level,
+            pain_points: profile.goals,
+            age: profile.age,
+            height_cm: profile.heightCm,
+            weight_kg: profile.weightKg,
+            standing_reach_cm: profile.standingReachCm,
+            initial_jump_cm: profile.initialJumpCm,
+            current_record_cm: profile.currentRecordCm,
+            is_subscribed: true,
+            updated_at: new Date().toISOString(),
+          }], { onConflict: 'user_id' });
+        }
+      } catch (err) {
+        console.warn('Erro ao salvar perfil no Supabase:', err);
       }
     }
   },
 
   async getUserProfile(): Promise<UserProfile | null> {
+    if (isSupabaseConfigured) {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('user_id', user.id)
+            .maybeSingle();
+
+          if (!error && data) {
+            return {
+              id: data.id,
+              email: data.email,
+              fullName: data.full_name || 'Felipe Martins',
+              position: data.position || 'outside',
+              level: data.training_level || 'advanced',
+              goals: data.pain_points || [],
+              age: data.age || 24,
+              heightCm: Number(data.height_cm) || 188,
+              weightKg: Number(data.weight_kg) || 80,
+              standingReachCm: Number(data.standing_reach_cm) || 242,
+              initialJumpCm: Number(data.initial_jump_cm) || 55,
+              currentRecordCm: Number(data.current_record_cm) || 62,
+              isSubscribed: data.is_subscribed ?? true,
+            };
+          }
+        }
+      } catch (err) {
+        console.warn('Erro ao buscar perfil no Supabase:', err);
+      }
+    }
+
+    return localProfile;
+  },
+      } catch (err) {
+        console.warn('Erro ao buscar perfil no Supabase:', err);
+      }
+    }
+
     return localProfile;
   },
 };
@@ -107,12 +179,39 @@ export const AuthService = {
     const cleanEmail = email.trim().toLowerCase();
     const cleanPassword = password.trim();
 
-    // 1. Conta Master Offline/VIP Garantida
+    // 1. Tenta autenticação real no Supabase
+    if (isSupabaseConfigured) {
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: cleanEmail,
+          password: cleanPassword,
+        });
+
+        if (!error && data?.user) {
+          return {
+            success: true,
+            user: {
+              id: data.user.id,
+              email: data.user.email,
+              fullName: data.user.user_metadata?.full_name || 'Felipe Martins',
+              isSubscribed: true,
+            },
+          };
+        }
+        if (error) {
+          console.warn('Supabase signIn error:', error.message);
+        }
+      } catch (err: any) {
+        console.warn('Supabase auth network issue:', err);
+      }
+    }
+
+    // 2. Conta Master VIP Offline Garantida
     if (cleanEmail === 'felipemartins008@gmail.com' && cleanPassword === 'house123') {
       return {
         success: true,
         user: {
-          id: '54ae6509-954e-447e-a3d3-7129cf264abb',
+          id: '06107c1a-5c29-496e-8b7b-cee3ae881772',
           email: 'felipemartins008@gmail.com',
           fullName: 'Felipe Martins',
           isSubscribed: true,
@@ -120,14 +219,24 @@ export const AuthService = {
       };
     }
 
-    // 2. Autenticação Oficial Supabase
-    if (IS_CONFIGURED) {
+    return { success: false, error: 'Credenziali non valide. Riprova con email e password corrette.' };
+  },
+
+  async signUp(email: string, password: string, fullName?: string): Promise<{ success: boolean; user?: any; error?: string }> {
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPassword = password.trim();
+
+    if (isSupabaseConfigured) {
       try {
-        const { createClient } = await import('@supabase/supabase-js');
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signUp({
           email: cleanEmail,
           password: cleanPassword,
+          options: {
+            data: {
+              full_name: fullName || 'Atleta VertiCam',
+              is_subscribed: true,
+            },
+          },
         });
 
         if (error) {
@@ -140,16 +249,49 @@ export const AuthService = {
             user: {
               id: data.user.id,
               email: data.user.email,
-              fullName: data.user.user_metadata?.full_name || 'Felipe Martins',
+              fullName: fullName || 'Atleta VertiCam',
               isSubscribed: true,
             },
           };
         }
       } catch (err: any) {
-        return { success: false, error: err?.message || 'Errore di connessione' };
+        return { success: false, error: err?.message || 'Errore di registrazione' };
       }
     }
 
-    return { success: false, error: 'Credenziali non valide.' };
+    return {
+      success: true,
+      user: {
+        id: `offline-${Date.now()}`,
+        email: cleanEmail,
+        fullName: fullName || 'Atleta VertiCam',
+        isSubscribed: true,
+      },
+    };
+  },
+
+  async signOut(): Promise<void> {
+    if (isSupabaseConfigured) {
+      await supabase.auth.signOut();
+    }
+  },
+
+  async getCurrentSessionUser(): Promise<any | null> {
+    if (isSupabaseConfigured) {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          return {
+            id: session.user.id,
+            email: session.user.email,
+            fullName: session.user.user_metadata?.full_name || 'Atleta VertiCam',
+            isSubscribed: true,
+          };
+        }
+      } catch {
+        return null;
+      }
+    }
+    return null;
   },
 };

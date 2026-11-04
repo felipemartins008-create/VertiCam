@@ -34,6 +34,7 @@ yarn-error.*
 .env*.local
 .env
 scripts/setup-stripe.js
+scripts/*.mjs
 
 # typescript
 *.tsbuildinfo
