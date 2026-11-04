@@ -165,13 +165,6 @@ export const JumpService = {
 
     return localProfile;
   },
-      } catch (err) {
-        console.warn('Erro ao buscar perfil no Supabase:', err);
-      }
-    }
-
-    return localProfile;
-  },
 };
 
 export const AuthService = {
