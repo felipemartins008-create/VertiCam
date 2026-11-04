@@ -20,6 +20,7 @@ import { StripeEmbeddedCheckoutModal } from '../components/StripeEmbeddedCheckou
 import {
   ChevronRight,
   ArrowLeft,
+  ArrowRight,
   Activity,
   ShieldCheck,
   Lock,
