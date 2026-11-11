@@ -1,36 +1,8 @@
 import { JumpTestResult, UserProfile } from '../types';
 import { supabase, isSupabaseConfigured } from './supabaseClient';
 
-// Fallback de dados locais em memória caso esteja sem rede ou offline
-let localJumpTests: JumpTestResult[] = [
-  {
-    id: 'test-1',
-    flightTimeSeconds: 0.64,
-    jumpHeightCm: 50.2,
-    attackReachCm: 302.2,
-    standingReachCm: 252,
-    date: '2026-08-15',
-    isRecord: false,
-  },
-  {
-    id: 'test-2',
-    flightTimeSeconds: 0.68,
-    jumpHeightCm: 56.7,
-    attackReachCm: 308.7,
-    standingReachCm: 252,
-    date: '2026-09-01',
-    isRecord: false,
-  },
-  {
-    id: 'test-3',
-    flightTimeSeconds: 0.71,
-    jumpHeightCm: 61.8,
-    attackReachCm: 313.8,
-    standingReachCm: 252,
-    date: '2026-09-20',
-    isRecord: true,
-  },
-];
+// Fallback de dados locais em memória caso esteja sem rede ou offline (começa 100% limpo)
+let localJumpTests: JumpTestResult[] = [];
 
 let localProfile: UserProfile | null = null;
 
@@ -152,8 +124,8 @@ export const JumpService = {
               heightCm: Number(data.height_cm) || 188,
               weightKg: Number(data.weight_kg) || 80,
               standingReachCm: Number(data.standing_reach_cm) || 242,
-              initialJumpCm: Number(data.initial_jump_cm) || 55,
-              currentRecordCm: Number(data.current_record_cm) || 62,
+              initialJumpCm: data.initial_jump_cm != null ? Number(data.initial_jump_cm) : undefined,
+              currentRecordCm: data.current_record_cm != null ? Number(data.current_record_cm) : undefined,
               isSubscribed: data.is_subscribed ?? true,
             };
           }

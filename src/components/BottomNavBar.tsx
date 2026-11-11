@@ -3,28 +3,29 @@ import { View, Text, TouchableOpacity, StyleSheet, useWindowDimensions, Platform
 import { Dumbbell, TrendingUp, User } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
 import { useApp } from '../context/AppContext';
+import { t } from '../services/i18n';
 
 export const BottomNavBar: React.FC = () => {
   const { width } = useWindowDimensions();
   // Mostra em todas as resoluções no mobile e desktop compacto
   if (width >= 1024) return null;
 
-  const { dashboardTab, setDashboardTab, navigate } = useApp();
+  const { dashboardTab, setDashboardTab, navigate, language } = useApp();
 
   const tabs = [
     {
       id: 'workouts' as const,
-      label: 'Allenamenti',
+      label: t('dashboard.tabs.workouts'),
       Icon: Dumbbell,
     },
     {
       id: 'evaluations' as const,
-      label: 'Valutazioni',
+      label: t('dashboard.tabs.evaluations'),
       Icon: TrendingUp,
     },
     {
       id: 'profile' as const,
-      label: 'Profilo',
+      label: t('dashboard.tabs.profile'),
       Icon: User,
     },
   ];

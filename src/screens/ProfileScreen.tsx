@@ -24,13 +24,15 @@ import {
   ChevronRight,
   Check,
   Edit2,
+  Globe,
 } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
 import { useApp } from '../context/AppContext';
 import { VertiCamLogo } from '../components/VertiCamLogo';
+import { t } from '../services/i18n';
 
 export const ProfileScreen: React.FC = () => {
-  const { userProfile, updateProfile, isSubscribed, navigate } = useApp();
+  const { userProfile, updateProfile, isSubscribed, navigate, language, setLanguage } = useApp();
 
   const [isEditingBiometrics, setIsEditingBiometrics] = useState<boolean>(false);
   const [weight, setWeight] = useState<string>(String(userProfile.weightKg || 78));
@@ -113,6 +115,55 @@ export const ProfileScreen: React.FC = () => {
               </View>
             </View>
             <Text style={styles.athleteEmail}>{userProfile.email || 'atleta@verticam.com'}</Text>
+          </View>
+        </View>
+
+        {/* ── SELETOR DE IDIOMA ── */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeaderRow}>
+            <View>
+              <Text style={styles.sectionCategory}>
+                {language === 'pt' ? 'PREFERÊNCIAS DO APLICATIVO' : 'PREFERENZE DELL\'APP'}
+              </Text>
+              <Text style={styles.sectionTitle}>{t('profile.languageTitle')}</Text>
+            </View>
+            <Globe size={18} color={Colors.primary} />
+          </View>
+
+          <View style={styles.languageOptionsRow}>
+            <TouchableOpacity
+              style={[styles.langOptionCard, language === 'pt' && styles.langOptionCardActive]}
+              onPress={() => setLanguage('pt')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.langFlag}>🇧🇷</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.langName, language === 'pt' && styles.langNameActive]}>Português (Brasil)</Text>
+                <Text style={styles.langSub}>Idioma padrão do seu aparelho</Text>
+              </View>
+              {language === 'pt' && (
+                <View style={styles.langCheckBadge}>
+                  <Check size={14} color="#000000" strokeWidth={3} />
+                </View>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.langOptionCard, language === 'it' && styles.langOptionCardActive]}
+              onPress={() => setLanguage('it')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.langFlag}>🇮🇹</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.langName, language === 'it' && styles.langNameActive]}>Italiano</Text>
+                <Text style={styles.langSub}>Lingua ufficiale per l'Italia</Text>
+              </View>
+              {language === 'it' && (
+                <View style={styles.langCheckBadge}>
+                  <Check size={14} color="#000000" strokeWidth={3} />
+                </View>
+              )}
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -577,5 +628,47 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '700',
+  },
+  languageOptionsRow: {
+    gap: 10,
+    marginTop: 8,
+  },
+  langOptionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#090D1A',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 12,
+    padding: 14,
+  },
+  langOptionCardActive: {
+    borderColor: '#00E5FF',
+    backgroundColor: 'rgba(0, 229, 255, 0.05)',
+  },
+  langFlag: {
+    fontSize: 22,
+  },
+  langName: {
+    color: '#CBD5E1',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  langNameActive: {
+    color: '#FFFFFF',
+  },
+  langSub: {
+    color: '#64748B',
+    fontSize: 11,
+    marginTop: 2,
+  },
+  langCheckBadge: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#00E5FF',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

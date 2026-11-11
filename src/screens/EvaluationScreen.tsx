@@ -23,31 +23,20 @@ import { Colors } from '../theme/colors';
 import { useApp } from '../context/AppContext';
 import { VertiCamLogo } from '../components/VertiCamLogo';
 import { PrescriptionEngine } from '../services/prescriptionEngine';
+import { t } from '../services/i18n';
 
 export const EvaluationScreen: React.FC = () => {
-  const { jumpHistory, latestJumpResult, userProfile, athleteBaseline, navigate } = useApp();
+  const { jumpHistory, latestJumpResult, userProfile, athleteBaseline, navigate, language } = useApp();
 
-  const currentJump = latestJumpResult?.jumpHeightCm || athleteBaseline.baseline_cmj_height || 52.4;
-  const initialJump = userProfile.initialJumpCm || 52.4;
+  const currentJump = latestJumpResult?.jumpHeightCm || athleteBaseline.baseline_cmj_height || 0;
+  const initialJump = userProfile.initialJumpCm || currentJump;
   const totalGain = Math.max(0, Math.round((currentJump - initialJump) * 10) / 10);
-  const nextDate = userProfile.nextEvaluationDate || '24 Novembre 2026';
+  const nextDate = userProfile.nextEvaluationDate || (language === 'pt' ? 'Em 30 dias' : 'Tra 30 giorni');
 
-  const cmjVal = athleteBaseline.baseline_cmj_height || 52.4;
-  const sjVal = athleteBaseline.baseline_sj_height || 47.8;
-  const eurVal = athleteBaseline.eur_ratio || PrescriptionEngine.calculateEUR(cmjVal, sjVal);
+  const cmjVal = latestJumpResult?.jumpHeightCm || athleteBaseline.baseline_cmj_height || 0;
+  const sjVal = athleteBaseline.baseline_sj_height || 0;
+  const eurVal = cmjVal > 0 && sjVal > 0 ? PrescriptionEngine.calculateEUR(cmjVal, sjVal) : 1.0;
   const eurDiagnostic = PrescriptionEngine.getEURDiagnostic(eurVal);
-
-  const evaluationHistory = [
-    {
-      id: '1',
-      date: 'Oggi',
-      title: 'Valutazione Iniziale di Riferimento',
-      cmj: cmjVal,
-      sj: sjVal,
-      eur: eurVal,
-      badge: 'UFFICIALE',
-    },
-  ];
 
   const windowWidth = Dimensions.get('window').width;
   const isDesktop = windowWidth >= 768;
@@ -63,15 +52,13 @@ export const EvaluationScreen: React.FC = () => {
           <VertiCamLogo size="small" variant="badge" />
           <View style={styles.headerTag}>
             <Activity size={12} color={Colors.primary} />
-            <Text style={styles.headerTagText}>PROFILO NEUROMUSCOLARE</Text>
+            <Text style={styles.headerTagText}>{t('evaluations.headerTag')}</Text>
           </View>
         </View>
 
         <View style={styles.titleSection}>
-          <Text style={styles.title}>Valutazioni del Salto</Text>
-          <Text style={styles.subtitle}>
-            Monitoraggio scientifico del tempo di volo e della restituzione elastica (EUR).
-          </Text>
+          <Text style={styles.title}>{t('evaluations.title')}</Text>
+          <Text style={styles.subtitle}>{t('evaluations.subtitle')}</Text>
         </View>
 
         {/* ── CARD PRÓXIMA AVALIAÇÃO OFICIAL (CICLO DE 1 MÊS LOTURCO) ── */}
@@ -81,29 +68,29 @@ export const EvaluationScreen: React.FC = () => {
               <Calendar size={20} color={Colors.primary} strokeWidth={2.5} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.nextEvalCategory}>PROGRAMMAZIONE MENSILE</Text>
-              <Text style={styles.nextEvalTitle}>Prossima Valutazione Ufficiale</Text>
+              <Text style={styles.nextEvalCategory}>{t('evaluations.nextEvalCategory')}</Text>
+              <Text style={styles.nextEvalTitle}>{t('evaluations.nextEvalTitle')}</Text>
             </View>
           </View>
 
           <View style={styles.nextDateBox}>
             <Text style={styles.nextDateValue}>{nextDate}</Text>
             <View style={styles.cycleBadge}>
-              <Text style={styles.cycleBadgeText}>Ciclo di 30 giorni</Text>
+              <Text style={styles.cycleBadgeText}>{t('evaluations.cycleBadge')}</Text>
             </View>
           </View>
 
           <Text style={styles.nextEvalExplanation}>
-            In base alle evidenze scientifiche del Prof. Irineu Loturco, il sistema nervoso centrale (SNC) necessita di 4 settimane di stimolo balistico e recupero per consolidare i miglioramenti nella frequenza di scarica dei motoneuroni.
+            {t('evaluations.nextEvalDesc')}
           </Text>
 
           <TouchableOpacity
             style={styles.retestCtaBtn}
-            onPress={() => navigate('BaselineEvaluation')}
+            onPress={() => navigate('CameraIntro')}
             activeOpacity={0.88}
           >
             <Camera size={16} color="#000000" strokeWidth={2.5} />
-            <Text style={styles.retestCtaBtnText}>EFFETTUA TEST STRAORDINARIO</Text>
+            <Text style={styles.retestCtaBtnText}>{t('evaluations.newTestCta')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -144,26 +131,46 @@ export const EvaluationScreen: React.FC = () => {
 
         {/* ── HISTÓRICO DE AVALIAÇÕES REALIZADAS ── */}
         <View style={styles.historySection}>
-          <Text style={styles.historySectionTitle}>STORICO DELLE VALUTAZIONI</Text>
+          <Text style={styles.historySectionTitle}>{t('evaluations.historyTitle')}</Text>
 
-          {evaluationHistory.map((evalItem) => (
-            <View key={evalItem.id} style={styles.historyCardItem}>
-              <View style={styles.historyCardLeft}>
-                <View style={styles.historyCheckDot}>
-                  <Check size={12} color="#000000" strokeWidth={3} />
-                </View>
-                <View>
-                  <Text style={styles.historyItemTitle}>{evalItem.title}</Text>
-                  <Text style={styles.historyItemDate}>{evalItem.date}</Text>
-                </View>
-              </View>
-
-              <View style={styles.historyCardRight}>
-                <Text style={styles.historyItemJump}>{evalItem.cmj.toFixed(1)} cm</Text>
-                <Text style={styles.historyItemEur}>EUR {evalItem.eur.toFixed(2)}</Text>
-              </View>
+          {jumpHistory.length === 0 ? (
+            <View style={styles.emptyHistoryBox}>
+              <Camera size={32} color="#64748B" strokeWidth={1.5} />
+              <Text style={styles.emptyHistoryTitle}>{t('evaluations.noHistoryTitle')}</Text>
+              <Text style={styles.emptyHistoryDesc}>{t('evaluations.noHistoryDesc')}</Text>
+              <TouchableOpacity
+                style={styles.emptyCtaButton}
+                onPress={() => navigate('CameraIntro')}
+                activeOpacity={0.88}
+              >
+                <Camera size={16} color="#000000" strokeWidth={2.5} />
+                <Text style={styles.emptyCtaButtonText}>{t('evaluations.newTestCta')}</Text>
+              </TouchableOpacity>
             </View>
-          ))}
+          ) : (
+            jumpHistory.map((jump, idx) => (
+              <View key={jump.id || idx} style={styles.historyCardItem}>
+                <View style={styles.historyCardLeft}>
+                  <View style={styles.historyCheckDot}>
+                    <Check size={12} color="#000000" strokeWidth={3} />
+                  </View>
+                  <View>
+                    <Text style={styles.historyItemTitle}>
+                      {jump.isRecord
+                        ? (language === 'pt' ? '🏆 Recorde Pessoal' : '🏆 Record Personale')
+                        : (language === 'pt' ? `Teste de Salto #${idx + 1}` : `Test Salto #${idx + 1}`)}
+                    </Text>
+                    <Text style={styles.historyItemDate}>{jump.date}</Text>
+                  </View>
+                </View>
+
+                <View style={styles.historyCardRight}>
+                  <Text style={styles.historyItemJump}>{jump.jumpHeightCm.toFixed(1)} cm</Text>
+                  <Text style={styles.historyItemEur}>{jump.flightTimeSeconds.toFixed(3)}s</Text>
+                </View>
+              </View>
+            ))
+          )}
         </View>
       </ScrollView>
     </View>
@@ -462,5 +469,45 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: Colors.primary,
     fontWeight: '700',
+  },
+  emptyHistoryBox: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#0D111F',
+    borderRadius: 16,
+    padding: 28,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    gap: 10,
+    marginTop: 8,
+  },
+  emptyHistoryTitle: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '800',
+    marginTop: 4,
+  },
+  emptyHistoryDesc: {
+    color: '#94A3B8',
+    fontSize: 12,
+    textAlign: 'center',
+    lineHeight: 18,
+    maxWidth: 420,
+  },
+  emptyCtaButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginTop: 10,
+  },
+  emptyCtaButtonText: {
+    color: '#000000',
+    fontSize: 12,
+    fontWeight: '900',
+    letterSpacing: 0.3,
   },
 });

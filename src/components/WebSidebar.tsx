@@ -3,11 +3,12 @@ import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native
 import {
   Zap, Home, Dumbbell, BarChart2, User,
   LogOut, ChevronLeft, ChevronRight, Camera,
-  CreditCard, Shield, Activity,
+  CreditCard, Shield, Activity, Globe,
 } from 'lucide-react-native';
 import { useApp, ScreenName } from '../context/AppContext';
 import { Colors } from '../theme/colors';
 import { VertiCamLogo } from './VertiCamLogo';
+import { t } from '../services/i18n';
 
 const SIDEBAR_W = 220;
 const SIDEBAR_COLLAPSED = 64;
@@ -22,7 +23,7 @@ type NavItem = {
 };
 
 export const WebSidebar: React.FC = () => {
-  const { currentScreen, dashboardTab, navigate, setDashboardTab, userProfile } = useApp();
+  const { currentScreen, dashboardTab, navigate, setDashboardTab, userProfile, language, setLanguage } = useApp();
   const [collapsed, setCollapsed] = useState(false);
   const W = collapsed ? SIDEBAR_COLLAPSED : SIDEBAR_W;
 
@@ -37,35 +38,35 @@ export const WebSidebar: React.FC = () => {
   const navItems: NavItem[] = [
     {
       id: 'home',
-      label: 'Home',
+      label: t('sidebar.home'),
       Icon: Home,
       onPress: () => goTab('workouts'),
       isActive: isDash('workouts') && !inJumpFlow && currentScreen !== 'DailyCheckin',
     },
     {
       id: 'checkin',
-      label: 'Check-in Prontezza',
+      label: t('sidebar.checkin'),
       Icon: Activity,
       onPress: () => navigate('DailyCheckin'),
       isActive: currentScreen === 'DailyCheckin',
     },
     {
       id: 'treningi',
-      label: 'Allenamenti',
+      label: t('sidebar.workouts'),
       Icon: Dumbbell,
       onPress: () => goTab('workouts'),
       isActive: currentScreen === 'WorkoutPlayer',
     },
     {
       id: 'pomiary',
-      label: 'Valutazioni',
+      label: t('sidebar.evaluations'),
       Icon: BarChart2,
       onPress: () => goTab('evaluations'),
       isActive: isDash('evaluations'),
     },
     {
       id: 'wyskok',
-      label: 'Misura Salto',
+      label: t('sidebar.jumpCamera'),
       Icon: Camera,
       onPress: () => navigate('CameraIntro'),
       isActive: inJumpFlow,
@@ -75,21 +76,21 @@ export const WebSidebar: React.FC = () => {
   const accountItems: NavItem[] = [
     {
       id: 'profil',
-      label: 'Il Mio Profilo',
+      label: t('sidebar.profile'),
       Icon: User,
       onPress: () => goTab('profile'),
       isActive: isDash('profile'),
     },
     {
-      id: 'premium',
-      label: 'Premium',
-      Icon: CreditCard,
-      onPress: () => navigate('Paywall'),
-      isActive: currentScreen === 'Paywall',
+      id: 'lang',
+      label: language === 'pt' ? 'Idioma: 🇧🇷 PT' : 'Lingua: 🇮🇹 IT',
+      Icon: Globe,
+      onPress: () => setLanguage(language === 'pt' ? 'it' : 'pt'),
+      isActive: false,
     },
     {
       id: 'logout',
-      label: 'Esci',
+      label: t('sidebar.logout'),
       Icon: LogOut,
       onPress: () => navigate('Welcome'),
       isActive: false,
@@ -172,7 +173,7 @@ export const WebSidebar: React.FC = () => {
 
       {/* Nav section */}
       <View style={styles.section}>
-        {!collapsed && <Text style={styles.sectionLabel}>NAVIGAZIONE</Text>}
+        {!collapsed && <Text style={styles.sectionLabel}>{t('sidebar.navigation')}</Text>}
         {navItems.map(renderItem)}
       </View>
 
@@ -180,7 +181,7 @@ export const WebSidebar: React.FC = () => {
 
       {/* Account section */}
       <View style={styles.section}>
-        {!collapsed && <Text style={styles.sectionLabel}>ACCOUNT</Text>}
+        {!collapsed && <Text style={styles.sectionLabel}>{t('sidebar.account')}</Text>}
         {accountItems.map(renderItem)}
       </View>
 

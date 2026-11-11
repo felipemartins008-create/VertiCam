@@ -19,13 +19,16 @@ import {
   Check,
   ArrowRight,
   TrendingUp,
+  Camera,
+  Globe,
 } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
 import { useApp } from '../context/AppContext';
 import { VertiCamLogo } from '../components/VertiCamLogo';
+import { t } from '../services/i18n';
 
 export const WorkoutHomeScreen: React.FC = () => {
-  const { navigate, userProfile, athleteBaseline } = useApp();
+  const { navigate, userProfile, athleteBaseline, jumpHistory, language, setLanguage } = useApp();
 
   const athleteName = userProfile?.fullName ? userProfile.fullName.split(' ')[0] : 'Atleta';
   const workoutDays = userProfile.workoutDays || [1, 3, 5]; // Padrão: Segunda, Quarta, Sexta
@@ -34,7 +37,15 @@ export const WorkoutHomeScreen: React.FC = () => {
   const todayDayIndex = new Date().getDay();
   const isTodayWorkoutDay = workoutDays.includes(todayDayIndex);
 
-  const daysList = [
+  const daysList = language === 'pt' ? [
+    { id: 1, label: 'SEG', name: 'Segunda-feira' },
+    { id: 2, label: 'TER', name: 'Terça-feira' },
+    { id: 3, label: 'QUA', name: 'Quarta-feira' },
+    { id: 4, label: 'QUI', name: 'Quinta-feira' },
+    { id: 5, label: 'SEX', name: 'Sexta-feira' },
+    { id: 6, label: 'SÁB', name: 'Sábado' },
+    { id: 0, label: 'DOM', name: 'Domingo' },
+  ] : [
     { id: 1, label: 'LUN', name: 'Lunedì' },
     { id: 2, label: 'MAR', name: 'Martedì' },
     { id: 3, label: 'MER', name: 'Mercoledì' },
@@ -58,30 +69,76 @@ export const WorkoutHomeScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[styles.scrollContent, isDesktop && styles.scrollContentDesktop]}
       >
-        {/* ── HEADER BRAND ── */}
+        {/* ── HEADER BRAND & LANGUAGE SWITCH ── */}
         <View style={styles.topHeader}>
           <VertiCamLogo size="small" variant="badge" />
-          <View style={styles.liveSncBadge}>
-            <Activity size={12} color="#10B981" />
-            <Text style={styles.liveSncText}>SNC PRONTO</Text>
+          <View style={styles.headerRightActions}>
+            <TouchableOpacity
+              onPress={() => setLanguage(language === 'pt' ? 'it' : 'pt')}
+              style={styles.langHeaderToggle}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.langHeaderToggleText}>{language === 'pt' ? '🇧🇷 PT' : '🇮🇹 IT'}</Text>
+            </TouchableOpacity>
+
+            <View style={styles.liveSncBadge}>
+              <Activity size={12} color="#10B981" />
+              <Text style={styles.liveSncText}>{t('workoutHome.liveSnc')}</Text>
+            </View>
           </View>
         </View>
 
         {/* ── SAUDAÇÃO ── */}
         <View style={styles.greetingBox}>
-          <Text style={styles.greetingSub}>Bentornato,</Text>
+          <Text style={styles.greetingSub}>{t('workoutHome.greeting')}</Text>
           <Text style={styles.greetingTitle}>{athleteName} 👋</Text>
         </View>
+
+        {/* ── CARD PARA NOVO ATLETA (PRIMEIRO PASSO) ── */}
+        {jumpHistory.length === 0 && (
+          <View style={styles.newAthleteCard}>
+            <View style={styles.newAthleteHeader}>
+              <View style={styles.cameraIconCircle}>
+                <Camera size={22} color="#000000" strokeWidth={2.5} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.newAthleteCategory}>
+                  {language === 'pt' ? 'PRIMEIRO PASSO' : 'PRIMO PASSO'}
+                </Text>
+                <Text style={styles.newAthleteTitle}>
+                  {t('workoutHome.newAthleteTitle')}
+                </Text>
+              </View>
+            </View>
+
+            <Text style={styles.newAthleteDesc}>
+              {t('workoutHome.newAthleteDesc')}
+            </Text>
+
+            <TouchableOpacity
+              style={styles.firstTestButton}
+              onPress={() => navigate('CameraIntro')}
+              activeOpacity={0.88}
+            >
+              <Camera size={18} color="#000000" strokeWidth={2.5} />
+              <Text style={styles.firstTestButtonText}>
+                {t('workoutHome.firstTestCta')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* ── ROTINA SEMANAL DE TREINOS ── */}
         <View style={styles.routineCard}>
           <View style={styles.routineHeaderRow}>
             <View>
-              <Text style={styles.routineCategory}>LA TUA SETTIMANA</Text>
-              <Text style={styles.routineTitle}>Routine di Potenza Neurale</Text>
+              <Text style={styles.routineCategory}>{t('workoutHome.routineCategory')}</Text>
+              <Text style={styles.routineTitle}>{t('workoutHome.routineTitle')}</Text>
             </View>
             <View style={styles.routineDaysPill}>
-              <Text style={styles.routineDaysPillText}>{workoutDays.length}x a settimana</Text>
+              <Text style={styles.routineDaysPillText}>
+                {t('workoutHome.timesPerWeek', { count: workoutDays.length })}
+              </Text>
             </View>
           </View>
 
@@ -117,7 +174,7 @@ export const WorkoutHomeScreen: React.FC = () => {
                     )}
                   </View>
                   <Text style={[styles.dayColSub, isToday && styles.dayColSubToday]}>
-                    {isWorkout ? 'Allenamento' : 'Riposo'}
+                    {isWorkout ? (language === 'pt' ? 'Treino' : 'Allenamento') : (language === 'pt' ? 'Descanso' : 'Riposo')}
                   </Text>
                 </View>
               );
@@ -514,5 +571,77 @@ const styles = StyleSheet.create({
     width: 1,
     height: 28,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  headerRightActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  langHeaderToggle: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  langHeaderToggleText: {
+    color: '#CBD5E1',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  newAthleteCard: {
+    backgroundColor: 'rgba(0, 229, 255, 0.06)',
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 229, 255, 0.25)',
+    padding: 18,
+    gap: 12,
+  },
+  newAthleteHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  cameraIconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  newAthleteCategory: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: Colors.primary,
+    letterSpacing: 0.5,
+  },
+  newAthleteTitle: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    marginTop: 2,
+  },
+  newAthleteDesc: {
+    fontSize: 12,
+    color: '#CBD5E1',
+    lineHeight: 18,
+  },
+  firstTestButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    backgroundColor: Colors.primary,
+    height: 48,
+    borderRadius: 12,
+    marginTop: 4,
+  },
+  firstTestButtonText: {
+    color: '#000000',
+    fontSize: 13,
+    fontWeight: '900',
+    letterSpacing: 0.4,
   },
 });

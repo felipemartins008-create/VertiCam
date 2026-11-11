@@ -1,17 +1,16 @@
 import { WorkoutModule, UserProfile } from '../types';
 
 export const INITIAL_USER_PROFILE: UserProfile = {
-  fullName: 'Filippo Volley',
-  position: 'outside', // Schiacciatore
-  level: 'intermediate',
-  goals: ['higher_jump', 'jumper_knee'],
-  age: 22,
-  heightCm: 194,
-  weightKg: 86,
-  standingReachCm: 254,
-  squat1rmKg: 120,
-  initialJumpCm: 52.0,
-  currentJumpCm: 62.0,
+  fullName: 'Atleta VertiCam',
+  position: 'outside',
+  level: 'beginner',
+  goals: ['higher_jump'],
+  age: 24,
+  heightCm: 185,
+  weightKg: 78,
+  standingReachCm: 240,
+  initialJumpCm: undefined,
+  currentJumpCm: undefined,
   isSubscribed: true,
 };
 

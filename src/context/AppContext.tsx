@@ -10,6 +10,7 @@ import {
 import { INITIAL_USER_PROFILE, WORKOUT_MODULES } from '../data/mockData';
 import { JumpService, AuthService } from '../services/supabase';
 import { PrescriptionEngine } from '../services/prescriptionEngine';
+import { getLanguage, setLanguage as setI18nLanguage, SupportedLanguage, subscribeLanguageChange } from '../services/i18n';
 
 export type ScreenName =
   | 'Welcome'
@@ -58,6 +59,8 @@ interface AppContextType {
   startWorkout: (module: WorkoutModule) => void;
   runDailyCheckin: (dailyCMJHeightCm: number) => PrescriptionOutput;
   reloadUserData: () => Promise<void>;
+  language: SupportedLanguage;
+  setLanguage: (lang: SupportedLanguage) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -70,6 +73,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [latestJumpResult, setLatestJumpResult] = useState<JumpTestResult | null>(null);
   const [activeWorkoutModule, setActiveWorkoutModule] = useState<WorkoutModule | null>(null);
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
+  const [language, setLanguageState] = useState<SupportedLanguage>(getLanguage());
 
   // Motor de Prescrição
   const [athleteBaseline, setAthleteBaseline] = useState<AthleteBaseline>(DEFAULT_BASELINE);
@@ -123,8 +127,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           const pres = PrescriptionEngine.generateDailyPrescription(DEFAULT_BASELINE, lastJump.jumpHeightCm);
           setDailyPrescription(pres);
         } else {
-          const pres = PrescriptionEngine.generateDailyPrescription(DEFAULT_BASELINE, 50.0);
-          setDailyPrescription(pres);
+          setLatestJumpResult(null);
+          setDailyPrescription(null);
         }
       } catch (e) {
         console.warn('Aviso: Erro silencioso ao inicializar dados:', e);
@@ -132,6 +136,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     initData();
   }, []);
+
+  useEffect(() => {
+    const unsub = subscribeLanguageChange((newLang) => {
+      setLanguageState(newLang);
+    });
+    return unsub;
+  }, []);
+
+  const handleSetLanguage = (newLang: SupportedLanguage) => {
+    setLanguageState(newLang);
+    setI18nLanguage(newLang);
+  };
 
   const reloadUserData = async () => {
     try {
@@ -146,6 +162,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setLatestJumpResult(lastJump);
         const pres = PrescriptionEngine.generateDailyPrescription(DEFAULT_BASELINE, lastJump.jumpHeightCm);
         setDailyPrescription(pres);
+      } else {
+        setLatestJumpResult(null);
+        setDailyPrescription(null);
       }
     } catch (e) {
       console.warn('Erro ao recarregar dados do usuário:', e);
@@ -248,6 +267,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         startWorkout,
         runDailyCheckin,
         reloadUserData,
+        language,
+        setLanguage: handleSetLanguage,
       }}
     >
       {children}

@@ -1,0 +1,289 @@
+{
+  "appName": "VertiCam",
+  "tagline": "Análise de Salto Vertical & Autoregulação Neuromuscular",
+  "common": {
+    "continue": "Continuar",
+    "back": "Voltar",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "close": "Fechar",
+    "start": "Começar",
+    "alreadyHaveAccount": "Já tenho uma conta",
+    "loading": "Carregando...",
+    "error": "Ocorreu um erro",
+    "success": "Sucesso",
+    "confirm": "Confirmar",
+    "unitCm": "cm",
+    "unitKg": "kg",
+    "unitYears": "anos",
+    "unitSeconds": "s"
+  },
+  "welcome": {
+    "heroTitle": "AUMENTE O SEU",
+    "heroTitle2": "SALTO VERTICAL",
+    "heroSubtitle": "ANÁLISE DE SALTO VERTICAL",
+    "description": "Plataforma profissional de preparação física com análise biomecânica do salto pela câmera do celular e autoregulação neuromuscular.",
+    "ctaStart": "Começar — Teste Gratuito",
+    "ctaLogin": "Já tenho uma conta",
+    "badgeTech": "Análise de Tempo de Voo & RSI • Sem Sensores"
+  },
+  "quiz": {
+    "step": "Passo {{current}} de {{total}}",
+    "step1Title": "Qual é a sua posição em quadra?",
+    "step1Subtitle": "Adaptaremos o perfil de carga de salto para a especificidade do seu jogo.",
+    "positions": {
+      "outside": "Ponteiro",
+      "opposite": "Oposto",
+      "middle": "Central",
+      "setter": "Levantador",
+      "libero": "Líbero",
+      "beach": "Vôlei de Praia"
+    },
+    "step2Title": "Seu nível de experiência",
+    "step2Subtitle": "Selecione o nível da sua experiência de treino.",
+    "levels": {
+      "beginner": {
+        "title": "Iniciante",
+        "desc": "Jogo amador, sem treino regular de musculação"
+      },
+      "intermediate": {
+        "title": "Intermediário",
+        "desc": "Campeonatos regionais/universitários, 2 a 3 treinos por semana"
+      },
+      "advanced": {
+        "title": "Avançado",
+        "desc": "Competições nacionais (Superliga, estaduais de ponta, base de elite)"
+      }
+    },
+    "step3Title": "Objetivos principais e dores",
+    "step3Subtitle": "Você pode selecionar mais de uma opção.",
+    "pains": {
+      "jumper_knee": {
+        "title": "Dor nos joelhos (Tendinite patelar)",
+        "desc": "Dor no tendão patelar na aterrissagem ou agachamento profundo"
+      },
+      "higher_jump": {
+        "title": "Quero saltar mais alto",
+        "desc": "Objetivo: Ganhar de 6 a 12 cm de impulsão para atacar por cima do bloqueio"
+      },
+      "dynamism": {
+        "title": "Falta de explosão e velocidade",
+        "desc": "Melhorar a rapidez de pés e a impulsão da passada de ataque"
+      }
+    },
+    "step4Title": "Seus parâmetros físicos",
+    "step4Subtitle": "Necessários para calcular com precisão sua potência e alcance.",
+    "age": "Idade",
+    "height": "Altura (cm)",
+    "weight": "Peso (kg)",
+    "standingReach": "Alcance em pé (cm)",
+    "standingReachHelp": "Altura alcançada com o braço estendido para cima sem saltar"
+  },
+  "cameraIntro": {
+    "badge": "Tecnologia VertiCam IA",
+    "title": "Medição científica do salto com a câmera",
+    "description": "Nosso algoritmo de visão computacional mede com precisão milimétrica o tempo de voo (tempo no ar do descolamento até o pouso) e converte na altura real do salto:",
+    "formula": "h = (g · t²) / 8",
+    "formulaDesc": "onde g = 9.81 m/s² e t é o tempo de voo em segundos.",
+    "benefit1": "Sem necessidade de comprar tapetes de salto ou sensores caros",
+    "benefit2": "Precisão comparável a plataformas de força de laboratório",
+    "cta": "Fazer primeiro teste gratuito"
+  },
+  "instructions": {
+    "title": "Instruções para o teste de salto",
+    "subtitle": "Siga estes 3 passos simples para obter uma medição precisa:",
+    "step1Title": "1. Posicione o celular",
+    "step1Desc": "Apoie o celular firme no chão ou em um suporte a cerca de 2 a 3 metros do ponto do salto.",
+    "step2Title": "2. Corpo inteiro no enquadramento",
+    "step2Desc": "Garanta que seus pés e o espaço acima da sua cabeça estejam visíveis.",
+    "step3Title": "3. Salte ao sinal",
+    "step3Desc": "Após a contagem regressiva 3, 2, 1 salte com máxima potência para cima.",
+    "cta": "Abrir câmera"
+  },
+  "camera": {
+    "recording": "GRAVANDO...",
+    "alignGuide": "Alinhe seu corpo com a guia",
+    "countdown": "Prepare-se!",
+    "galleryOption": "Escolher vídeo da galeria",
+    "flipCamera": "Inverter câmera",
+    "takeoffDetected": "Descolamento detectado",
+    "landingDetected": "Aterrissagem detectada",
+    "processing": "Analisando trajetória e tempo de voo...",
+    "frameScrubber": "Ajuste fino de quadros (precisão máxima)"
+  },
+  "results": {
+    "title": "Resultado do Seu Salto",
+    "subtitle": "Medição registrada com sucesso",
+    "jumpHeight": "Sua Impulsão",
+    "flightTime": "Tempo de Voo",
+    "attackReach": "Alcance de Ataque",
+    "standingReach": "Alcance Estático",
+    "benchmark": "Nível no Vôlei",
+    "benchmarkPro": "Superliga / Atleta Profissional 🇧🇷",
+    "benchmarkGood": "Nível Universitário / Estadual",
+    "benchmarkBeginner": "Base para desenvolvimento explosivo",
+    "potentialGain": "Potencial do programa: +8 a +15 cm em 8 semanas",
+    "ctaUnlock": "Acessar meu plano de treinos"
+  },
+  "paywall": {
+    "title": "Aumente seu salto vertical em até 15 cm em 8 semanas",
+    "subtitle": "Junte-se a milhares de atletas que maximizam a impulsão com o VertiCam.",
+    "benefits": [
+      {
+        "icon": "unlock",
+        "title": "Plano personalizado de 8 semanas",
+        "desc": "Adaptado à sua posição em quadra e ao seu nível atual."
+      },
+      {
+        "icon": "trending-up",
+        "title": "Testes de salto ilimitados via câmera",
+        "desc": "Acompanhe seus ganhos milímetro a milímetro sem limites."
+      },
+      {
+        "icon": "shield-check",
+        "title": "Proteção para os joelhos e tendões",
+        "desc": "Isometria e exercícios excêntricos para blindar o tendão patelar."
+      },
+      {
+        "icon": "video",
+        "title": "Vídeos em HD com técnica detalhada",
+        "desc": "Instruções passo a passo de preparadores físicos de alto rendimento."
+      }
+    ],
+    "annual": {
+      "name": "Plano Anual",
+      "price": "349,00 €",
+      "period": "/ ano",
+      "perMonth": "~29 € / mês",
+      "badge": "ECONOMIZE 40%",
+      "selected": true
+    },
+    "monthly": {
+      "name": "Plano Mensal",
+      "price": "49,00 €",
+      "period": "/ mês",
+      "perMonth": "49 € / mês",
+      "badge": "Padrão"
+    },
+    "paymentMethods": "Pagamento seguro:",
+    "methods": ["Cartão de Crédito", "Apple Pay", "Google Pay", "PayPal"],
+    "guarantee": "Garantia incondicional de 7 dias • Cancele quando quiser",
+    "cta": "Começar agora",
+    "terms": "Assinatura com renovação automática até cancelamento. Cancele a qualquer momento pelo painel."
+  },
+  "dashboard": {
+    "tabs": {
+      "workouts": "Treinos",
+      "evaluations": "Avaliações",
+      "profile": "Perfil"
+    }
+  },
+  "workoutHome": {
+    "liveSnc": "SNC PRONTO",
+    "greeting": "Bem-vindo,",
+    "routineCategory": "SUA SEMANA",
+    "routineTitle": "Rotina de Potência Neural",
+    "timesPerWeek": "{{count}}x por semana",
+    "todayWorkoutBadge": "TREINO DE HOJE",
+    "oplLoad": "Carga Ótima de Potência (OPL):",
+    "jumpBaseline": "Salto Base:",
+    "startWorkoutCta": "INICIAR TREINO DO DIA",
+    "checkinCta": "Check-in de Prontidão Diária",
+    "checkinSub": "Descubra se seu sistema nervoso está 100% recuperado para saltar hoje",
+    "scientificBoxTitle": "CIÊNCIA DO TREINAMENTO VERTICAM",
+    "scientificBoxDesc": "Metodologia do Prof. Irineu Loturco: autoregulação com base no tempo de voo e monitoramento da fadiga neural neuromuscular.",
+    "newAthleteTitle": "Bem-vindo ao VertiCam!",
+    "newAthleteDesc": "Faça seu primeiro teste de salto na câmera para calibrar seu perfil neural e calcular sua carga ótima de treino.",
+    "firstTestCta": "FAZER MEU PRIMEIRO TESTE DE SALTO",
+    "modulesTitle": "Programas Específicos para Vôlei",
+    "modules": {
+      "main8Weeks": {
+        "title": "Programa Principal: Salto 8 Semanas",
+        "desc": "Fase pliométrica, adaptação tendínea e máxima potência explosiva.",
+        "badge": "Programa Principal"
+      },
+      "healthyKnees": {
+        "title": "Joelhos Blindados (Prevenção)",
+        "desc": "Protocolo de proteção patelar — elimine o 'joelho de saltador'.",
+        "badge": "Prevenção & Tendão"
+      },
+      "homeWorkout": {
+        "title": "Treino em Casa (Sem Equipamentos)",
+        "desc": "Pliometria rápida e estabilidade em pequenos espaços sem pesos.",
+        "badge": "Sem Pesos"
+      },
+      "matchWarmup": {
+        "title": "Aquecimento Pré-Jogo",
+        "desc": "Ativação neural e dos tornozelos antes de entrar em quadra.",
+        "badge": "15 min"
+      }
+    }
+  },
+  "workoutPlayer": {
+    "exerciseOf": "Exercício {{current}} de {{total}}",
+    "setsAndReps": "{{sets}} séries × {{reps}} repetições",
+    "suggestedWeight": "Carga sugerida: {{weight}}",
+    "targetMuscle": "Foco principal: {{focus}}",
+    "restTimer": "Tempo de descanso",
+    "restRemaining": "Restante: {{seconds}}s",
+    "skipRest": "Pular descanso",
+    "completeSet": "Série concluída",
+    "completeExercise": "Finalizar exercício",
+    "workoutComplete": "Treino Concluído!",
+    "workoutCompleteSub": "Excelente trabalho! Seus tendões e fibras rápidas absorveram o estímulo perfeitamente.",
+    "saveAndExit": "Salvar e voltar ao painel"
+  },
+  "evaluations": {
+    "title": "Avaliações do Salto",
+    "subtitle": "Acompanhamento científico do tempo de voo e restituição elástica (EUR).",
+    "headerTag": "PERFIL NEUROMUSCULAR",
+    "nextEvalCategory": "PROGRAMAÇÃO MENSAL",
+    "nextEvalTitle": "Próxima Avaliação Oficial",
+    "cycleBadge": "Ciclo de 30 dias",
+    "nextEvalDesc": "Com base nas evidências científicas do Prof. Irineu Loturco, o sistema nervoso central (SNC) necessita de 4 semanas de estímulo balístico e recuperação para consolidar os ganhos na taxa de disparo dos motoneurônios.",
+    "newTestCta": "REALIZAR AVALIAÇÃO COM A CÂMERA",
+    "historyTitle": "Histórico de Avaliações Oficiais",
+    "noHistoryTitle": "Nenhum teste registrado ainda",
+    "noHistoryDesc": "Posicione seu celular a 2 metros e realize seu primeiro salto vertical na câmera para iniciar seu acompanhamento biomecânico.",
+    "latestTest": "Última Medição Registrada",
+    "record": "Seu Recorde",
+    "initial": "Salto Inicial",
+    "currentGain": "Ganho Total",
+    "chartLabel": "Impulsão (cm)"
+  },
+  "profile": {
+    "title": "Perfil do Atleta",
+    "statsTitle": "Dados Biométricos",
+    "position": "Posição em Quadra",
+    "level": "Nível",
+    "height": "Altura",
+    "weight": "Peso",
+    "legLength": "Comprimento das Pernas",
+    "standingReach": "Alcance Estático",
+    "initialJump": "Salto Inicial",
+    "currentJump": "Salto Atual",
+    "totalGain": "Ganho Total",
+    "editBiometrics": "Editar Dados Biométricos",
+    "saveChanges": "Salvar Alterações",
+    "languageTitle": "Idioma do Aplicativo",
+    "languagePt": "Português (Brasil) 🇧🇷",
+    "languageIt": "Italiano 🇮🇹",
+    "subscriptionTitle": "Gerenciamento da Assinatura",
+    "activePlan": "Plano Ativo: VertiCam PRO",
+    "paymentVia": "Processamento Seguro: Stripe (256-Bit SSL)",
+    "manageSub": "Gerenciar Assinatura",
+    "logout": "Sair da Conta"
+  },
+  "sidebar": {
+    "home": "Início",
+    "checkin": "Check-in Prontidão",
+    "workouts": "Treinos",
+    "evaluations": "Avaliações",
+    "jumpCamera": "Medir Salto",
+    "profile": "Meu Perfil",
+    "premium": "Plano PRO",
+    "logout": "Sair",
+    "navigation": "NAVEGAÇÃO",
+    "account": "CONTA"
+  }
+}
