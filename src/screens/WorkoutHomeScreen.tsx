@@ -30,8 +30,10 @@ import { t } from '../services/i18n';
 export const WorkoutHomeScreen: React.FC = () => {
   const { navigate, userProfile, athleteBaseline, jumpHistory, language, setLanguage } = useApp();
 
-  const athleteName = userProfile?.fullName ? userProfile.fullName.split(' ')[0] : 'Atleta';
-  const workoutDays = userProfile.workoutDays || [1, 3, 5]; // Padrão: Segunda, Quarta, Sexta
+  const athleteName = userProfile?.fullName ? userProfile.fullName.split(' ')[0] : (language === 'pt' ? 'Atleta' : 'Atleta');
+  const isCalibrated = Boolean(userProfile.hasCompletedInitialEvaluation || jumpHistory.length > 0);
+  const hasWorkoutDays = Boolean(userProfile.workoutDays && userProfile.workoutDays.length > 0);
+  const workoutDays = userProfile.workoutDays || [];
 
   // Dia atual (0 = Dom, 1 = Seg, 2 = Ter, ...)
   const todayDayIndex = new Date().getDay();
@@ -55,10 +57,10 @@ export const WorkoutHomeScreen: React.FC = () => {
     { id: 0, label: 'DOM', name: 'Domenica' },
   ];
 
-  // Carga OPL estimada
-  const athleteWeight = userProfile.weightKg || athleteBaseline.user_weight || 78;
-  const initialLoadKg = Math.round(athleteWeight * 0.20);
-  const baselineCmj = athleteBaseline.baseline_cmj_height || 52.0;
+  // Carga OPL estimada (apenas quando calibrado com peso real)
+  const athleteWeight = userProfile.weightKg || athleteBaseline.user_weight || 0;
+  const initialLoadKg = athleteWeight > 0 ? Math.round(athleteWeight * 0.20) : 0;
+  const baselineCmj = athleteBaseline.baseline_cmj_height || userProfile.initialJumpCm || 0;
 
   const windowWidth = Dimensions.get('window').width;
   const isDesktop = windowWidth >= 768;
@@ -81,9 +83,13 @@ export const WorkoutHomeScreen: React.FC = () => {
               <Text style={styles.langHeaderToggleText}>{language === 'pt' ? '🇧🇷 PT' : '🇮🇹 IT'}</Text>
             </TouchableOpacity>
 
-            <View style={styles.liveSncBadge}>
-              <Activity size={12} color="#10B981" />
-              <Text style={styles.liveSncText}>{t('workoutHome.liveSnc')}</Text>
+            <View style={[styles.liveSncBadge, !isCalibrated && { backgroundColor: 'rgba(245, 158, 11, 0.12)', borderColor: 'rgba(245, 158, 11, 0.25)' }]}>
+              <Activity size={12} color={isCalibrated ? '#10B981' : '#F59E0B'} />
+              <Text style={[styles.liveSncText, !isCalibrated && { color: '#F59E0B' }]}>
+                {isCalibrated
+                  ? t('workoutHome.liveSnc')
+                  : (language === 'pt' ? 'CALIBRAÇÃO PENDENTE' : 'CALIBRAZIONE IN CORSO')}
+              </Text>
             </View>
           </View>
         </View>
@@ -94,8 +100,8 @@ export const WorkoutHomeScreen: React.FC = () => {
           <Text style={styles.greetingTitle}>{athleteName} 👋</Text>
         </View>
 
-        {/* ── CARD PARA NOVO ATLETA (PRIMEIRO PASSO) ── */}
-        {jumpHistory.length === 0 && (
+        {/* ── NOVO ATLETA: ONBOARDING E AVALIAÇÃO INICIAL OBRIGATÓRIA ── */}
+        {!isCalibrated ? (
           <View style={styles.newAthleteCard}>
             <View style={styles.newAthleteHeader}>
               <View style={styles.cameraIconCircle}>
@@ -103,167 +109,191 @@ export const WorkoutHomeScreen: React.FC = () => {
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.newAthleteCategory}>
-                  {language === 'pt' ? 'PRIMEIRO PASSO' : 'PRIMO PASSO'}
+                  {language === 'pt' ? 'PRIMEIRO PASSO OBRIGATÓRIO' : 'PRIMO PASSO OBBLIGATORIO'}
                 </Text>
                 <Text style={styles.newAthleteTitle}>
-                  {t('workoutHome.newAthleteTitle')}
+                  {!hasWorkoutDays
+                    ? (language === 'pt' ? 'Configure sua rotina e faça sua avaliação inicial' : 'Configura la tua routine e fai la valutazione iniziale')
+                    : t('workoutHome.newAthleteTitle')}
                 </Text>
               </View>
             </View>
 
             <Text style={styles.newAthleteDesc}>
-              {t('workoutHome.newAthleteDesc')}
+              {language === 'pt'
+                ? 'Seu perfil está limpo e pronto. Escolha seus dias de treino e realize seu primeiro teste de salto na câmera para desbloquear sua carga OPL e prescrição científica.'
+                : 'Il tuo profilo è pronto. Scegli i tuoi giorni di allenamento ed esegui il primo test di salto con la fotocamera per sbloccare il carico OPL e la prescrizione scientifica.'}
             </Text>
 
             <TouchableOpacity
               style={styles.firstTestButton}
-              onPress={() => navigate('CameraIntro')}
+              onPress={() => navigate(!hasWorkoutDays ? 'OnboardingTutorial' : 'BaselineEvaluation')}
               activeOpacity={0.88}
             >
               <Camera size={18} color="#000000" strokeWidth={2.5} />
               <Text style={styles.firstTestButtonText}>
-                {t('workoutHome.firstTestCta')}
+                {!hasWorkoutDays
+                  ? (language === 'pt' ? 'CONFIGURAR DIAS E AVALIAR' : 'CONFIGURA GIORNI E VALUTA')
+                  : (language === 'pt' ? 'FAZER AVALIAÇÃO INICIAL' : 'ESEGUI VALUTAZIONE INIZIALE')}
               </Text>
             </TouchableOpacity>
           </View>
-        )}
-
-        {/* ── ROTINA SEMANAL DE TREINOS ── */}
-        <View style={styles.routineCard}>
-          <View style={styles.routineHeaderRow}>
-            <View>
-              <Text style={styles.routineCategory}>{t('workoutHome.routineCategory')}</Text>
-              <Text style={styles.routineTitle}>{t('workoutHome.routineTitle')}</Text>
-            </View>
-            <View style={styles.routineDaysPill}>
-              <Text style={styles.routineDaysPillText}>
-                {t('workoutHome.timesPerWeek', { count: workoutDays.length })}
-              </Text>
-            </View>
-          </View>
-
-          {/* Grade Dias da Semana */}
-          <View style={styles.weekGrid}>
-            {daysList.map((day) => {
-              const isWorkout = workoutDays.includes(day.id);
-              const isToday = day.id === todayDayIndex;
-
-              return (
-                <View
-                  key={day.id}
-                  style={[
-                    styles.dayColItem,
-                    isWorkout && styles.dayColItemWorkout,
-                    isToday && styles.dayColItemToday,
-                  ]}
-                >
-                  <Text style={[styles.dayColLabel, isToday && styles.dayColLabelToday]}>
-                    {day.label}
-                  </Text>
-                  <View
-                    style={[
-                      styles.dayColCircle,
-                      isWorkout && styles.dayColCircleWorkout,
-                      isToday && styles.dayColCircleToday,
-                    ]}
-                  >
-                    {isWorkout ? (
-                      <Dumbbell size={13} color={isToday ? '#000000' : Colors.primary} strokeWidth={2.5} />
-                    ) : (
-                      <View style={styles.restDash} />
-                    )}
-                  </View>
-                  <Text style={[styles.dayColSub, isToday && styles.dayColSubToday]}>
-                    {isWorkout ? (language === 'pt' ? 'Treino' : 'Allenamento') : (language === 'pt' ? 'Descanso' : 'Riposo')}
+        ) : (
+          <>
+            {/* ── ROTINA SEMANAL DE TREINOS ── */}
+            <View style={styles.routineCard}>
+              <View style={styles.routineHeaderRow}>
+                <View>
+                  <Text style={styles.routineCategory}>{t('workoutHome.routineCategory')}</Text>
+                  <Text style={styles.routineTitle}>{t('workoutHome.routineTitle')}</Text>
+                </View>
+                <View style={styles.routineDaysPill}>
+                  <Text style={styles.routineDaysPillText}>
+                    {t('workoutHome.timesPerWeek', { count: workoutDays.length })}
                   </Text>
                 </View>
-              );
-            })}
-          </View>
-        </View>
+              </View>
 
-        {/* ── CARD PRINCIPAL: TREINO DO DIA ── */}
-        <View style={styles.todayCard}>
-          <View style={styles.todayCardHeader}>
-            <View style={[styles.statusBadge, isTodayWorkoutDay ? styles.statusBadgeGreen : styles.statusBadgeBlue]}>
-              <Text style={styles.statusBadgeText}>
-                {isTodayWorkoutDay ? '🟢 OGGI: SESSIONE DI POTENZA BALISTICA' : '🔵 OGGI: RECUPERO NEURALE SNC'}
+              {/* Grade Dias da Semana */}
+              <View style={styles.weekGrid}>
+                {daysList.map((day) => {
+                  const isWorkout = workoutDays.includes(day.id);
+                  const isToday = day.id === todayDayIndex;
+
+                  return (
+                    <View
+                      key={day.id}
+                      style={[
+                        styles.dayColItem,
+                        isWorkout && styles.dayColItemWorkout,
+                        isToday && styles.dayColItemToday,
+                      ]}
+                    >
+                      <Text style={[styles.dayColLabel, isToday && styles.dayColLabelToday]}>
+                        {day.label}
+                      </Text>
+                      <View
+                        style={[
+                          styles.dayColCircle,
+                          isWorkout && styles.dayColCircleWorkout,
+                          isToday && styles.dayColCircleToday,
+                        ]}
+                      >
+                        {isWorkout ? (
+                          <Dumbbell size={13} color={isToday ? '#000000' : Colors.primary} strokeWidth={2.5} />
+                        ) : (
+                          <View style={styles.restDash} />
+                        )}
+                      </View>
+                      <Text style={[styles.dayColSub, isToday && styles.dayColSubToday]}>
+                        {isWorkout ? (language === 'pt' ? 'Treino' : 'Allenamento') : (language === 'pt' ? 'Descanso' : 'Riposo')}
+                      </Text>
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
+
+            {/* ── CARD PRINCIPAL: TREINO DO DIA ── */}
+            <View style={styles.todayCard}>
+              <View style={styles.todayCardHeader}>
+                <View style={[styles.statusBadge, isTodayWorkoutDay ? styles.statusBadgeGreen : styles.statusBadgeBlue]}>
+                  <Text style={styles.statusBadgeText}>
+                    {language === 'pt'
+                      ? (isTodayWorkoutDay ? '🟢 HOJE: SESSÃO DE POTÊNCIA BALÍSTICA' : '🔵 HOJE: RECUPERAÇÃO NEURAL SNC')
+                      : (isTodayWorkoutDay ? '🟢 OGGI: SESSIONE DI POTENZA BALISTICA' : '🔵 OGGI: RECUPERO NEURALE SNC')}
+                  </Text>
+                </View>
+              </View>
+
+              <Text style={styles.exerciseMainName}>
+                {language === 'pt' ? 'Salto com Sobrecarga (Loaded Jump)' : 'Salto con Sovraccarico (Loaded Jump)'}
               </Text>
-            </View>
-          </View>
+              <Text style={styles.exerciseSubtitle}>
+                {language === 'pt'
+                  ? 'Método Científico Prof. Irineu Loturco • Autoregulação da velocidade'
+                  : 'Metodo Scientifico Prof. Irineu Loturco • Autoregolazione della velocità'}
+              </Text>
 
-          <Text style={styles.exerciseMainName}>Salto con Sovraccarico (Loaded Jump)</Text>
-          <Text style={styles.exerciseSubtitle}>
-            Metodo Scientifico Prof. Irineu Loturco • Autoregolazione della velocità
-          </Text>
+              {/* Especificações da Sessão */}
+              <View style={styles.exerciseSpecsGrid}>
+                <View style={styles.specBox}>
+                  <Text style={styles.specLabel}>{language === 'pt' ? 'AQUECIMENTO' : 'RISCALDAMENTO'}</Text>
+                  <Text style={styles.specValue}>{language === 'pt' ? '3x10 Agachamento' : '3x10 Squat'}</Text>
+                </View>
 
-          {/* Especificações da Sessão */}
-          <View style={styles.exerciseSpecsGrid}>
-            <View style={styles.specBox}>
-              <Text style={styles.specLabel}>RISCALDAMENTO</Text>
-              <Text style={styles.specValue}>3x10 Squat</Text>
-            </View>
+                <View style={styles.specBox}>
+                  <Text style={styles.specLabel}>{language === 'pt' ? 'CHECK NEURAL' : 'CHECK NEURALE'}</Text>
+                  <Text style={styles.specValue}>{language === 'pt' ? '1x CMJ Câmera' : '1x CMJ Videocamera'}</Text>
+                </View>
 
-            <View style={styles.specBox}>
-              <Text style={styles.specLabel}>CHECK NEURALE</Text>
-              <Text style={styles.specValue}>1x CMJ Videocamera</Text>
-            </View>
+                <View style={styles.specBox}>
+                  <Text style={styles.specLabel}>{language === 'pt' ? 'CARGA OPL' : 'CARICO OPL'}</Text>
+                  <Text style={[styles.specValue, { color: Colors.primary }]}>
+                    {initialLoadKg > 0 ? `${initialLoadKg} kg` : '--'}
+                  </Text>
+                </View>
+              </View>
 
-            <View style={styles.specBox}>
-              <Text style={styles.specLabel}>CARICO OPL</Text>
-              <Text style={[styles.specValue, { color: Colors.primary }]}>{initialLoadKg} kg</Text>
-            </View>
-          </View>
+              {/* Banner Método Loturco */}
+              <View style={styles.loturcoBanner}>
+                <ShieldCheck size={14} color={Colors.primary} />
+                <Text style={styles.loturcoBannerText}>
+                  {language === 'pt'
+                    ? 'A câmera monitora cada repetição. Se a altura cair mais de 10%, a série encerra automaticamente para preservar o sistema nervoso central.'
+                    : 'La telecamera monitora ogni singola ripetizione. Se l\'elevazione cala oltre il 10%, la serie termina in automatico per preservare il sistema nervoso centrale.'}
+                </Text>
+              </View>
 
-          {/* Banner Método Loturco */}
-          <View style={styles.loturcoBanner}>
-            <ShieldCheck size={14} color={Colors.primary} />
-            <Text style={styles.loturcoBannerText}>
-              La telecamera monitora ogni singola ripetizione. Se l'elevazione cala oltre il 10%, la serie termina in automatico per preservare il sistema nervoso centrale.
-            </Text>
-          </View>
-
-          {/* Botão de Iniciar Treino */}
-          <TouchableOpacity
-            style={styles.startWorkoutButton}
-            onPress={() => navigate('LoturcoWorkout')}
-            activeOpacity={0.88}
-          >
-            <Play size={18} color="#000000" fill="#000000" />
-            <Text style={styles.startWorkoutButtonText}>
-              {isTodayWorkoutDay ? 'INIZIA ALLENAMENTO' : 'INIZIA COMUNQUE LA SESSIONE'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* ── CARD LINHA DE BASE ATUAL ── */}
-        <View style={styles.baselineStatusCard}>
-          <View style={styles.baselineHeader}>
-            <TrendingUp size={16} color={Colors.primary} />
-            <Text style={styles.baselineTitle}>La Tua Baseline Attuale</Text>
-          </View>
-
-          <View style={styles.baselineMetricsRow}>
-            <View style={styles.baselineMetricItem}>
-              <Text style={styles.baselineMetricLabel}>ELEVAZIONE CMJ</Text>
-              <Text style={styles.baselineMetricValue}>{baselineCmj} cm</Text>
+              {/* Botão de Iniciar Treino */}
+              <TouchableOpacity
+                style={styles.startWorkoutButton}
+                onPress={() => navigate('LoturcoWorkout')}
+                activeOpacity={0.88}
+              >
+                <Play size={18} color="#000000" fill="#000000" />
+                <Text style={styles.startWorkoutButtonText}>
+                  {language === 'pt'
+                    ? (isTodayWorkoutDay ? 'INICIAR TREINO' : 'INICIAR SESSÃO MESMO ASSIM')
+                    : (isTodayWorkoutDay ? 'INIZIA ALLENAMENTO' : 'INIZIA COMUNQUE LA SESSIONE')}
+                </Text>
+              </TouchableOpacity>
             </View>
 
-            <View style={styles.baselineDivider} />
+            {/* ── CARD LINHA DE BASE ATUAL ── */}
+            <View style={styles.baselineStatusCard}>
+              <View style={styles.baselineHeader}>
+                <TrendingUp size={16} color={Colors.primary} />
+                <Text style={styles.baselineTitle}>
+                  {language === 'pt' ? 'Sua Baseline Atual' : 'La Tua Baseline Attuale'}
+                </Text>
+              </View>
 
-            <View style={styles.baselineMetricItem}>
-              <Text style={styles.baselineMetricLabel}>INDICE EUR</Text>
-              <Text style={styles.baselineMetricValue}>{athleteBaseline.eur_ratio?.toFixed(2) || '1.08'}</Text>
+              <View style={styles.baselineMetricsRow}>
+                <View style={styles.baselineMetricItem}>
+                  <Text style={styles.baselineMetricLabel}>{language === 'pt' ? 'ALTURA CMJ' : 'ELEVAZIONE CMJ'}</Text>
+                  <Text style={styles.baselineMetricValue}>{baselineCmj > 0 ? `${baselineCmj} cm` : '-- cm'}</Text>
+                </View>
+
+                <View style={styles.baselineDivider} />
+
+                <View style={styles.baselineMetricItem}>
+                  <Text style={styles.baselineMetricLabel}>{language === 'pt' ? 'ÍNDICE EUR' : 'INDICE EUR'}</Text>
+                  <Text style={styles.baselineMetricValue}>
+                    {athleteBaseline.eur_ratio > 0 ? athleteBaseline.eur_ratio.toFixed(2) : '--'}
+                  </Text>
+                </View>
+
+                <View style={styles.baselineDivider} />
+
+                <View style={styles.baselineMetricItem}>
+                  <Text style={styles.baselineMetricLabel}>{language === 'pt' ? 'PRÓXIMO TESTE' : 'PROSSIMO TEST'}</Text>
+                  <Text style={styles.baselineMetricValue}>{language === 'pt' ? '30 dias' : '30 giorni'}</Text>
+                </View>
+              </View>
             </View>
-
-            <View style={styles.baselineDivider} />
-
-            <View style={styles.baselineMetricItem}>
-              <Text style={styles.baselineMetricLabel}>PROSSIMO TEST</Text>
-              <Text style={styles.baselineMetricValue}>30 giorni</Text>
-            </View>
-          </View>
-        </View>
+          </>
+        )}
       </ScrollView>
     </View>
   );

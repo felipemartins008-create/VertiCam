@@ -299,10 +299,14 @@ export const QuizScreen: React.FC = () => {
       const authResult = await AuthService.signIn(emailTrimmed, passTrimmed);
       if (authResult.success) {
         setSubscribed(true);
-        await reloadUserData();
+        const { profile, history } = await reloadUserData();
         setLoginLoading(false);
         setIsLoginModalVisible(false);
-        navigate('Dashboard');
+        if (!profile?.hasCompletedInitialEvaluation && history.length === 0) {
+          navigate('OnboardingTutorial');
+        } else {
+          navigate('Dashboard');
+        }
         return;
       } else {
         setLoginLoading(false);

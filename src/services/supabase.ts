@@ -78,10 +78,24 @@ export const JumpService = {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
+          if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+            try {
+              localStorage.setItem(
+                `verticam_meta_${user.id}`,
+                JSON.stringify({
+                  workoutDays: profile.workoutDays,
+                  hasCompletedInitialEvaluation: profile.hasCompletedInitialEvaluation,
+                  nextEvaluationDate: profile.nextEvaluationDate,
+                  legLengthCm: profile.legLengthCm,
+                  availableEquipment: profile.availableEquipment,
+                })
+              );
+            } catch {}
+          }
           await supabase.from('profiles').upsert([{
             user_id: user.id,
             email: user.email,
-            full_name: profile.fullName || (profile as any).name || user.user_metadata?.full_name || 'Atleta VertiCam',
+            full_name: profile.fullName || (profile as any).name || user.user_metadata?.full_name || '',
             position: profile.position,
             training_level: profile.level,
             pain_points: profile.goals,
@@ -89,9 +103,9 @@ export const JumpService = {
             height_cm: profile.heightCm,
             weight_kg: profile.weightKg,
             standing_reach_cm: profile.standingReachCm,
-            initial_jump_cm: profile.initialJumpCm,
-            current_record_cm: profile.currentRecordCm,
-            is_subscribed: true,
+            initial_jump_cm: profile.initialJumpCm ?? null,
+            current_record_cm: profile.currentJumpCm ?? (profile as any).currentRecordCm ?? null,
+            is_subscribed: profile.isSubscribed ?? true,
             updated_at: new Date().toISOString(),
           }], { onConflict: 'user_id' });
         }
@@ -106,6 +120,14 @@ export const JumpService = {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
+          let meta: any = {};
+          if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+            try {
+              const raw = localStorage.getItem(`verticam_meta_${user.id}`);
+              if (raw) meta = JSON.parse(raw);
+            } catch {}
+          }
+
           const { data, error } = await supabase
             .from('profiles')
             .select('*')
@@ -113,22 +135,47 @@ export const JumpService = {
             .maybeSingle();
 
           if (!error && data) {
+            const initialJump = data.initial_jump_cm != null ? Number(data.initial_jump_cm) : undefined;
+            const currentJump = data.current_record_cm != null ? Number(data.current_record_cm) : undefined;
             return {
               id: data.id,
-              email: data.email,
-              fullName: data.full_name || 'Felipe Martins',
+              email: data.email || user.email,
+              fullName: data.full_name || user.user_metadata?.full_name || '',
               position: data.position || 'outside',
-              level: data.training_level || 'advanced',
+              level: data.training_level || 'beginner',
               goals: data.pain_points || [],
               age: data.age || 24,
-              heightCm: Number(data.height_cm) || 188,
-              weightKg: Number(data.weight_kg) || 80,
-              standingReachCm: Number(data.standing_reach_cm) || 242,
-              initialJumpCm: data.initial_jump_cm != null ? Number(data.initial_jump_cm) : undefined,
-              currentRecordCm: data.current_record_cm != null ? Number(data.current_record_cm) : undefined,
+              heightCm: data.height_cm != null ? Number(data.height_cm) : 0,
+              weightKg: data.weight_kg != null ? Number(data.weight_kg) : 0,
+              standingReachCm: data.standing_reach_cm != null ? Number(data.standing_reach_cm) : 0,
+              initialJumpCm: initialJump,
+              currentJumpCm: currentJump,
               isSubscribed: data.is_subscribed ?? true,
+              workoutDays: meta.workoutDays,
+              hasCompletedInitialEvaluation: Boolean(meta.hasCompletedInitialEvaluation || (initialJump != null && initialJump > 0)),
+              nextEvaluationDate: meta.nextEvaluationDate,
+              legLengthCm: meta.legLengthCm,
+              availableEquipment: meta.availableEquipment,
             };
           }
+
+          return {
+            email: user.email,
+            fullName: user.user_metadata?.full_name || '',
+            position: 'outside',
+            level: 'beginner',
+            goals: [],
+            age: 24,
+            heightCm: 0,
+            weightKg: 0,
+            standingReachCm: 0,
+            isSubscribed: true,
+            workoutDays: meta.workoutDays,
+            hasCompletedInitialEvaluation: Boolean(meta.hasCompletedInitialEvaluation),
+            nextEvaluationDate: meta.nextEvaluationDate,
+            legLengthCm: meta.legLengthCm,
+            availableEquipment: meta.availableEquipment,
+          };
         }
       } catch (err) {
         console.warn('Erro ao buscar perfil no Supabase:', err);

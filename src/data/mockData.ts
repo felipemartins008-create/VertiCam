@@ -1,17 +1,19 @@
 import { WorkoutModule, UserProfile } from '../types';
 
 export const INITIAL_USER_PROFILE: UserProfile = {
-  fullName: 'Atleta VertiCam',
+  fullName: '',
   position: 'outside',
   level: 'beginner',
   goals: ['higher_jump'],
   age: 24,
-  heightCm: 185,
-  weightKg: 78,
-  standingReachCm: 240,
+  heightCm: 0,
+  weightKg: 0,
+  standingReachCm: 0,
+  workoutDays: undefined,
+  hasCompletedInitialEvaluation: false,
   initialJumpCm: undefined,
   currentJumpCm: undefined,
-  isSubscribed: true,
+  isSubscribed: false,
 };
 
 export const WORKOUT_MODULES: WorkoutModule[] = [

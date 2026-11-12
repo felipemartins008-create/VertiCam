@@ -31,7 +31,8 @@ type EvalPhase = 'tutorial' | 'warmup' | 'camera_test' | 'results';
 type JumpType = 'CMJ' | 'SJ';
 
 export const BaselineEvaluationScreen: React.FC = () => {
-  const { navigate, updateProfile, updateBaseline } = useApp();
+  const { navigate, updateProfile, updateBaseline, language } = useApp();
+  const isPt = language === 'pt';
 
   const [phase, setPhase] = useState<EvalPhase>('tutorial');
 
@@ -94,14 +95,14 @@ export const BaselineEvaluationScreen: React.FC = () => {
   };
 
   const finishEvaluation = async (finalCmj: number[], finalSj: number[]) => {
-    const avgCmj = Math.round((finalCmj.reduce((a, b) => a + b, 0) / finalCmj.length) * 10) / 10;
-    const avgSj = Math.round((finalSj.reduce((a, b) => a + b, 0) / finalSj.length) * 10) / 10;
+    const avgCmj = finalCmj.length > 0 ? Math.round((finalCmj.reduce((a, b) => a + b, 0) / finalCmj.length) * 10) / 10 : 0;
+    const avgSj = finalSj.length > 0 ? Math.round((finalSj.reduce((a, b) => a + b, 0) / finalSj.length) * 10) / 10 : 0;
     const eur = PrescriptionEngine.calculateEUR(avgCmj, avgSj);
 
     // Próxima avaliação: hoje + 30 dias
     const nextDate = new Date();
     nextDate.setDate(nextDate.getDate() + 30);
-    const nextDateString = nextDate.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
+    const nextDateString = nextDate.toLocaleDateString(isPt ? 'pt-BR' : 'it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
 
     await updateProfile({
       hasCompletedInitialEvaluation: true,
@@ -128,19 +129,12 @@ export const BaselineEvaluationScreen: React.FC = () => {
     }
   };
 
-  const avgCmj = cmjScores.length > 0 ? Math.round((cmjScores.reduce((a, b) => a + b, 0) / cmjScores.length) * 10) / 10 : 52.4;
-  const avgSj = sjScores.length > 0 ? Math.round((sjScores.reduce((a, b) => a + b, 0) / sjScores.length) * 10) / 10 : 47.8;
-  const eurRatio = PrescriptionEngine.calculateEUR(avgCmj, avgSj);
+  const avgCmj = cmjScores.length > 0 ? Math.round((cmjScores.reduce((a, b) => a + b, 0) / cmjScores.length) * 10) / 10 : 0;
+  const avgSj = sjScores.length > 0 ? Math.round((sjScores.reduce((a, b) => a + b, 0) / sjScores.length) * 10) / 10 : 0;
+  const eurRatio = avgCmj > 0 && avgSj > 0 ? PrescriptionEngine.calculateEUR(avgCmj, avgSj) : 0;
 
-  // Diagnóstico em italiano
-  const getItalianDiagnosis = (eur: number) => {
-    if (eur < 1.10) {
-      return 'Deficit elastico/reattivo (EUR < 1.10). I tuoi tendini accumulano poca energia elastica. Focus immediato sul ciclo stiramento-accorciamento (CEA) e pliometria reattiva.';
-    }
-    if (eur > 1.20) {
-      return 'Deficit di forza concentrica pura (EUR > 1.20). Eccellente capacità elastica, ma necessiti di incrementare la forza massimale degli arti inferiori.';
-    }
-    return 'Profilo neuromuscolare equilibrato (1.10 - 1.20). Sinergia ottimale tra forza concentrica e restituzione elastica tendinea.';
+  const getDiagnosisText = (eur: number) => {
+    return PrescriptionEngine.getEURDiagnostic(eur, language).recommendation;
   };
 
   return (
@@ -150,11 +144,17 @@ export const BaselineEvaluationScreen: React.FC = () => {
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <View style={styles.topBadge}>
             <Activity size={12} color={Colors.primary} />
-            <Text style={styles.topBadgeText}>PROTOCOLLO SCIENTIFICO LOTURCO</Text>
+            <Text style={styles.topBadgeText}>
+              {isPt ? 'PROTOCOLO CIENTÍFICO LOTURCO' : 'PROTOCOLLO SCIENTIFICO LOTURCO'}
+            </Text>
           </View>
-          <Text style={styles.screenHeading}>Regole della Valutazione Iniziale</Text>
+          <Text style={styles.screenHeading}>
+            {isPt ? 'Regras da Avaliação Inicial' : 'Regole della Valutazione Iniziale'}
+          </Text>
           <Text style={styles.screenSubheading}>
-            Per garantire una misurazione millimetrica precisa e standardizzata, segui queste 2 regole biomeccaniche:
+            {isPt
+              ? 'Para garantir uma medição milimétrica precisa e padronizada, siga estas 2 regras biomecânicas:'
+              : 'Per garantire una misurazione millimetrica precisa e standardizzata, segui queste 2 regole biomeccaniche:'}
           </Text>
 
           {/* Regra 1 */}
@@ -163,9 +163,13 @@ export const BaselineEvaluationScreen: React.FC = () => {
               <Text style={styles.ruleNumber}>1</Text>
             </View>
             <View style={styles.ruleTextContent}>
-              <Text style={styles.ruleTitle}>Mani sempre salde sui fianchi</Text>
+              <Text style={styles.ruleTitle}>
+                {isPt ? 'Mãos sempre firmes na cintura' : 'Mani sempre salde sui fianchi'}
+              </Text>
               <Text style={styles.ruleDescription}>
-                Mantieni le mani appoggiate sui fianchi per l'intera durata del test. Questo esclude la spinta delle braccia, isolando al 100% la reale potenza delle gambe.
+                {isPt
+                  ? 'Mantenha as mãos apoiadas na cintura durante todo o teste. Isso isola o impulso dos braços, medindo 100% da potência real das pernas.'
+                  : 'Mantieni le mani appoggiate sui fianchi per l\'intera durata del test. Questo esclude la spinta delle braccia, isolando al 100% la reale potenza delle gambe.'}
               </Text>
             </View>
           </View>
@@ -176,9 +180,13 @@ export const BaselineEvaluationScreen: React.FC = () => {
               <Text style={styles.ruleNumber}>2</Text>
             </View>
             <View style={styles.ruleTextContent}>
-              <Text style={styles.ruleTitle}>Ginocchia e gambe distese in volo</Text>
+              <Text style={styles.ruleTitle}>
+                {isPt ? 'Joelhos e pernas estendidos no voo' : 'Ginocchia e gambe distese in volo'}
+              </Text>
               <Text style={styles.ruleDescription}>
-                Spingi con le caviglie e mantieni le gambe perfettamente distese in volo fino all'atterraggio. Flettere le ginocchia in aria altera il tempo di volo reale.
+                {isPt
+                  ? 'Empurre com os tornozelos e mantenha as pernas estendidas no ar até a aterrissagem. Dobrar os joelhos no ar altera o tempo de voo real.'
+                  : 'Spingi con le caviglie e mantieni le gambe perfettamente distese in volo fino all\'atterraggio. Flettere le ginocchia in aria altera il tempo di volo reale.'}
               </Text>
             </View>
           </View>
@@ -190,18 +198,24 @@ export const BaselineEvaluationScreen: React.FC = () => {
 
           {/* Sequência do Teste */}
           <View style={styles.sequenceCard}>
-            <Text style={styles.sequenceTitle}>SEQUENZA DEL TEST:</Text>
+            <Text style={styles.sequenceTitle}>
+              {isPt ? 'SEQUÊNCIA DO TESTE:' : 'SEQUENZA DEL TEST:'}
+            </Text>
             <View style={styles.sequenceRow}>
               <View style={styles.sequenceBadge}>
-                <Text style={styles.sequenceBadgeLabel}>FASE 1</Text>
-                <Text style={styles.sequenceBadgeName}>3x Salti CMJ</Text>
-                <Text style={styles.sequenceBadgeSub}>Con contromovimento rapido</Text>
+                <Text style={styles.sequenceBadgeLabel}>{isPt ? 'FASE 1' : 'FASE 1'}</Text>
+                <Text style={styles.sequenceBadgeName}>{isPt ? '3x Saltos CMJ' : '3x Salti CMJ'}</Text>
+                <Text style={styles.sequenceBadgeSub}>
+                  {isPt ? 'Com contramovimento rápido' : 'Con contromovimento rapido'}
+                </Text>
               </View>
               <ArrowRight size={18} color="#64748B" />
               <View style={styles.sequenceBadge}>
-                <Text style={styles.sequenceBadgeLabel}>FASE 2</Text>
-                <Text style={styles.sequenceBadgeName}>3x Salti SJ</Text>
-                <Text style={styles.sequenceBadgeSub}>Fermo a 90° per 2s prima di saltare</Text>
+                <Text style={styles.sequenceBadgeLabel}>{isPt ? 'FASE 2' : 'FASE 2'}</Text>
+                <Text style={styles.sequenceBadgeName}>{isPt ? '3x Saltos SJ' : '3x Salti SJ'}</Text>
+                <Text style={styles.sequenceBadgeSub}>
+                  {isPt ? 'Parado a 90° por 2s antes de saltar' : 'Fermo a 90° per 2s prima di saltare'}
+                </Text>
               </View>
             </View>
           </View>
@@ -212,7 +226,9 @@ export const BaselineEvaluationScreen: React.FC = () => {
             onPress={() => setPhase('warmup')}
             activeOpacity={0.88}
           >
-            <Text style={styles.mainActionBtnText}>INIZIA RISCALDAMENTO (3x10 SQUAT)</Text>
+            <Text style={styles.mainActionBtnText}>
+              {isPt ? 'INICIAR AQUECIMENTO (3x10 AGACHAMENTO)' : 'INIZIA RISCALDAMENTO (3x10 SQUAT)'}
+            </Text>
             <ArrowRight size={18} color="#000000" strokeWidth={3} />
           </TouchableOpacity>
         </ScrollView>
@@ -223,12 +239,18 @@ export const BaselineEvaluationScreen: React.FC = () => {
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <View style={styles.topBadge}>
             <Flame size={12} color="#F97316" />
-            <Text style={[styles.topBadgeText, { color: '#F97316' }]}>ATTIVAZIONE NEUROMUSCOLARE</Text>
+            <Text style={[styles.topBadgeText, { color: '#F97316' }]}>
+              {isPt ? 'ATIVAÇÃO NEUROMUSCULAR' : 'ATTIVAZIONE NEUROMUSCOLARE'}
+            </Text>
           </View>
 
-          <Text style={styles.screenHeading}>Riscaldamento Specifico</Text>
+          <Text style={styles.screenHeading}>
+            {isPt ? 'Aquecimento Específico' : 'Riscaldamento Specifico'}
+          </Text>
           <Text style={styles.screenSubheading}>
-            3 serie da 10 ripetizioni di squat a corpo libero per attivare i fusi neuromuscolari e preparare il tendine rotuleo.
+            {isPt
+              ? '3 séries de 10 repetições de agachamento com peso corporal para ativar os fusos neuromusculares e preparar o tendão patelar.'
+              : '3 serie da 10 ripetizioni di squat a corpo libero per attivare i fusi neuromuscolari e preparare il tendine rotuleo.'}
           </Text>
 
           {/* Demonstração Biomecânica do Agachamento */}
@@ -236,15 +258,25 @@ export const BaselineEvaluationScreen: React.FC = () => {
 
           {/* Card Série */}
           <View style={styles.warmupProgressCard}>
-            <Text style={styles.warmupCardTitle}>SERIE {warmupSet} DI 3</Text>
-            <Text style={styles.warmupCardReps}>10 Ripetizioni di Squat</Text>
-            <Text style={styles.warmupCardSub}>Discesa controllata (2s), risalita rapida ed esplosiva (1s)</Text>
+            <Text style={styles.warmupCardTitle}>
+              {isPt ? `SÉRIE ${warmupSet} DE 3` : `SERIE ${warmupSet} DI 3`}
+            </Text>
+            <Text style={styles.warmupCardReps}>
+              {isPt ? '10 Repetições de Agachamento' : '10 Ripetizioni di Squat'}
+            </Text>
+            <Text style={styles.warmupCardSub}>
+              {isPt ? 'Descida controlada (2s), subida rápida e explosiva (1s)' : 'Discesa controllata (2s), risalita rapida ed esplosiva (1s)'}
+            </Text>
 
             {isResting ? (
               <View style={styles.restTimerBox}>
                 <RotateCcw size={18} color={Colors.primary} />
-                <Text style={styles.restTimerText}>Recupero Neurale: {warmupRestSeconds}s</Text>
-                <Text style={styles.restTimerSub}>Riposati completamente prima della prossima serie</Text>
+                <Text style={styles.restTimerText}>
+                  {isPt ? `Recuperação Neural: ${warmupRestSeconds}s` : `Recupero Neurale: ${warmupRestSeconds}s`}
+                </Text>
+                <Text style={styles.restTimerSub}>
+                  {isPt ? 'Descanse completamente antes da próxima série' : 'Riposati completamente prima della prossima serie'}
+                </Text>
               </View>
             ) : (
               <TouchableOpacity
@@ -254,7 +286,9 @@ export const BaselineEvaluationScreen: React.FC = () => {
               >
                 <Check size={18} color="#000000" strokeWidth={3} />
                 <Text style={styles.warmupCompleteBtnText}>
-                  {warmupSet === 3 ? 'COMPLETA RISCALDAMENTO & APRI FOTOCAMERA' : `SERIE ${warmupSet} COMPLETATA`}
+                  {warmupSet === 3
+                    ? (isPt ? 'CONCLUIR AQUECIMENTO & ABRIR CÂMERA' : 'COMPLETA RISCALDAMENTO & APRI FOTOCAMERA')
+                    : (isPt ? `SÉRIE ${warmupSet} CONCLUÍDA` : `SERIE ${warmupSet} COMPLETATA`)}
                 </Text>
               </TouchableOpacity>
             )}
@@ -277,7 +311,9 @@ export const BaselineEvaluationScreen: React.FC = () => {
           <View style={styles.warmupTipBox}>
             <ShieldCheck size={14} color="#10B981" />
             <Text style={styles.warmupTipText}>
-              Il riscaldamento riduce la rigidità passiva e prepara il SNC a esprimere il massimo tasso di sviluppo della forza durante i salti di test.
+              {isPt
+                ? 'O aquecimento reduz a rigidez passiva e prepara o SNC para expressar a máxima taxa de desenvolvimento de força durante os saltos.'
+                : 'Il riscaldamento riduce la rigidità passiva e prepara il SNC a esprimere il massimo tasso di sviluppo della forza durante i salti di test.'}
             </Text>
           </View>
         </ScrollView>
@@ -300,48 +336,60 @@ export const BaselineEvaluationScreen: React.FC = () => {
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <View style={styles.topBadge}>
             <Sparkles size={12} color="#10B981" />
-            <Text style={[styles.topBadgeText, { color: '#10B981' }]}>VALUTAZIONE COMPLETATA</Text>
+            <Text style={[styles.topBadgeText, { color: '#10B981' }]}>
+              {isPt ? 'AVALIAÇÃO CONCLUÍDA' : 'VALUTAZIONE COMPLETATA'}
+            </Text>
           </View>
 
-          <Text style={styles.screenHeading}>La Tua Baseline Neuromuscolare</Text>
+          <Text style={styles.screenHeading}>
+            {isPt ? 'Sua Baseline Neuromuscular' : 'La Tua Baseline Neuromuscolare'}
+          </Text>
           <Text style={styles.screenSubheading}>
-            Profilo validato tramite il test a doppia curva (CMJ vs SJ) del Prof. Dott. Irineu Loturco.
+            {isPt
+              ? 'Perfil validado pelo teste de dupla curva (CMJ vs SJ) do Prof. Dr. Irineu Loturco.'
+              : 'Profilo validato tramite il test a doppia curva (CMJ vs SJ) del Prof. Dott. Irineu Loturco.'}
           </Text>
 
           {/* Grid Resultados CMJ e SJ */}
           <View style={styles.resultsGrid}>
             <View style={styles.resultMetricBox}>
-              <Text style={styles.resultMetricLabel}>MEDIA CMJ (Elastico)</Text>
+              <Text style={styles.resultMetricLabel}>{isPt ? 'MÉDIA CMJ (Elástico)' : 'MEDIA CMJ (Elastico)'}</Text>
               <Text style={styles.resultMetricValue}>{avgCmj} <Text style={{ fontSize: 16 }}>cm</Text></Text>
-              <Text style={styles.resultMetricSub}>3 tentativi registrati</Text>
+              <Text style={styles.resultMetricSub}>{isPt ? '3 tentativas registradas' : '3 tentativi registrati'}</Text>
             </View>
 
             <View style={styles.resultMetricBox}>
-              <Text style={styles.resultMetricLabel}>MEDIA SJ (Concentrico)</Text>
+              <Text style={styles.resultMetricLabel}>{isPt ? 'MÉDIA SJ (Concêntrico)' : 'MEDIA SJ (Concentrico)'}</Text>
               <Text style={styles.resultMetricValue}>{avgSj} <Text style={{ fontSize: 16 }}>cm</Text></Text>
-              <Text style={styles.resultMetricSub}>3 tentativi registrati</Text>
+              <Text style={styles.resultMetricSub}>{isPt ? '3 tentativas registradas' : '3 tentativi registrati'}</Text>
             </View>
           </View>
 
           {/* Índice EUR */}
           <View style={styles.eurCard}>
             <View style={styles.eurHeaderRow}>
-              <Text style={styles.eurCardTitle}>Indice EUR (Utilizzo Elastico)</Text>
+              <Text style={styles.eurCardTitle}>
+                {isPt ? 'Índice EUR (Utilização Elástica)' : 'Indice EUR (Utilizzo Elastico)'}
+              </Text>
               <View style={styles.eurBadge}>
                 <Text style={styles.eurBadgeValue}>{eurRatio.toFixed(2)}</Text>
               </View>
             </View>
-            <Text style={styles.eurDiagnosis}>{getItalianDiagnosis(eurRatio)}</Text>
+            <Text style={styles.eurDiagnosis}>{getDiagnosisText(eurRatio)}</Text>
           </View>
 
           {/* Card Próxima Avaliação */}
           <View style={styles.nextEvalCard}>
             <View style={styles.nextEvalHeader}>
               <Calendar size={18} color={Colors.primary} />
-              <Text style={styles.nextEvalTitle}>Prossima Valutazione: tra 30 giorni</Text>
+              <Text style={styles.nextEvalTitle}>
+                {isPt ? 'Próxima Avaliação: em 30 dias' : 'Prossima Valutazione: tra 30 giorni'}
+              </Text>
             </View>
             <Text style={styles.nextEvalText}>
-              Il sistema nervoso centrale necessita di 4 settimane di allenamenti balistici e recupero per consolidare i guadagni di elevazione prima del prossimo test ufficiale.
+              {isPt
+                ? 'O sistema nervoso central precisa de 4 semanas de treinos balísticos e recuperação para consolidar os ganhos de impulsão antes do próximo teste oficial.'
+                : 'Il sistema nervoso centrale necessita di 4 settimane di allenamenti balistici e recupero per consolidare i guadagni di elevazione prima del prossimo test ufficiale.'}
             </Text>
           </View>
 
@@ -351,7 +399,9 @@ export const BaselineEvaluationScreen: React.FC = () => {
             onPress={() => navigate('Dashboard')}
             activeOpacity={0.88}
           >
-            <Text style={styles.mainActionBtnText}>VEDI IL MIO PIANO DI ALLENAMENTO</Text>
+            <Text style={styles.mainActionBtnText}>
+              {isPt ? 'VER MEU PLANO DE TREINOS' : 'VEDI IL MIO PIANO DI ALLENAMENTO'}
+            </Text>
             <ArrowRight size={20} color="#000000" strokeWidth={3} />
           </TouchableOpacity>
         </ScrollView>

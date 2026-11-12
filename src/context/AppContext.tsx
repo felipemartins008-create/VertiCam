@@ -30,14 +30,14 @@ export type ScreenName =
   | 'PrescriptionWorkout';
 
 const DEFAULT_BASELINE: AthleteBaseline = {
-  user_weight: 78,
-  user_height: 188,
-  user_squat_1rm: 120, // 120kg de 1RM agachamento
-  training_level: 'Intermediário',
-  baseline_cmj_height: 52.0,
-  baseline_sj_height: 48.5,
-  baseline_rsi: 2.15,
-  eur_ratio: 1.07, // 52 / 48.5 = 1.07 (< 1.10 deficit elástico)
+  user_weight: 0,
+  user_height: 0,
+  user_squat_1rm: 0,
+  training_level: 'Iniciante',
+  baseline_cmj_height: 0,
+  baseline_sj_height: 0,
+  baseline_rsi: 0,
+  eur_ratio: 0,
 };
 
 interface AppContextType {
@@ -58,7 +58,7 @@ interface AppContextType {
   setSubscribed: (status: boolean) => void;
   startWorkout: (module: WorkoutModule) => void;
   runDailyCheckin: (dailyCMJHeightCm: number) => PrescriptionOutput;
-  reloadUserData: () => Promise<void>;
+  reloadUserData: () => Promise<{ profile: UserProfile | null; history: JumpTestResult[] }>;
   language: SupportedLanguage;
   setLanguage: (lang: SupportedLanguage) => void;
 }
@@ -97,6 +97,35 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     }
 
+    const applyLoadedData = (profile: UserProfile | null, history: JumpTestResult[]) => {
+      const baseCmj = profile?.initialJumpCm || (history.length > 0 ? history[0].jumpHeightCm : 0);
+      const nextBaseline: AthleteBaseline = {
+        ...DEFAULT_BASELINE,
+        user_weight: profile?.weightKg || 0,
+        user_height: profile?.heightCm || 0,
+        user_leg_length_cm: profile?.legLengthCm,
+        user_squat_1rm: profile?.squat1rmKg || 0,
+        baseline_cmj_height: baseCmj,
+        baseline_sj_height: baseCmj > 0 ? Math.round((baseCmj / 1.08) * 10) / 10 : 0,
+        eur_ratio: baseCmj > 0 ? 1.08 : 0,
+      };
+      setAthleteBaseline(nextBaseline);
+
+      if (history.length > 0) {
+        const lastJump = history[history.length - 1];
+        setLatestJumpResult(lastJump);
+        if (nextBaseline.baseline_cmj_height > 0) {
+          const pres = PrescriptionEngine.generateDailyPrescription(nextBaseline, lastJump.jumpHeightCm);
+          setDailyPrescription(pres);
+        } else {
+          setDailyPrescription(null);
+        }
+      } else {
+        setLatestJumpResult(null);
+        setDailyPrescription(null);
+      }
+    };
+
     // Inicialização de dados segura
     const initData = async () => {
       try {
@@ -121,15 +150,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         // 3. Carrega histórico de saltos do banco
         const history = await JumpService.getJumpHistory();
         setJumpHistory(history);
-        if (history.length > 0) {
-          const lastJump = history[history.length - 1];
-          setLatestJumpResult(lastJump);
-          const pres = PrescriptionEngine.generateDailyPrescription(DEFAULT_BASELINE, lastJump.jumpHeightCm);
-          setDailyPrescription(pres);
-        } else {
-          setLatestJumpResult(null);
-          setDailyPrescription(null);
-        }
+        applyLoadedData(profile, history);
       } catch (e) {
         console.warn('Aviso: Erro silencioso ao inicializar dados:', e);
       }
@@ -149,7 +170,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setI18nLanguage(newLang);
   };
 
-  const reloadUserData = async () => {
+  const reloadUserData = async (): Promise<{ profile: UserProfile | null; history: JumpTestResult[] }> => {
     try {
       const profile = await JumpService.getUserProfile();
       if (profile) {
@@ -157,17 +178,37 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
       const history = await JumpService.getJumpHistory();
       setJumpHistory(history);
+
+      const baseCmj = profile?.initialJumpCm || (history.length > 0 ? history[0].jumpHeightCm : 0);
+      const nextBaseline: AthleteBaseline = {
+        ...DEFAULT_BASELINE,
+        user_weight: profile?.weightKg || 0,
+        user_height: profile?.heightCm || 0,
+        user_leg_length_cm: profile?.legLengthCm,
+        user_squat_1rm: profile?.squat1rmKg || 0,
+        baseline_cmj_height: baseCmj,
+        baseline_sj_height: baseCmj > 0 ? Math.round((baseCmj / 1.08) * 10) / 10 : 0,
+        eur_ratio: baseCmj > 0 ? 1.08 : 0,
+      };
+      setAthleteBaseline(nextBaseline);
+
       if (history.length > 0) {
         const lastJump = history[history.length - 1];
         setLatestJumpResult(lastJump);
-        const pres = PrescriptionEngine.generateDailyPrescription(DEFAULT_BASELINE, lastJump.jumpHeightCm);
-        setDailyPrescription(pres);
+        if (nextBaseline.baseline_cmj_height > 0) {
+          const pres = PrescriptionEngine.generateDailyPrescription(nextBaseline, lastJump.jumpHeightCm);
+          setDailyPrescription(pres);
+        } else {
+          setDailyPrescription(null);
+        }
       } else {
         setLatestJumpResult(null);
         setDailyPrescription(null);
       }
+      return { profile, history };
     } catch (e) {
       console.warn('Erro ao recarregar dados do usuário:', e);
+      return { profile: null, history: [] };
     }
   };
 

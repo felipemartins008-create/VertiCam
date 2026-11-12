@@ -22,25 +22,31 @@ export class PrescriptionEngine {
   /**
    * Diagnostica il profilo neuromuscolare in base all'EUR
    */
-  public static getEURDiagnostic(eur: number): {
+  public static getEURDiagnostic(eur: number, lang: 'pt' | 'it' = 'pt'): {
     deficitType: 'elastic' | 'concentric_strength' | 'balanced';
     recommendation: string;
   } {
     if (eur < 1.10) {
       return {
         deficitType: 'elastic',
-        recommendation: 'Deficit elastico/reattivo (EUR < 1.10). Necessita di enfasi sul Ciclo Stiramento-Accorciamento (CEA) e pliometria reattiva.',
+        recommendation: lang === 'pt'
+          ? 'Déficit elástico/reativo (EUR < 1.10). Ênfase recomendada no Ciclo Alongamento-Encurtamento (CAE) e pliometria reativa.'
+          : 'Deficit elastico/reattivo (EUR < 1.10). Necessita di enfasi sul Ciclo Stiramento-Accorciamento (CEA) e pliometria reattiva.',
       };
     }
     if (eur > 1.20) {
       return {
         deficitType: 'concentric_strength',
-        recommendation: 'Deficit di forza dinamica massima (EUR > 1.20). Eccellente capacità elastica, necessita di incremento della forza concentrica pura.',
+        recommendation: lang === 'pt'
+          ? 'Déficit de força dinâmica máxima (EUR > 1.20). Excelente capacidade elástica; foco em ganho de força concêntrica pura.'
+          : 'Deficit di forza dinamica massima (EUR > 1.20). Eccellente capacità elastica, necessita di incremento della forza concentrica pura.',
       };
     }
     return {
       deficitType: 'balanced',
-      recommendation: 'Profilo neuromuscolare equilibrato (1.10 <= EUR <= 1.20). Sinergia ottimale tra forza concentrica e restituzione elastica tendinea.',
+      recommendation: lang === 'pt'
+        ? 'Perfil neuromuscular equilibrado (1.10 ≤ EUR ≤ 1.20). Sinergia ideal entre força concêntrica e restituição elástica tendínea.'
+        : 'Profilo neuromuscolare equilibrato (1.10 <= EUR <= 1.20). Sinergia ottimale tra forza concentrica e restituzione elastica tendinea.',
     };
   }
 

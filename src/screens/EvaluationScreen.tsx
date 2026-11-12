@@ -28,15 +28,18 @@ import { t } from '../services/i18n';
 export const EvaluationScreen: React.FC = () => {
   const { jumpHistory, latestJumpResult, userProfile, athleteBaseline, navigate, language } = useApp();
 
-  const currentJump = latestJumpResult?.jumpHeightCm || athleteBaseline.baseline_cmj_height || 0;
+  const isCalibrated = Boolean(userProfile.hasCompletedInitialEvaluation || jumpHistory.length > 0);
+  const currentJump = latestJumpResult?.jumpHeightCm || (isCalibrated ? athleteBaseline.baseline_cmj_height : 0) || 0;
   const initialJump = userProfile.initialJumpCm || currentJump;
-  const totalGain = Math.max(0, Math.round((currentJump - initialJump) * 10) / 10);
-  const nextDate = userProfile.nextEvaluationDate || (language === 'pt' ? 'Em 30 dias' : 'Tra 30 giorni');
+  const totalGain = isCalibrated ? Math.max(0, Math.round((currentJump - initialJump) * 10) / 10) : 0;
+  const nextDate = isCalibrated
+    ? (userProfile.nextEvaluationDate || (language === 'pt' ? 'Em 30 dias' : 'Tra 30 giorni'))
+    : (language === 'pt' ? 'Pendente (Avaliação Inicial)' : 'In attesa (Valutazione Iniziale)');
 
-  const cmjVal = latestJumpResult?.jumpHeightCm || athleteBaseline.baseline_cmj_height || 0;
-  const sjVal = athleteBaseline.baseline_sj_height || 0;
-  const eurVal = cmjVal > 0 && sjVal > 0 ? PrescriptionEngine.calculateEUR(cmjVal, sjVal) : 1.0;
-  const eurDiagnostic = PrescriptionEngine.getEURDiagnostic(eurVal);
+  const cmjVal = latestJumpResult?.jumpHeightCm || (isCalibrated ? athleteBaseline.baseline_cmj_height : 0) || 0;
+  const sjVal = isCalibrated ? (athleteBaseline.baseline_sj_height || 0) : 0;
+  const eurVal = cmjVal > 0 && sjVal > 0 ? PrescriptionEngine.calculateEUR(cmjVal, sjVal) : 0;
+  const eurDiagnostic = eurVal > 0 ? PrescriptionEngine.getEURDiagnostic(eurVal, language) : null;
 
   const windowWidth = Dimensions.get('window').width;
   const isDesktop = windowWidth >= 768;
@@ -86,19 +89,25 @@ export const EvaluationScreen: React.FC = () => {
 
           <TouchableOpacity
             style={styles.retestCtaBtn}
-            onPress={() => navigate('CameraIntro')}
+            onPress={() => navigate(isCalibrated ? 'CameraIntro' : 'BaselineEvaluation')}
             activeOpacity={0.88}
           >
             <Camera size={16} color="#000000" strokeWidth={2.5} />
-            <Text style={styles.retestCtaBtnText}>{t('evaluations.newTestCta')}</Text>
+            <Text style={styles.retestCtaBtnText}>
+              {isCalibrated
+                ? t('evaluations.newTestCta')
+                : (language === 'pt' ? 'INICIAR AVALIAÇÃO INICIAL' : 'INIZIA VALUTAZIONE INIZIALE')}
+            </Text>
           </TouchableOpacity>
         </View>
 
         {/* ── MÉTRICAS CHAVE ATUAIS ── */}
         <View style={styles.metricsGrid}>
           <View style={styles.metricCard}>
-            <Text style={styles.metricLabel}>CMJ ATTUALE</Text>
-            <Text style={styles.metricValue}>{cmjVal.toFixed(1)} <Text style={{ fontSize: 16 }}>cm</Text></Text>
+            <Text style={styles.metricLabel}>{language === 'pt' ? 'CMJ ATUAL' : 'CMJ ATTUALE'}</Text>
+            <Text style={styles.metricValue}>
+              {cmjVal > 0 ? cmjVal.toFixed(1) : '--'} <Text style={{ fontSize: 16 }}>cm</Text>
+            </Text>
             <View style={styles.gainPill}>
               <TrendingUp size={11} color="#10B981" />
               <Text style={styles.gainPillText}>+{totalGain} cm</Text>
@@ -106,26 +115,40 @@ export const EvaluationScreen: React.FC = () => {
           </View>
 
           <View style={styles.metricCard}>
-            <Text style={styles.metricLabel}>SJ CONCENTRICO</Text>
-            <Text style={styles.metricValue}>{sjVal.toFixed(1)} <Text style={{ fontSize: 16 }}>cm</Text></Text>
-            <Text style={styles.metricSub}>Partenza da fermo a 90°</Text>
+            <Text style={styles.metricLabel}>{language === 'pt' ? 'SJ CONCÊNTRICO' : 'SJ CONCENTRICO'}</Text>
+            <Text style={styles.metricValue}>
+              {sjVal > 0 ? sjVal.toFixed(1) : '--'} <Text style={{ fontSize: 16 }}>cm</Text>
+            </Text>
+            <Text style={styles.metricSub}>
+              {language === 'pt' ? 'Partida parado a 90°' : 'Partenza da fermo a 90°'}
+            </Text>
           </View>
         </View>
 
         {/* ── CARD ÍNDICE EUR (DIAGNÓSTICO LOTURCO) ── */}
         <View style={styles.eurCard}>
           <View style={styles.eurHeaderRow}>
-            <View>
-              <Text style={styles.eurCategory}>ANALISI DEL CICLO STIRAMENTO-ACCORCIAMENTO</Text>
-              <Text style={styles.eurTitle}>Indice EUR (CMJ ÷ SJ)</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.eurCategory}>
+                {language === 'pt' ? 'ANÁLISE DO CICLO ALONGAMENTO-ENCURTAMENTO' : 'ANALISI DEL CICLO STIRAMENTO-ACCORCIAMENTO'}
+              </Text>
+              <Text style={styles.eurTitle}>
+                {language === 'pt' ? 'Índice EUR (CMJ ÷ SJ)' : 'Indice EUR (CMJ ÷ SJ)'}
+              </Text>
             </View>
             <View style={styles.eurBadge}>
-              <Text style={styles.eurBadgeValue}>{eurVal.toFixed(2)}</Text>
+              <Text style={styles.eurBadgeValue}>{eurVal > 0 ? eurVal.toFixed(2) : '--'}</Text>
             </View>
           </View>
 
           <View style={styles.eurDiagnosticBox}>
-            <Text style={styles.eurDiagnosticText}>{eurDiagnostic.recommendation}</Text>
+            <Text style={styles.eurDiagnosticText}>
+              {eurDiagnostic
+                ? eurDiagnostic.recommendation
+                : (language === 'pt'
+                  ? 'Realize sua avaliação inicial na câmera (CMJ e SJ) para gerar seu diagnóstico neuromuscular e índice EUR real.'
+                  : 'Esegui la tua valutazione iniziale con la fotocamera (CMJ e SJ) per generare la tua diagnosi neuromuscolare e l\'indice EUR reale.')}
+            </Text>
           </View>
         </View>
 
