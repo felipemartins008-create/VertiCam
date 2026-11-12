@@ -52,9 +52,9 @@ export const OnboardingTutorialScreen: React.FC = () => {
   );
   const [bioError, setBioError] = useState<string | null>(null);
 
-  // Dias de treino selecionados (o usuário escolhe nesta etapa)
+  // Dias de treino selecionados: NENHUM pré-selecionado para deixar o aluno escolher
   const [selectedDays, setSelectedDays] = useState<number[]>(
-    userProfile.workoutDays && userProfile.workoutDays.length > 0 ? userProfile.workoutDays : [1, 3, 5]
+    userProfile.workoutDays && userProfile.workoutDays.length > 0 ? userProfile.workoutDays : []
   );
   const [consecutiveWarning, setConsecutiveWarning] = useState<string | null>(null);
 
@@ -78,12 +78,8 @@ export const OnboardingTutorialScreen: React.FC = () => {
 
   const toggleDay = (dayId: number) => {
     if (selectedDays.includes(dayId)) {
-      if (selectedDays.length > 1) {
-        setSelectedDays(selectedDays.filter((d) => d !== dayId));
-        setConsecutiveWarning(null);
-      } else {
-        setConsecutiveWarning(isPt ? 'Selecione pelo menos 1 dia de treino.' : 'Seleziona almeno 1 giorno di allenamento.');
-      }
+      setSelectedDays(selectedDays.filter((d) => d !== dayId));
+      setConsecutiveWarning(null);
     } else {
       // Verifica se o dia clicado é consecutivo a algum dia já selecionado
       const hasConsecutive = selectedDays.some((existingDay) =>
@@ -127,6 +123,14 @@ export const OnboardingTutorialScreen: React.FC = () => {
   };
 
   const handleStep2Continue = async () => {
+    if (selectedDays.length === 0) {
+      setConsecutiveWarning(
+        isPt
+          ? 'Por favor, selecione pelo menos 1 dia da semana para treinar.'
+          : 'Per favore, seleziona almeno 1 giorno di allenamento.'
+      );
+      return;
+    }
     await updateProfile({ workoutDays: selectedDays });
     setStep(3);
   };
@@ -397,12 +401,18 @@ export const OnboardingTutorialScreen: React.FC = () => {
               </View>
 
               <View style={styles.daysSummaryRow}>
-                <Zap size={13} color="#10B981" />
+                <Zap size={13} color={selectedDays.length > 0 ? "#10B981" : "#94A3B8"} />
                 <Text style={styles.daysSummaryText}>
-                  {isPt ? (
-                    <>Selecionado: <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>{selectedDays.length} dias por semana</Text></>
+                  {selectedDays.length > 0 ? (
+                    isPt ? (
+                      <>Selecionado: <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>{selectedDays.length} {selectedDays.length === 1 ? 'dia' : 'dias'} por semana</Text></>
+                    ) : (
+                      <>Selezionato: <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>{selectedDays.length} {selectedDays.length === 1 ? 'giorno' : 'giorni'} a settimana</Text></>
+                    )
                   ) : (
-                    <>Selezionato: <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>{selectedDays.length} giorni a settimana</Text></>
+                    isPt
+                      ? 'Nenhum dia selecionado. Toque nos dias acima para montar sua semana.'
+                      : 'Nessun giorno selezionato. Tocca i giorni sopra per comporre la tua settimana.'
                   )}
                 </Text>
               </View>
@@ -410,7 +420,7 @@ export const OnboardingTutorialScreen: React.FC = () => {
 
             <View style={styles.ctaBottomContainer}>
               <TouchableOpacity
-                style={styles.singleActionButton}
+                style={[styles.singleActionButton, selectedDays.length === 0 && { opacity: 0.5 }]}
                 onPress={handleStep2Continue}
                 activeOpacity={0.88}
               >
