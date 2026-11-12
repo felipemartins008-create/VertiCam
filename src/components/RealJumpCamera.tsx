@@ -28,6 +28,7 @@ import {
   getSlowMoFactor,
   RecordingSpeedMode,
 } from '../utils/jumpVideoAnalyzer';
+import { JumpTutorialPlayer } from './JumpTutorialPlayer';
 
 interface RealJumpCameraProps {
   jumpType: 'CMJ' | 'SJ';
@@ -52,6 +53,7 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
   const [cameraMode, setCameraMode] = useState<'tutorial' | 'analyzing' | 'review'>('tutorial');
   const [speedMode, setSpeedMode] = useState<RecordingSpeedMode>('slow240');
   const [analysisProgress, setAnalysisProgress] = useState<number>(0);
+  const [showTutorialPlayer, setShowTutorialPlayer] = useState<boolean>(false);
 
   // Vídeo enviado
   const [recordedVideoUrl, setRecordedVideoUrl] = useState<string | null>(null);
@@ -262,6 +264,26 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
               </Text>
             </View>
           </View>
+
+          {/* Botão de Vídeo Tutorial Passo a Passo */}
+          <TouchableOpacity
+            style={styles.tutorialToggleBtn}
+            onPress={() => setShowTutorialPlayer(!showTutorialPlayer)}
+            activeOpacity={0.85}
+          >
+            <Video size={16} color={Colors.primary} />
+            <Text style={styles.tutorialToggleBtnText}>
+              {showTutorialPlayer
+                ? (isPt ? 'OCULTAR VÍDEO TUTORIAL' : 'NASCONDI VIDEO TUTORIAL')
+                : (isPt ? '▶ VER VÍDEO TUTORIAL (SETUP & SALTO)' : '▶ VEDI VIDEO TUTORIAL (SETUP & SALTO)')}
+            </Text>
+          </TouchableOpacity>
+
+          {showTutorialPlayer && (
+            <View style={styles.tutorialPlayerWrapper}>
+              <JumpTutorialPlayer initialTab={jumpType === 'CMJ' ? 'cmj' : 'sj'} />
+            </View>
+          )}
 
           {/* Seletor de FPS gravado */}
           <View style={styles.fpsSelectorCard}>
@@ -653,6 +675,28 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#CBD5E1',
     lineHeight: 19,
+  },
+  tutorialToggleBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    backgroundColor: 'rgba(0, 229, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 229, 255, 0.25)',
+  },
+  tutorialToggleBtnText: {
+    color: Colors.primary,
+    fontSize: 12,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  tutorialPlayerWrapper: {
+    borderRadius: 16,
+    overflow: 'hidden',
   },
   fpsSelectorCard: {
     backgroundColor: 'rgba(255,255,255,0.03)',

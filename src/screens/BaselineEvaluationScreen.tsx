@@ -23,6 +23,7 @@ import { Colors } from '../theme/colors';
 import { PrescriptionEngine } from '../services/prescriptionEngine';
 import { BiomechanicalDemonstration } from '../components/BiomechanicalDemonstration';
 import { RealJumpCamera } from '../components/RealJumpCamera';
+import { JumpTutorialPlayer } from '../components/JumpTutorialPlayer';
 
 const { width } = Dimensions.get('window');
 const isDesktop = width >= 768;
@@ -213,10 +214,8 @@ export const BaselineEvaluationScreen: React.FC = () => {
             </View>
           </View>
 
-          {/* Demonstrações Interativas dos Saltos */}
-          <BiomechanicalDemonstration type="cmj" />
-          <BiomechanicalDemonstration type="sj" />
-          <BiomechanicalDemonstration type="camera_setup" />
+          {/* Demonstração em Vídeo Tutorial Animado (3 Abas) */}
+          <JumpTutorialPlayer />
 
           {/* Sequência do Teste */}
           <View style={styles.sequenceCard}>
