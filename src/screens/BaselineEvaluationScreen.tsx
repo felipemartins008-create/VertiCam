@@ -67,6 +67,28 @@ export const BaselineEvaluationScreen: React.FC = () => {
     return () => clearInterval(timer);
   }, [isResting, warmupRestSeconds]);
 
+  // Lote de saltos detectados em um único vídeo (ex: 3 CMJ ou 3 SJ)
+  const handleBatchJumpsRecorded = (heightsCm: number[]) => {
+    if (currentJumpType === 'CMJ') {
+      const nextScores = [...cmjScores, ...heightsCm].slice(0, 3);
+      setCmjScores(nextScores);
+      if (nextScores.length >= 3) {
+        setCurrentJumpType('SJ');
+        setCurrentAttempt(1);
+      } else {
+        setCurrentAttempt(nextScores.length + 1);
+      }
+    } else {
+      const nextScores = [...sjScores, ...heightsCm].slice(0, 3);
+      setSjScores(nextScores);
+      if (nextScores.length >= 3) {
+        finishEvaluation(cmjScores, nextScores);
+      } else {
+        setCurrentAttempt(nextScores.length + 1);
+      }
+    }
+  };
+
   // Salto Confirmado diretamente pelo Scrubber da Câmera Real
   const handleJumpRecorded = (heightCm: number) => {
     if (currentJumpType === 'CMJ') {
@@ -323,10 +345,12 @@ export const BaselineEvaluationScreen: React.FC = () => {
       {phase === 'camera_test' && (
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <RealJumpCamera
+            key={`${currentJumpType}-${currentAttempt}`}
             jumpType={currentJumpType}
             attemptNumber={currentAttempt}
             totalAttempts={3}
             onJumpConfirmed={handleJumpRecorded}
+            onBatchJumpsConfirmed={handleBatchJumpsRecorded}
           />
         </ScrollView>
       )}

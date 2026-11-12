@@ -25,11 +25,13 @@ import { useApp } from '../context/AppContext';
 import { Colors } from '../theme/colors';
 import { BiomechanicalDemonstration } from '../components/BiomechanicalDemonstration';
 import { RealJumpCamera } from '../components/RealJumpCamera';
+import { LiveWorkoutCamera } from '../components/LiveWorkoutCamera';
 
 type WorkoutStep = 'warmup' | 'readiness_check' | 'loaded_jumps' | 'summary';
 
 export const LoturcoWorkoutScreen: React.FC = () => {
-  const { navigate, athleteBaseline, userProfile } = useApp();
+  const { navigate, athleteBaseline, userProfile, language } = useApp();
+  const isPt = language === 'pt';
 
   const [step, setStep] = useState<WorkoutStep>('warmup');
 
@@ -141,13 +143,10 @@ export const LoturcoWorkoutScreen: React.FC = () => {
     }, 1200);
   };
 
-  const nextSetOrFinish = () => {
-    setIsFatiguedAlert(false);
-    setRepsDoneInSet(0);
-    setVelocityLossPercent(0);
-
+  const handleLiveSetCompleted = (repsCount: number) => {
+    setTotalJumpsCompleted((prev) => prev + repsCount);
     if (currentSet < totalSets) {
-      setCurrentSet(currentSet + 1);
+      setCurrentSet((prev) => prev + 1);
     } else {
       setStep('summary');
     }
@@ -160,9 +159,13 @@ export const LoturcoWorkoutScreen: React.FC = () => {
         <View style={styles.topBarLeft}>
           <View style={styles.loturcoPill}>
             <Zap size={13} color={Colors.primary} />
-            <Text style={styles.loturcoPillText}>METODO LOTURCO</Text>
+            <Text style={styles.loturcoPillText}>
+              {isPt ? 'MÉTODO LOTURCO' : 'METODO LOTURCO'}
+            </Text>
           </View>
-          <Text style={styles.topBarTitle}>Salto con Sovraccarico (Loaded Jump)</Text>
+          <Text style={styles.topBarTitle}>
+            {isPt ? 'Salto com Sobrecarga (Loaded Jump)' : 'Salto con Sovraccarico (Loaded Jump)'}
+          </Text>
         </View>
 
         <TouchableOpacity
@@ -180,25 +183,35 @@ export const LoturcoWorkoutScreen: React.FC = () => {
           <View style={styles.cardBox}>
             <View style={styles.cardHeaderRow}>
               <Flame size={18} color="#F97316" />
-              <Text style={styles.cardHeaderTitle}>Fase 1: Riscaldamento Specifico</Text>
+              <Text style={styles.cardHeaderTitle}>
+                {isPt ? 'Fase 1: Aquecimento Específico' : 'Fase 1: Riscaldamento Specifico'}
+              </Text>
             </View>
             <Text style={styles.cardBodyText}>
-              Esegui 10 ripetizioni di squat a corpo libero per attivare i fusi neuromuscolari.
+              {isPt
+                ? 'Faça 10 repetições de agachamento com o peso do corpo para ativar os fusos neuromusculares.'
+                : 'Esegui 10 ripetizioni di squat a corpo libero per attivare i fusi neuromuscolari.'}
             </Text>
 
             {/* Demonstração Biomecânica do Agachamento */}
             <BiomechanicalDemonstration type="warmup" />
 
             <View style={styles.warmupCounterBox}>
-              <Text style={styles.warmupCounterLabel}>SERIE ATTUALE</Text>
+              <Text style={styles.warmupCounterLabel}>
+                {isPt ? 'SÉRIE ATUAL' : 'SERIE ATTUALE'}
+              </Text>
               <Text style={styles.warmupCounterValue}>{warmupSet} / 3</Text>
-              <Text style={styles.warmupCounterSub}>10 Ripetizioni di Squat</Text>
+              <Text style={styles.warmupCounterSub}>
+                {isPt ? '10 Repetições de Agachamento' : '10 Ripetizioni di Squat'}
+              </Text>
             </View>
 
             {warmupRest > 0 ? (
               <View style={styles.restAlert}>
                 <RotateCcw size={16} color={Colors.primary} />
-                <Text style={styles.restAlertText}>Pausa di recupero: {warmupRest}s</Text>
+                <Text style={styles.restAlertText}>
+                  {isPt ? `Pausa de recuperação: ${warmupRest}s` : `Pausa di recupero: ${warmupRest}s`}
+                </Text>
               </View>
             ) : (
               <TouchableOpacity
@@ -208,7 +221,9 @@ export const LoturcoWorkoutScreen: React.FC = () => {
               >
                 <Check size={18} color="#000000" strokeWidth={3} />
                 <Text style={styles.actionBtnText}>
-                  {warmupSet === 3 ? 'PASSA AL CHECK NEURALE' : `SERIE ${warmupSet} COMPLETATA`}
+                  {warmupSet === 3
+                    ? (isPt ? 'IR PARA O CHECK NEURAL' : 'PASSA AL CHECK NEURALE')
+                    : (isPt ? `SÉRIE ${warmupSet} CONCLUÍDA` : `SERIE ${warmupSet} COMPLETATA`)}
                 </Text>
               </TouchableOpacity>
             )}
@@ -222,21 +237,39 @@ export const LoturcoWorkoutScreen: React.FC = () => {
           <View style={styles.cardBox}>
             <View style={styles.cardHeaderRow}>
               <Activity size={18} color={Colors.primary} />
-              <Text style={styles.cardHeaderTitle}>Fase 2: Check di Prontezza SNC</Text>
+              <Text style={styles.cardHeaderTitle}>
+                {isPt ? 'Fase 2: Check de Prontidão SNC' : 'Fase 2: Check di Prontezza SNC'}
+              </Text>
             </View>
             <Text style={styles.cardBodyText}>
-              Esegui un unico salto CMJ massimale davanti alla fotocamera. L'IA analizzerà la reattività del tuo sistema nervoso centrale per calibrare il carico ottimale di oggi.
+              {isPt
+                ? 'Registre um salto CMJ para calibrar sua prontidão neuromuscular de hoje e ajustar a carga OPL (ou pule direto para as séries ao vivo).'
+                : 'Esegui un salto CMJ per calibrare la prontezza del sistema nervoso oggi e regolare il carico OPL (oppure vai subito alle serie live).'}
             </Text>
 
             {readinessState === 'idle' && (
-              <TouchableOpacity
-                style={styles.actionBtn}
-                onPress={runReadinessTest}
-                activeOpacity={0.88}
-              >
-                <Camera size={18} color="#000000" strokeWidth={2.5} />
-                <Text style={styles.actionBtnText}>APRI FOTOCAMERA & REGISTRA SALTO DI PROVA</Text>
-              </TouchableOpacity>
+              <View style={{ gap: 10 }}>
+                <TouchableOpacity
+                  style={styles.actionBtn}
+                  onPress={runReadinessTest}
+                  activeOpacity={0.88}
+                >
+                  <Camera size={18} color="#000000" strokeWidth={2.5} />
+                  <Text style={styles.actionBtnText}>
+                    {isPt ? 'FAZER CHECK DE PRONTIDÃO' : 'ESEGUI CHECK DI PRONTEZZA'}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.nextSetBtn}
+                  onPress={() => setStep('loaded_jumps')}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.nextSetBtnText}>
+                    {isPt ? `IR DIRETO PARA O TREINO (${prescribedLoadKg} KG)` : `VAI DIRETTO ALL'ALLENAMENTO (${prescribedLoadKg} KG)`}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             )}
 
             {readinessState === 'testing' && (
@@ -252,20 +285,32 @@ export const LoturcoWorkoutScreen: React.FC = () => {
               <View style={styles.readinessResultBox}>
                 <View style={[styles.semaphoreBadge, readinessZone === 'GREEN' && styles.semaphoreGreen, readinessZone === 'YELLOW' && styles.semaphoreYellow]}>
                   <Text style={styles.semaphoreText}>
-                    {readinessZone === 'GREEN' && '🟢 SISTEMA NERVOSO FRESCO (100%)'}
-                    {readinessZone === 'YELLOW' && '🟡 LIEVE FATICA CENTRALE (-15%)'}
-                    {readinessZone === 'RED' && '🔴 FATICA ELEVATA (SESSIONE RIGENERATIVA)'}
+                    {isPt ? (
+                      <>
+                        {readinessZone === 'GREEN' && '🟢 SISTEMA NERVOSO 100% PRONTO'}
+                        {readinessZone === 'YELLOW' && '🟡 FADIGA LEVE (-15% DE CARGA)'}
+                        {readinessZone === 'RED' && '🔴 FADIGA ALTA (SESSÃO REGENERATIVA)'}
+                      </>
+                    ) : (
+                      <>
+                        {readinessZone === 'GREEN' && '🟢 SISTEMA NERVOSO FRESCO (100%)'}
+                        {readinessZone === 'YELLOW' && '🟡 LIEVE FATICA CENTRALE (-15%)'}
+                        {readinessZone === 'RED' && '🔴 FATICA ELEVATA (SESSIONE RIGENERATIVA)'}
+                      </>
+                    )}
                   </Text>
                 </View>
 
                 <Text style={styles.readinessResultJump}>
-                  Salto di oggi: <Text style={{ color: '#FFFFFF', fontWeight: '900' }}>{readinessJumpCm} cm</Text>
+                  {isPt ? 'Salto de hoje:' : 'Salto di oggi:'}{' '}
+                  <Text style={{ color: '#FFFFFF', fontWeight: '900' }}>{readinessJumpCm} cm</Text>
                 </Text>
 
                 <View style={styles.prescriptionHighlight}>
                   <Dumbbell size={18} color={Colors.primary} />
                   <Text style={styles.prescriptionHighlightText}>
-                    Carico Prescritto (OPL): <Text style={{ color: Colors.primary, fontWeight: '900' }}>{prescribedLoadKg} kg</Text>
+                    {isPt ? 'Carga Prescrita (OPL):' : 'Carico Prescritto (OPL):'}{' '}
+                    <Text style={{ color: Colors.primary, fontWeight: '900' }}>{prescribedLoadKg} kg</Text>
                   </Text>
                 </View>
 
@@ -274,7 +319,9 @@ export const LoturcoWorkoutScreen: React.FC = () => {
                   onPress={() => setStep('loaded_jumps')}
                   activeOpacity={0.88}
                 >
-                  <Text style={styles.actionBtnText}>INIZIA I SALTI CON SOVRACCARICO</Text>
+                  <Text style={styles.actionBtnText}>
+                    {isPt ? 'INICIAR SALTOS COM SOBRECARGA' : 'INIZIA I SALTI CON SOVRACCARICO'}
+                  </Text>
                   <ArrowRight size={18} color="#000000" strokeWidth={3} />
                 </TouchableOpacity>
               </View>
@@ -283,89 +330,16 @@ export const LoturcoWorkoutScreen: React.FC = () => {
         </ScrollView>
       )}
 
-      {/* ── PASSO 3: SALTOS COM CARGA COM ANÁLISE SIMULTÂNEA DA CÂMERA ── */}
+      {/* ── PASSO 3: MONITORAMENTO EM TEMPO REAL (CÂMERA AO VIVO) ── */}
       {step === 'loaded_jumps' && (
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          <View style={styles.cardBox}>
-            <View style={styles.setRowHeader}>
-              <View>
-                <Text style={styles.setRowLabel}>SERIE ATTUALE</Text>
-                <Text style={styles.setRowTitle}>Serie {currentSet} di {totalSets}</Text>
-              </View>
-
-              <View style={styles.weightBadge}>
-                <Text style={styles.weightBadgeValue}>{prescribedLoadKg} kg</Text>
-                <Text style={styles.weightBadgeSub}>Carico OPL</Text>
-              </View>
-            </View>
-
-            {/* Guia Biomecânico do Salto */}
-            <BiomechanicalDemonstration type="cmj" />
-
-            {/* Monitor de Velocidade e Perda */}
-            <View style={styles.telemetryCard}>
-              <View style={styles.telemetryItem}>
-                <Text style={styles.telemetryLabel}>ULTIMO SALTO</Text>
-                <Text style={styles.telemetryValue}>{repsDoneInSet > 0 ? `${currentRepHeight} cm` : '--'}</Text>
-              </View>
-
-              <View style={styles.telemetryDivider} />
-
-              <View style={styles.telemetryItem}>
-                <Text style={styles.telemetryLabel}>PERDITA DI VELOCITÀ</Text>
-                <Text style={[styles.telemetryValue, velocityLossPercent >= 10 && { color: '#EF4444' }]}>
-                  {repsDoneInSet > 0 ? `-${velocityLossPercent}%` : '0%'}
-                </Text>
-              </View>
-            </View>
-
-            {/* Alerta de Fadiga Neural (Regra de Loturco) */}
-            {isFatiguedAlert && (
-              <View style={styles.fatigueAlertBox}>
-                <AlertTriangle size={18} color="#FBBF24" />
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.fatigueAlertTitle}>Limite di Loturco Raggiunto (Perdita &gt; 10%)</Text>
-                  <Text style={styles.fatigueAlertText}>
-                    La tua potenza è scesa oltre la soglia ottimale. Concludi la serie adesso per evitare sovraccarico al sistema nervoso e preservare la massima reattività!
-                  </Text>
-                </View>
-              </View>
-            )}
-
-            {/* Ação de Repetição */}
-            {cameraAnalyzing ? (
-              <View style={styles.cameraLiveBox}>
-                <ActivityIndicator size="small" color={Colors.primary} />
-                <Text style={styles.cameraLiveText}>Fotocamera attiva: analisi del tempo di volo in corso...</Text>
-              </View>
-            ) : (
-              <TouchableOpacity
-                style={[styles.actionBtn, isFatiguedAlert && { backgroundColor: '#334155' }]}
-                onPress={performLoadedJump}
-                disabled={isFatiguedAlert}
-                activeOpacity={0.88}
-              >
-                <Camera size={18} color={isFatiguedAlert ? '#94A3B8' : '#000000'} strokeWidth={2.5} />
-                <Text style={[styles.actionBtnText, isFatiguedAlert && { color: '#94A3B8' }]}>
-                  {repsDoneInSet === 0 ? 'ESEGUI 1° SALTO CON SOVRACCARICO' : `ESEGUI SALTO ${repsDoneInSet + 1}`}
-                </Text>
-              </TouchableOpacity>
-            )}
-
-            {/* Botão Próxima Série / Fim */}
-            {(repsDoneInSet >= 3 || isFatiguedAlert) && (
-              <TouchableOpacity
-                style={styles.nextSetBtn}
-                onPress={nextSetOrFinish}
-                activeOpacity={0.88}
-              >
-                <Check size={18} color="#00E5FF" strokeWidth={3} />
-                <Text style={styles.nextSetBtnText}>
-                  {currentSet === totalSets ? 'CONCLUDI ALLENAMENTO' : `RECUPERA E PASSA ALLA SERIE ${currentSet + 1}`}
-                </Text>
-              </TouchableOpacity>
-            )}
-          </View>
+          <LiveWorkoutCamera
+            key={currentSet}
+            currentSet={currentSet}
+            totalSets={totalSets}
+            prescribedLoadKg={prescribedLoadKg}
+            onSetCompleted={handleLiveSetCompleted}
+          />
         </ScrollView>
       )}
 
@@ -375,22 +349,32 @@ export const LoturcoWorkoutScreen: React.FC = () => {
           <View style={styles.cardBox}>
             <View style={styles.summaryBadge}>
               <Check size={14} color="#10B981" strokeWidth={3} />
-              <Text style={styles.summaryBadgeText}>ALLENAMENTO COMPLETATO</Text>
+              <Text style={styles.summaryBadgeText}>
+                {isPt ? 'TREINO CONCLUÍDO' : 'ALLENAMENTO COMPLETATO'}
+              </Text>
             </View>
 
-            <Text style={styles.summaryTitle}>Massima Potenza Stimolata!</Text>
+            <Text style={styles.summaryTitle}>
+              {isPt ? 'Máxima Potência Estimulada!' : 'Massima Potenza Stimolata!'}
+            </Text>
             <Text style={styles.summarySub}>
-              Hai completato la sessione balistica preservando il sistema nervoso centrale secondo il protocollo Loturco.
+              {isPt
+                ? 'Você concluiu a sessão balística preservando o sistema nervoso central pelo protocolo Loturco.'
+                : 'Hai completato la sessione balistica preservando il sistema nervoso centrale secondo il protocollo Loturco.'}
             </Text>
 
             <View style={styles.summaryStatsGrid}>
               <View style={styles.summaryStatItem}>
-                <Text style={styles.summaryStatLabel}>SALTI CON SOVRACCARICO</Text>
+                <Text style={styles.summaryStatLabel}>
+                  {isPt ? 'SALTOS COM SOBRECARGA' : 'SALTI CON SOVRACCARICO'}
+                </Text>
                 <Text style={styles.summaryStatValue}>{totalJumpsCompleted}</Text>
               </View>
 
               <View style={styles.summaryStatItem}>
-                <Text style={styles.summaryStatLabel}>CARICO MEDIO</Text>
+                <Text style={styles.summaryStatLabel}>
+                  {isPt ? 'CARGA MÉDIA' : 'CARICO MEDIO'}
+                </Text>
                 <Text style={styles.summaryStatValue}>{prescribedLoadKg} kg</Text>
               </View>
             </View>
@@ -398,7 +382,9 @@ export const LoturcoWorkoutScreen: React.FC = () => {
             <View style={styles.adviceCard}>
               <ShieldCheck size={16} color={Colors.primary} />
               <Text style={styles.adviceCardText}>
-                Consiglio di recupero: riposa almeno 48 ore prima della prossima sessione con carico.
+                {isPt
+                  ? 'Dica de recuperação: descanse pelo menos 48 horas antes da próxima sessão com carga.'
+                  : 'Consiglio di recupero: riposa almeno 48 ore prima della prossima sessione con carico.'}
               </Text>
             </View>
 
@@ -407,7 +393,9 @@ export const LoturcoWorkoutScreen: React.FC = () => {
               onPress={() => navigate('Dashboard')}
               activeOpacity={0.88}
             >
-              <Text style={styles.actionBtnText}>TORNA ALLA HOME</Text>
+              <Text style={styles.actionBtnText}>
+                {isPt ? 'VOLTAR PARA O INÍCIO' : 'TORNA ALLA HOME'}
+              </Text>
               <ArrowRight size={18} color="#000000" strokeWidth={3} />
             </TouchableOpacity>
           </View>

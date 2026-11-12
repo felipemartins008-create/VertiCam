@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  Dimensions,
-  Platform,
   ActivityIndicator,
 } from 'react-native';
 import {
@@ -14,23 +12,29 @@ import {
   Play,
   Pause,
   Check,
-  RefreshCw,
   Video,
-  Clock,
   Sparkles,
   AlertCircle,
-  Volume2,
-  Sliders,
   ChevronLeft,
   ChevronRight,
+  Upload,
 } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
+import { useApp } from '../context/AppContext';
+import {
+  analyzeJumpVideo,
+  calculateJumpHeightCm,
+  DetectedJump,
+  getSlowMoFactor,
+  RecordingSpeedMode,
+} from '../utils/jumpVideoAnalyzer';
 
 interface RealJumpCameraProps {
   jumpType: 'CMJ' | 'SJ';
   attemptNumber: number;
   totalAttempts?: number;
   onJumpConfirmed: (heightCm: number) => void;
+  onBatchJumpsConfirmed?: (heightsCm: number[]) => void;
   onCancel?: () => void;
 }
 
@@ -39,197 +43,81 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
   attemptNumber,
   totalAttempts = 3,
   onJumpConfirmed,
-  onCancel,
+  onBatchJumpsConfirmed,
 }) => {
-  const [stream, setStream] = useState<MediaStream | null>(null);
-  const [cameraError, setCameraError] = useState<string | null>(null);
-  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
-  
-  // Fases: 'preview' (ao vivo) | 'countdown' | 'recording' | 'review' (slow-motion scrubber)
-  const [cameraMode, setCameraMode] = useState<'preview' | 'countdown' | 'recording' | 'review'>('preview');
-  const [countdown, setCountdown] = useState<number>(3);
-  const [recordingSeconds, setRecordingSeconds] = useState<number>(0);
+  const { language } = useApp();
+  const isPt = language === 'pt';
 
-  // Vídeo Gravado
+  // Fases: 'tutorial' (instruções + upload) | 'analyzing' (visão computacional) | 'review' (conferência)
+  const [cameraMode, setCameraMode] = useState<'tutorial' | 'analyzing' | 'review'>('tutorial');
+  const [speedMode, setSpeedMode] = useState<RecordingSpeedMode>('slow240');
+  const [analysisProgress, setAnalysisProgress] = useState<number>(0);
+
+  // Vídeo enviado
   const [recordedVideoUrl, setRecordedVideoUrl] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [playbackRate, setPlaybackRate] = useState<number>(0.25); // Câmera lenta 0.25x
+  const [playbackRate, setPlaybackRate] = useState<number>(0.25);
   const [videoDuration, setVideoDuration] = useState<number>(5.0);
   const [currentTime, setCurrentTime] = useState<number>(0);
 
-  // Marcadores de Voo
-  const [takeoffTime, setTakeoffTime] = useState<number>(1.6);
-  const [landingTime, setLandingTime] = useState<number>(2.24);
+  // Saltos detectados automaticamente + seleção atual
+  const [detectedJumps, setDetectedJumps] = useState<DetectedJump[]>([]);
+  const [selectedJumpIdx, setSelectedJumpIdx] = useState<number>(0);
+  const [takeoffTime, setTakeoffTime] = useState<number | null>(null);
+  const [landingTime, setLandingTime] = useState<number | null>(null);
+  const [noJumpWarning, setNoJumpWarning] = useState<boolean>(false);
 
-  // Refs DOM
-  const liveVideoRef = useRef<HTMLVideoElement | null>(null);
   const reviewVideoRef = useRef<HTMLVideoElement | null>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const recordedChunksRef = useRef<Blob[]>([]);
-  const countdownTimerRef = useRef<any>(null);
-  const recordTimerRef = useRef<any>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Tocar bip sonoro (Web Audio API)
-  const playBeep = (freq: number = 440, duration: number = 0.15) => {
-    try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, ctx.currentTime);
-      gain.gain.setValueAtTime(0.15, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + duration);
-    } catch (e) {
-      // Ignora falha de áudio se política do navegador bloquear
+  const slowMoFactor = getSlowMoFactor(speedMode);
+
+  const handleVideoFileSelected = async (event: any) => {
+    const file = event?.target?.files?.[0];
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+    setRecordedVideoUrl(url);
+    setCameraMode('analyzing');
+    setAnalysisProgress(0);
+    setNoJumpWarning(false);
+
+    const { duration, jumps } = await analyzeJumpVideo(url, speedMode, (pct) => {
+      setAnalysisProgress(pct);
+    });
+
+    setVideoDuration(duration);
+    setDetectedJumps(jumps);
+
+    if (jumps.length > 0) {
+      setSelectedJumpIdx(0);
+      setTakeoffTime(jumps[0].takeoffTime);
+      setLandingTime(jumps[0].landingTime);
+      setCurrentTime(jumps[0].takeoffTime);
+      setNoJumpWarning(false);
+    } else {
+      setTakeoffTime(null);
+      setLandingTime(null);
+      setNoJumpWarning(true);
+    }
+
+    setCameraMode('review');
+  };
+
+  const selectDetectedJump = (idx: number) => {
+    const jump = detectedJumps[idx];
+    if (!jump) return;
+    setSelectedJumpIdx(idx);
+    setTakeoffTime(jump.takeoffTime);
+    setLandingTime(jump.landingTime);
+    setCurrentTime(jump.takeoffTime);
+    if (reviewVideoRef.current) {
+      reviewVideoRef.current.pause();
+      setIsPlaying(false);
+      reviewVideoRef.current.currentTime = jump.takeoffTime;
     }
   };
 
-  // Inicializa o Stream Real da Câmera
-  const startCamera = async (facing: 'user' | 'environment') => {
-    setCameraError(null);
-    try {
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
-      }
-
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        setCameraError('Seu navegador não suporta acesso direto à câmera. Use o Chrome ou Safari atualizado.');
-        return;
-      }
-
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: facing,
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-        },
-        audio: false,
-      });
-
-      setStream(mediaStream);
-
-      if (liveVideoRef.current) {
-        liveVideoRef.current.srcObject = mediaStream;
-        liveVideoRef.current.play().catch(() => {});
-      }
-    } catch (err: any) {
-      console.warn('Erro ao abrir câmera:', err);
-      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-        setCameraError('Permissão de câmera negada. Ative o acesso à câmera no seu navegador para gravar seu salto.');
-      } else {
-        setCameraError('Não foi possível conectar à câmera. Verifique se outro app está usando a câmera.');
-      }
-    }
-  };
-
-  useEffect(() => {
-    startCamera(facingMode);
-    return () => {
-      if (stream) {
-        stream.getTracks().forEach((t) => t.stop());
-      }
-    };
-  }, [facingMode]);
-
-  useEffect(() => {
-    if (cameraMode === 'preview' && liveVideoRef.current && stream) {
-      liveVideoRef.current.srcObject = stream;
-      liveVideoRef.current.play().catch(() => {});
-    }
-  }, [cameraMode, stream]);
-
-  // Alternar entre Câmera Frontal e Traseira
-  const toggleFacingMode = () => {
-    const nextFacing = facingMode === 'user' ? 'environment' : 'user';
-    setFacingMode(nextFacing);
-  };
-
-  // Iniciar Contagem e Gravação
-  const handleStartCapture = () => {
-    setCameraMode('countdown');
-    setCountdown(3);
-    playBeep(440, 0.12);
-
-    let count = 3;
-    countdownTimerRef.current = setInterval(() => {
-      count -= 1;
-      if (count > 0) {
-        setCountdown(count);
-        playBeep(440, 0.12);
-      } else {
-        clearInterval(countdownTimerRef.current);
-        playBeep(880, 0.35); // Bip agudo de "SALTE AGORA!"
-        startRecordingSession();
-      }
-    }, 1000);
-  };
-
-  const startRecordingSession = () => {
-    if (!stream) return;
-
-    recordedChunksRef.current = [];
-    let options: any = { mimeType: 'video/webm' };
-    if (!MediaRecorder.isTypeSupported('video/webm')) {
-      options = { mimeType: 'video/mp4' };
-      if (!MediaRecorder.isTypeSupported('video/mp4')) {
-        options = undefined;
-      }
-    }
-
-    try {
-      const recorder = new MediaRecorder(stream, options);
-      mediaRecorderRef.current = recorder;
-
-      recorder.ondataavailable = (event) => {
-        if (event.data && event.data.size > 0) {
-          recordedChunksRef.current.push(event.data);
-        }
-      };
-
-      recorder.onstop = () => {
-        const mime = options?.mimeType || 'video/webm';
-        const blob = new Blob(recordedChunksRef.current, { type: mime });
-        const videoUrl = URL.createObjectURL(blob);
-        setRecordedVideoUrl(videoUrl);
-        setCameraMode('review');
-      };
-
-      recorder.start(100);
-      setCameraMode('recording');
-      setRecordingSeconds(0);
-
-      // Grava durante 5 segundos
-      let sec = 0;
-      recordTimerRef.current = setInterval(() => {
-        sec += 1;
-        setRecordingSeconds(sec);
-        if (sec >= 5) {
-          stopRecordingSession();
-        }
-      }, 1000);
-    } catch (e) {
-      console.error('Falha ao gravar com MediaRecorder:', e);
-      // Fallback gracioso
-      setCameraMode('preview');
-    }
-  };
-
-  const stopRecordingSession = () => {
-    if (recordTimerRef.current) {
-      clearInterval(recordTimerRef.current);
-    }
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      mediaRecorderRef.current.stop();
-    }
-  };
-
-  // Controle de Reprodução do Vídeo Gravado
   const togglePlayReview = () => {
     if (!reviewVideoRef.current) return;
     if (isPlaying) {
@@ -259,42 +147,57 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
   };
 
   const markTakeoff = () => {
-    if (reviewVideoRef.current) {
-      const t = Math.round(reviewVideoRef.current.currentTime * 100) / 100;
-      setTakeoffTime(t);
-      // Se aterrissagem for menor ou igual, ajusta
-      if (landingTime <= t) {
-        setLandingTime(Math.round((t + 0.60) * 100) / 100);
-      }
-    }
+    if (!reviewVideoRef.current) return;
+    reviewVideoRef.current.pause();
+    setIsPlaying(false);
+    const t = Math.round(reviewVideoRef.current.currentTime * 100) / 100;
+    setTakeoffTime(t);
+    setNoJumpWarning(false);
   };
 
   const markLanding = () => {
-    if (reviewVideoRef.current) {
-      const t = Math.round(reviewVideoRef.current.currentTime * 100) / 100;
-      setLandingTime(t);
-      if (takeoffTime >= t) {
-        setTakeoffTime(Math.max(0, Math.round((t - 0.60) * 100) / 100));
-      }
-    }
+    if (!reviewVideoRef.current) return;
+    reviewVideoRef.current.pause();
+    setIsPlaying(false);
+    const t = Math.round(reviewVideoRef.current.currentTime * 100) / 100;
+    setLandingTime(t);
+    setNoJumpWarning(false);
   };
 
-  // Cálculo de Física Real: Altura = (g * t^2) / 8
-  const flightTime = Math.max(0, Math.round((landingTime - takeoffTime) * 1000) / 1000);
-  const calculatedHeightCm = Math.max(0, Math.round(((9.81 * (flightTime ** 2)) / 8) * 100 * 10) / 10);
+  const hasValidMarkers = takeoffTime !== null && landingTime !== null && landingTime > takeoffTime;
+  const rawDeltaSec = hasValidMarkers ? Math.max(0, landingTime - takeoffTime) : 0;
+  const flightTime = Math.round((rawDeltaSec / slowMoFactor) * 1000) / 1000;
+  const calculatedHeightCm = hasValidMarkers ? calculateJumpHeightCm(flightTime) : 0;
 
-  const handleConfirmJump = () => {
+  const handleConfirmSingle = () => {
+    if (!hasValidMarkers || calculatedHeightCm <= 0) return;
     onJumpConfirmed(calculatedHeightCm);
   };
 
-  const handleRetake = () => {
+  const handleConfirmAllBatch = () => {
+    if (detectedJumps.length === 0) return;
+    if (onBatchJumpsConfirmed) {
+      onBatchJumpsConfirmed(detectedJumps.map((j) => j.heightCm));
+    } else {
+      onJumpConfirmed(detectedJumps[0].heightCm);
+    }
+  };
+
+  const handleResetToTutorial = () => {
+    if (recordedVideoUrl) {
+      URL.revokeObjectURL(recordedVideoUrl);
+    }
     setRecordedVideoUrl(null);
-    setCameraMode('preview');
+    setDetectedJumps([]);
+    setTakeoffTime(null);
+    setLandingTime(null);
+    setNoJumpWarning(false);
+    setCameraMode('tutorial');
   };
 
   return (
     <View style={styles.container}>
-      {/* ── HEADER DA CÂMERA ── */}
+      {/* ── HEADER ── */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <View style={styles.jumpTypeBadge}>
@@ -302,143 +205,211 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
           </View>
           <View>
             <Text style={styles.title}>
-              {jumpType === 'CMJ' ? 'Salto con Contromovimento' : 'Salto senza Contromovimento'}
+              {isPt
+                ? (jumpType === 'CMJ' ? 'Salto com Contramovimento' : 'Salto sem Contramovimento')
+                : (jumpType === 'CMJ' ? 'Salto con Contromovimento' : 'Salto senza Contromovimento')}
             </Text>
             <Text style={styles.subtitle}>
-              Tentativo {attemptNumber} di {totalAttempts} • Videocamera 240 FPS
+              {isPt
+                ? `Tentativa ${attemptNumber} de ${totalAttempts} • Câmera Lenta Nativa`
+                : `Tentativo ${attemptNumber} di ${totalAttempts} • Slow Motion Nativo`}
             </Text>
           </View>
         </View>
-
-        {cameraMode === 'preview' && (
-          <TouchableOpacity
-            style={styles.facingToggleBtn}
-            onPress={toggleFacingMode}
-            activeOpacity={0.8}
-          >
-            <RefreshCw size={16} color={Colors.primary} />
-            <Text style={styles.facingToggleText}>
-              {facingMode === 'user' ? 'Frontale' : 'Posteriore'}
-            </Text>
-          </TouchableOpacity>
-        )}
       </View>
 
-      {/* ── VISOR AO VIVO (PREVIEW / COUNTDOWN / RECORDING) ── */}
-      {cameraMode !== 'review' && (
-        <View style={styles.cameraBox}>
-          {cameraError ? (
-            <View style={styles.errorContainer}>
-              <AlertCircle size={40} color="#EF4444" />
-              <Text style={styles.errorTitle}>Fotocamera non rilevata</Text>
-              <Text style={styles.errorSubtitle}>{cameraError}</Text>
-              <TouchableOpacity
-                style={styles.retryBtn}
-                onPress={() => startCamera(facingMode)}
-                activeOpacity={0.88}
-              >
-                <RefreshCw size={16} color="#000000" />
-                <Text style={styles.retryBtnText}>Riprova</Text>
-              </TouchableOpacity>
+      {/* ══════════════════════════════════════════════════════════════
+          FASE 1: TUTORIAL DE GRAVAÇÃO EM CÂMERA LENTA + ENVIO DE VÍDEO
+      ══════════════════════════════════════════════════════════════ */}
+      {cameraMode === 'tutorial' && (
+        <View style={styles.tutorialContainer}>
+          <View style={styles.tutorialStepsCard}>
+            <View style={styles.tutorialBadgeRow}>
+              <Sparkles size={13} color={Colors.primary} />
+              <Text style={styles.tutorialBadgeText}>
+                {isPt ? 'PRECISÃO CIENTÍFICA (240 FPS)' : 'PRECISIONE SCIENTIFICA (240 FPS)'}
+              </Text>
             </View>
-          ) : (
-            <View style={styles.videoWrapper}>
-              <video
-                ref={liveVideoRef as any}
-                autoPlay
-                playsInline
-                muted
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  transform: facingMode === 'user' ? 'scaleX(-1)' : 'none',
-                }}
-              />
 
-              {/* Guia de Alinhamento do Chão & Corpo */}
-              <View style={styles.overlayGuidelines}>
-                <View style={styles.guideTopLine}>
-                  <Text style={styles.guideText}>INQUADRA LA TESTA QUI</Text>
-                </View>
-                <View style={styles.guideCenterCross}>
-                  <View style={styles.crossH} />
-                  <View style={styles.crossV} />
-                </View>
-                <View style={styles.guideBottomLine}>
-                  <Text style={styles.guideText}>LINEA DEL SUOLO (PIEDI QUI)</Text>
-                </View>
-              </View>
+            <Text style={styles.tutorialHeading}>
+              {isPt ? 'Grave na Câmera Lenta do Celular' : 'Registra in Slow Motion sul Telefono'}
+            </Text>
 
-              {/* Badge 240 FPS */}
-              <View style={styles.fpsBadge}>
-                <View style={[styles.fpsDot, cameraMode === 'recording' && styles.fpsDotRecording]} />
-                <Text style={styles.fpsBadgeText}>
-                  {cameraMode === 'recording' ? `🔴 REC 00:0${recordingSeconds} (240 FPS)` : '240 FPS SLOW-MO'}
+            <View style={styles.stepItem}>
+              <View style={styles.stepNum}><Text style={styles.stepNumText}>1</Text></View>
+              <Text style={styles.stepText}>
+                {isPt
+                  ? 'Abra a câmera normal do seu celular no modo Câmera Lenta (120 ou 240 fps).'
+                  : 'Apri la fotocamera del telefono in modalità Slow Motion (120 o 240 fps).'}
+              </Text>
+            </View>
+
+            <View style={styles.stepItem}>
+              <View style={styles.stepNum}><Text style={styles.stepNumText}>2</Text></View>
+              <Text style={styles.stepText}>
+                {isPt
+                  ? 'Apoie o aparelho a ~2 metros pegando corpo inteiro (principalmente os pés).'
+                  : 'Appoggia il telefono a ~2 metri inquadrando tutto il corpo (soprattutto i piedi).'}
+              </Text>
+            </View>
+
+            <View style={styles.stepItem}>
+              <View style={styles.stepNum}><Text style={styles.stepNumText}>3</Text></View>
+              <Text style={styles.stepText}>
+                {isPt
+                  ? `Dê REC, faça os ${totalAttempts} saltos ${jumpType} (com 2s parado entre eles) e envie o vídeo abaixo.`
+                  : `Premi REC, esegui i ${totalAttempts} salti ${jumpType} (2s fermo tra ognuno) e carica il video qui sotto.`}
+              </Text>
+            </View>
+          </View>
+
+          {/* Seletor de FPS gravado */}
+          <View style={styles.fpsSelectorCard}>
+            <Text style={styles.fpsLabel}>
+              {isPt ? 'Em qual modo você gravou o vídeo?' : 'In che modalità hai registrato il video?'}
+            </Text>
+            <View style={styles.fpsRow}>
+              <TouchableOpacity
+                style={[styles.fpsBtn, speedMode === 'slow240' && styles.fpsBtnActive]}
+                onPress={() => setSpeedMode('slow240')}
+                activeOpacity={0.85}
+              >
+                <Text style={[styles.fpsBtnTitle, speedMode === 'slow240' && styles.fpsBtnTitleActive]}>
+                  240 fps
                 </Text>
-              </View>
+                <Text style={styles.fpsBtnSub}>{isPt ? 'Câmera Lenta' : 'Slow Motion'}</Text>
+              </TouchableOpacity>
 
-              {/* Overlay Contagem Regressiva */}
-              {cameraMode === 'countdown' && (
-                <View style={styles.countdownOverlay}>
-                  <Text style={styles.countdownBigNumber}>{countdown}</Text>
-                  <Text style={styles.countdownPrompt}>Posizionati per il salto...</Text>
-                </View>
-              )}
+              <TouchableOpacity
+                style={[styles.fpsBtn, speedMode === 'slow120' && styles.fpsBtnActive]}
+                onPress={() => setSpeedMode('slow120')}
+                activeOpacity={0.85}
+              >
+                <Text style={[styles.fpsBtnTitle, speedMode === 'slow120' && styles.fpsBtnTitleActive]}>
+                  120 fps
+                </Text>
+                <Text style={styles.fpsBtnSub}>{isPt ? 'Câmera Lenta' : 'Slow Motion'}</Text>
+              </TouchableOpacity>
 
-              {/* Overlay Gravando */}
-              {cameraMode === 'recording' && (
-                <View style={styles.recordingOverlay}>
-                  <Text style={styles.recordingPrompt}>SALTA ADESSO CON MASSIMA ESPLOSIVITÀ!</Text>
-                </View>
-              )}
+              <TouchableOpacity
+                style={[styles.fpsBtn, speedMode === 'normal' && styles.fpsBtnActive]}
+                onPress={() => setSpeedMode('normal')}
+                activeOpacity={0.85}
+              >
+                <Text style={[styles.fpsBtnTitle, speedMode === 'normal' && styles.fpsBtnTitleActive]}>
+                  {isPt ? 'Normal' : 'Normale'}
+                </Text>
+                <Text style={styles.fpsBtnSub}>30 / 60 fps</Text>
+              </TouchableOpacity>
             </View>
-          )}
+          </View>
 
-          {/* Botões de Ação do Modo Prévia */}
-          <View style={styles.bottomControls}>
-            {cameraMode === 'preview' && (
-              <TouchableOpacity
-                style={styles.recordActionBtn}
-                onPress={handleStartCapture}
-                activeOpacity={0.88}
-              >
-                <Play size={20} color="#000000" fill="#000000" />
-                <Text style={styles.recordActionBtnText}>INIZIA REGISTRAZIONE DEL SALTO</Text>
-              </TouchableOpacity>
-            )}
+          {/* Input oculto para selecionar vídeo */}
+          <input
+            ref={fileInputRef as any}
+            type="file"
+            accept="video/*"
+            onChange={handleVideoFileSelected}
+            style={{ display: 'none' }}
+          />
 
-            {cameraMode === 'recording' && (
-              <TouchableOpacity
-                style={[styles.recordActionBtn, { backgroundColor: '#EF4444' }]}
-                onPress={stopRecordingSession}
-                activeOpacity={0.88}
-              >
-                <Text style={[styles.recordActionBtnText, { color: '#FFFFFF' }]}>FERMA REGISTRAZIONE</Text>
-              </TouchableOpacity>
-            )}
+          <TouchableOpacity
+            style={styles.uploadActionBtn}
+            onPress={() => fileInputRef.current?.click()}
+            activeOpacity={0.88}
+          >
+            <Upload size={20} color="#000000" strokeWidth={2.5} />
+            <Text style={styles.uploadActionBtnText}>
+              {isPt ? 'ENVIAR VÍDEO DA GALERIA' : 'CARICA VIDEO DALLA GALLERIA'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════
+          FASE 2: ANÁLISE AUTOMÁTICA DE DECOLAGEM E POUSO
+      ══════════════════════════════════════════════════════════════ */}
+      {cameraMode === 'analyzing' && (
+        <View style={styles.analyzingBox}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+          <Text style={styles.analyzingTitle}>
+            {isPt ? 'Detectando decolagem e pouso...' : 'Rilevamento stacco e atterraggio...'}
+          </Text>
+          <Text style={styles.analyzingSub}>
+            {isPt
+              ? `Analisando quadros do vídeo (${analysisProgress}%)`
+              : `Analisi fotogrammi del video (${analysisProgress}%)`}
+          </Text>
+          <View style={styles.progressTrack}>
+            <View style={[styles.progressFill, { width: `${analysisProgress}%` }]} />
           </View>
         </View>
       )}
 
-      {/* ── VISOR DE SCRUBBING & MEDIÇÃO REAL (REVIEW) ── */}
+      {/* ══════════════════════════════════════════════════════════════
+          FASE 3: RESULTADO AUTOMÁTICO + CONFERÊNCIA OPCIONAL NO VÍDEO
+      ══════════════════════════════════════════════════════════════ */}
       {cameraMode === 'review' && recordedVideoUrl && (
         <View style={styles.reviewContainer}>
-          {/* Card Resultado Imediato */}
+          {/* Alerta se não detectou salto */}
+          {noJumpWarning && (
+            <View style={styles.noJumpBanner}>
+              <AlertCircle size={18} color="#F59E0B" />
+              <Text style={styles.noJumpText}>
+                {isPt
+                  ? 'Nenhum salto detectado automaticamente neste vídeo. Envie outro vídeo ou marque Decolagem e Pouso manualmente abaixo.'
+                  : 'Nessun salto rilevato automaticamente. Carica un altro video o segna manualmente Stacco e Atterraggio qui sotto.'}
+              </Text>
+            </View>
+          )}
+
+          {/* Lista de saltos detectados automaticamente */}
+          {detectedJumps.length > 0 && (
+            <View style={styles.detectedRow}>
+              {detectedJumps.map((j, idx) => (
+                <TouchableOpacity
+                  key={j.id}
+                  style={[styles.detectedPill, selectedJumpIdx === idx && styles.detectedPillActive]}
+                  onPress={() => selectDetectedJump(idx)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.detectedPillLabel, selectedJumpIdx === idx && { color: '#000000' }]}>
+                    {isPt ? `Salto ${idx + 1}` : `Salto ${idx + 1}`}
+                  </Text>
+                  <Text style={[styles.detectedPillVal, selectedJumpIdx === idx && { color: '#000000' }]}>
+                    {j.heightCm.toFixed(1)} cm
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+
+          {/* Card Resultado */}
           <View style={styles.realResultCard}>
             <View style={styles.resultCol}>
-              <Text style={styles.resultLabel}>ALTEZZA REALE DEL TUO SALTO</Text>
+              <Text style={styles.resultLabel}>
+                {isPt ? 'ALTURA DO SALTO' : 'ALTEZZA DEL SALTO'}
+              </Text>
               <Text style={styles.resultValueCm}>
-                {calculatedHeightCm.toFixed(1)} <Text style={{ fontSize: 18 }}>cm</Text>
+                {hasValidMarkers ? calculatedHeightCm.toFixed(1) : '--'}{' '}
+                <Text style={{ fontSize: 18 }}>cm</Text>
               </Text>
             </View>
 
             <View style={styles.resultDivider} />
 
             <View style={styles.resultCol}>
-              <Text style={styles.resultLabel}>TEMPO DI VOLO RILEVATO</Text>
-              <Text style={styles.resultFlightTime}>{(flightTime * 1000).toFixed(0)} ms</Text>
-              <Text style={styles.resultFlightSec}>({flightTime.toFixed(3)}s)</Text>
+              <Text style={styles.resultLabel}>
+                {isPt ? 'TEMPO DE VOO REAL' : 'TEMPO DI VOLO REALE'}
+              </Text>
+              <Text style={styles.resultFlightTime}>
+                {hasValidMarkers ? `${(flightTime * 1000).toFixed(0)} ms` : '-- ms'}
+              </Text>
+              <Text style={styles.resultFlightSec}>
+                {hasValidMarkers
+                  ? `(${flightTime.toFixed(3)}s${slowMoFactor > 1 ? ` • ${slowMoFactor}x` : ''})`
+                  : (isPt ? '(marque os 2 pontos)' : '(segna i 2 punti)')}
+              </Text>
             </View>
           </View>
 
@@ -451,61 +422,47 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
               style={{
                 width: '100%',
                 height: 240,
-                objectFit: 'cover',
+                objectFit: 'contain',
+                backgroundColor: '#000000',
                 borderRadius: 14,
               }}
               onLoadedMetadata={(e) => {
                 const dur = e.currentTarget.duration;
-                setVideoDuration(dur || 5.0);
-                // Preenche marcadores razoáveis automaticamente se não marcados
-                const mid = (dur || 5.0) / 2;
-                setTakeoffTime(Math.round((mid - 0.3) * 100) / 100);
-                setLandingTime(Math.round((mid + 0.35) * 100) / 100);
+                if (isFinite(dur) && dur > 0) setVideoDuration(dur);
               }}
               onTimeUpdate={(e) => {
                 setCurrentTime(Math.round(e.currentTarget.currentTime * 100) / 100);
               }}
               onEnded={() => setIsPlaying(false)}
             />
-
-            {/* Marcadores Visuais no Vídeo */}
             <View style={styles.videoTimeBadge}>
-              <Text style={styles.videoTimeText}>{currentTime.toFixed(2)}s / {videoDuration.toFixed(1)}s</Text>
+              <Text style={styles.videoTimeText}>
+                {currentTime.toFixed(2)}s / {videoDuration.toFixed(1)}s
+              </Text>
             </View>
           </View>
 
-          {/* Controles do Vídeo (Play/Pause, Câmera Lenta, Frame a Frame) */}
+          {/* Controles Finos (Conferência / Ajuste Opcional) */}
           <View style={styles.scrubberToolbox}>
             <View style={styles.playbackRow}>
               <TouchableOpacity style={styles.playPauseBtn} onPress={togglePlayReview} activeOpacity={0.8}>
                 {isPlaying ? <Pause size={18} color="#FFFFFF" /> : <Play size={18} color="#FFFFFF" fill="#FFFFFF" />}
               </TouchableOpacity>
 
-              {/* Botões de Câmera Lenta */}
               <View style={styles.speedSelectorRow}>
-                <TouchableOpacity
-                  style={[styles.speedBtn, playbackRate === 0.1 && styles.speedBtnActive]}
-                  onPress={() => changePlaybackRate(0.1)}
-                >
-                  <Text style={[styles.speedBtnText, playbackRate === 0.1 && styles.speedBtnTextActive]}>0.1x</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.speedBtn, playbackRate === 0.25 && styles.speedBtnActive]}
-                  onPress={() => changePlaybackRate(0.25)}
-                >
-                  <Text style={[styles.speedBtnText, playbackRate === 0.25 && styles.speedBtnTextActive]}>0.25x</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.speedBtn, playbackRate === 1.0 && styles.speedBtnActive]}
-                  onPress={() => changePlaybackRate(1.0)}
-                >
-                  <Text style={[styles.speedBtnText, playbackRate === 1.0 && styles.speedBtnTextActive]}>1x</Text>
-                </TouchableOpacity>
+                {[0.1, 0.25, 1.0].map((rate) => (
+                  <TouchableOpacity
+                    key={rate}
+                    style={[styles.speedBtn, playbackRate === rate && styles.speedBtnActive]}
+                    onPress={() => changePlaybackRate(rate)}
+                  >
+                    <Text style={[styles.speedBtnText, playbackRate === rate && styles.speedBtnTextActive]}>
+                      {rate}x
+                    </Text>
+                  </TouchableOpacity>
+                ))}
               </View>
 
-              {/* Frame a Frame */}
               <View style={styles.frameStepRow}>
                 <TouchableOpacity style={styles.frameStepBtn} onPress={() => stepFrame(-0.03)} activeOpacity={0.7}>
                   <ChevronLeft size={16} color="#FFFFFF" />
@@ -518,7 +475,6 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
               </View>
             </View>
 
-            {/* Slider de Tempo */}
             <input
               type="range"
               min="0"
@@ -540,50 +496,66 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
               }}
             />
 
-            {/* Botões para Marcar STACCO e ATTERRAGGIO */}
             <View style={styles.markButtonsRow}>
-              <TouchableOpacity
-                style={[styles.markBtn, styles.markTakeoffBtn]}
-                onPress={markTakeoff}
-                activeOpacity={0.88}
-              >
-                <Text style={styles.markBtnTitle}>📍 IMPOSTA STACCO</Text>
-                <Text style={styles.markBtnSub}>Istante in cui i piedi lasciano terra: {takeoffTime.toFixed(2)}s</Text>
+              <TouchableOpacity style={[styles.markBtn, styles.markTakeoffBtn]} onPress={markTakeoff} activeOpacity={0.88}>
+                <Text style={styles.markBtnTitle}>
+                  {isPt ? '📍 AJUSTAR DECOLAGEM' : '📍 REGOLA STACCO'}
+                </Text>
+                <Text style={styles.markBtnSub}>
+                  {takeoffTime !== null ? `${takeoffTime.toFixed(2)}s` : (isPt ? 'não marcado' : 'non segnato')}
+                </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity
-                style={[styles.markBtn, styles.markLandingBtn]}
-                onPress={markLanding}
-                activeOpacity={0.88}
-              >
-                <Text style={styles.markBtnTitle}>📍 IMPOSTA ATTERRAGGIO</Text>
-                <Text style={styles.markBtnSub}>Istante del primo contatto al suolo: {landingTime.toFixed(2)}s</Text>
+              <TouchableOpacity style={[styles.markBtn, styles.markLandingBtn]} onPress={markLanding} activeOpacity={0.88}>
+                <Text style={styles.markBtnTitle}>
+                  {isPt ? '📍 AJUSTAR POUSO' : '📍 REGOLA ATTERRAGGIO'}
+                </Text>
+                <Text style={styles.markBtnSub}>
+                  {landingTime !== null ? `${landingTime.toFixed(2)}s` : (isPt ? 'não marcado' : 'non segnato')}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
 
-          {/* Botões Finais de Confirmação e Repetição */}
-          <View style={styles.finalActionsRow}>
-            <TouchableOpacity
-              style={styles.retakeBtn}
-              onPress={handleRetake}
-              activeOpacity={0.8}
-            >
-              <RotateCcw size={16} color="#94A3B8" />
-              <Text style={styles.retakeBtnText}>Ripeti Salto</Text>
-            </TouchableOpacity>
+          {/* Ações Finais */}
+          {detectedJumps.length >= 2 && onBatchJumpsConfirmed ? (
+            <View style={styles.finalActionsRow}>
+              <TouchableOpacity style={styles.retakeBtn} onPress={handleResetToTutorial} activeOpacity={0.8}>
+                <RotateCcw size={16} color="#94A3B8" />
+                <Text style={styles.retakeBtnText}>{isPt ? 'Outro Vídeo' : 'Altro Video'}</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.confirmJumpBtn}
-              onPress={handleConfirmJump}
-              activeOpacity={0.88}
-            >
-              <Check size={18} color="#000000" strokeWidth={3} />
-              <Text style={styles.confirmJumpBtnText}>
-                CONFERMA {calculatedHeightCm.toFixed(1)} CM
-              </Text>
-            </TouchableOpacity>
-          </View>
+              <TouchableOpacity style={styles.confirmJumpBtn} onPress={handleConfirmAllBatch} activeOpacity={0.88}>
+                <Check size={18} color="#000000" strokeWidth={3} />
+                <Text style={styles.confirmJumpBtnText}>
+                  {isPt
+                    ? `CONFIRMAR ${detectedJumps.length} SALTOS`
+                    : `CONFERMA ${detectedJumps.length} SALTI`}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.finalActionsRow}>
+              <TouchableOpacity style={styles.retakeBtn} onPress={handleResetToTutorial} activeOpacity={0.8}>
+                <RotateCcw size={16} color="#94A3B8" />
+                <Text style={styles.retakeBtnText}>{isPt ? 'Outro Vídeo' : 'Altro Video'}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.confirmJumpBtn, !hasValidMarkers && { opacity: 0.4 }]}
+                onPress={handleConfirmSingle}
+                disabled={!hasValidMarkers}
+                activeOpacity={0.88}
+              >
+                <Check size={18} color="#000000" strokeWidth={3} />
+                <Text style={styles.confirmJumpBtnText}>
+                  {hasValidMarkers
+                    ? (isPt ? `CONFIRMAR ${calculatedHeightCm.toFixed(1)} CM` : `CONFERMA ${calculatedHeightCm.toFixed(1)} CM`)
+                    : (isPt ? 'MARQUE DECOLAGEM E POUSO' : 'SEGNA STACCO E ATTERRAGGIO')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       )}
     </View>
@@ -593,17 +565,16 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#0A0E1A',
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-    overflow: 'hidden',
+    borderRadius: 24,
     padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     gap: 14,
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
   headerLeft: {
     flexDirection: 'row',
@@ -612,267 +583,243 @@ const styles = StyleSheet.create({
   },
   jumpTypeBadge: {
     backgroundColor: Colors.primary,
-    paddingHorizontal: 8,
+    paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
   },
   jumpTypeBadgeText: {
-    fontSize: 12,
-    fontWeight: '900',
     color: '#000000',
+    fontWeight: '900',
+    fontSize: 12,
   },
   title: {
+    color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '800',
-    color: '#FFFFFF',
   },
   subtitle: {
+    color: '#94A3B8',
     fontSize: 11,
-    color: '#64748B',
   },
-  facingToggleBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(0, 229, 255, 0.1)',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
+  tutorialContainer: {
+    gap: 14,
+  },
+  tutorialStepsCard: {
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderRadius: 18,
+    padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(0, 229, 255, 0.25)',
-  },
-  facingToggleText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: Colors.primary,
-  },
-  cameraBox: {
+    borderColor: 'rgba(255,255,255,0.08)',
     gap: 12,
   },
-  videoWrapper: {
-    width: '100%',
-    height: 380,
-    backgroundColor: '#000000',
-    borderRadius: 16,
-    overflow: 'hidden',
-    position: 'relative',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  overlayGuidelines: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'space-between',
-    padding: 20,
-    pointerEvents: 'none',
-  },
-  guideTopLine: {
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.25)',
-    borderStyle: 'dashed',
-    paddingBottom: 4,
-  },
-  guideBottomLine: {
-    borderTopWidth: 2,
-    borderTopColor: '#10B981',
-    paddingTop: 4,
-  },
-  guideText: {
-    fontSize: 9,
-    fontWeight: '800',
-    color: '#94A3B8',
-    letterSpacing: 0.8,
-    textAlign: 'center',
-  },
-  guideCenterCross: {
-    alignSelf: 'center',
-    width: 20,
-    height: 20,
-    position: 'relative',
-    opacity: 0.3,
-  },
-  crossH: {
-    position: 'absolute',
-    top: 9,
-    width: 20,
-    height: 2,
-    backgroundColor: '#FFFFFF',
-  },
-  crossV: {
-    position: 'absolute',
-    left: 9,
-    width: 2,
-    height: 20,
-    backgroundColor: '#FFFFFF',
-  },
-  fpsBadge: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
+  tutorialBadgeRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
-  fpsDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: Colors.primary,
-  },
-  fpsDotRecording: {
-    backgroundColor: '#EF4444',
-  },
-  fpsBadgeText: {
+  tutorialBadgeText: {
     fontSize: 10,
     fontWeight: '800',
-    color: '#FFFFFF',
-    letterSpacing: 0.5,
+    color: Colors.primary,
+    letterSpacing: 0.7,
   },
-  countdownOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+  tutorialHeading: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#FFFFFF',
+  },
+  stepItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+  },
+  stepNum: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(0, 229, 255, 0.14)',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 229, 255, 0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepNumText: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: Colors.primary,
+  },
+  stepText: {
+    flex: 1,
+    fontSize: 13,
+    color: '#CBD5E1',
+    lineHeight: 19,
+  },
+  fpsSelectorCard: {
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderRadius: 16,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    gap: 10,
+  },
+  fpsLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#94A3B8',
+  },
+  fpsRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  fpsBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    alignItems: 'center',
+  },
+  fpsBtnActive: {
+    backgroundColor: 'rgba(0, 229, 255, 0.14)',
+    borderColor: Colors.primary,
+  },
+  fpsBtnTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  fpsBtnTitleActive: {
+    color: Colors.primary,
+  },
+  fpsBtnSub: {
+    fontSize: 10,
+    color: '#94A3B8',
+    marginTop: 2,
+  },
+  uploadActionBtn: {
+    backgroundColor: Colors.primary,
+    borderRadius: 16,
+    paddingVertical: 16,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
   },
-  countdownBigNumber: {
-    fontSize: 88,
-    fontWeight: '900',
-    color: Colors.primary,
-  },
-  countdownPrompt: {
+  uploadActionBtnText: {
     fontSize: 14,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  recordingOverlay: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
-    backgroundColor: 'rgba(239, 68, 68, 0.85)',
-    paddingVertical: 10,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  recordingPrompt: {
-    color: '#FFFFFF',
-    fontSize: 13,
     fontWeight: '900',
-    letterSpacing: 0.5,
+    color: '#000000',
+    letterSpacing: 0.4,
   },
-  errorContainer: {
-    height: 320,
-    backgroundColor: '#12172A',
-    borderRadius: 16,
+  analyzingBox: {
+    paddingVertical: 40,
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
     gap: 12,
   },
-  errorTitle: {
+  analyzingTitle: {
     fontSize: 16,
     fontWeight: '800',
     color: '#FFFFFF',
   },
-  errorSubtitle: {
-    fontSize: 12,
+  analyzingSub: {
+    fontSize: 13,
     color: '#94A3B8',
-    textAlign: 'center',
-    lineHeight: 18,
   },
-  retryBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: Colors.primary,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 10,
+  progressTrack: {
+    width: '100%',
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    overflow: 'hidden',
     marginTop: 6,
   },
-  retryBtnText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#000000',
-  },
-  bottomControls: {
-    width: '100%',
-  },
-  recordActionBtn: {
+  progressFill: {
+    height: '100%',
     backgroundColor: Colors.primary,
-    height: 52,
-    borderRadius: 14,
+  },
+  reviewContainer: {
+    gap: 12,
+  },
+  noJumpBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     gap: 10,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
-    shadowRadius: 16,
-    elevation: 6,
+    backgroundColor: 'rgba(245, 158, 11, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(245, 158, 11, 0.35)',
+    borderRadius: 14,
+    padding: 12,
   },
-  recordActionBtnText: {
-    color: '#000000',
+  noJumpText: {
+    flex: 1,
+    fontSize: 12,
+    color: '#FDE68A',
+    lineHeight: 17,
+  },
+  detectedRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  detectedPill: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+    alignItems: 'center',
+  },
+  detectedPillActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  detectedPillLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#94A3B8',
+  },
+  detectedPillVal: {
     fontSize: 14,
     fontWeight: '900',
-    letterSpacing: 0.4,
-  },
-
-  // Review & Scrubber
-  reviewContainer: {
-    gap: 14,
+    color: '#FFFFFF',
+    marginTop: 2,
   },
   realResultCard: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#12172A',
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
     borderRadius: 16,
-    padding: 16,
+    padding: 14,
     borderWidth: 1,
-    borderColor: 'rgba(0, 229, 255, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    alignItems: 'center',
   },
   resultCol: {
     flex: 1,
+    alignItems: 'center',
+  },
+  resultDivider: {
+    width: 1,
+    height: 36,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   resultLabel: {
     fontSize: 10,
     fontWeight: '800',
-    color: '#64748B',
-    letterSpacing: 0.5,
+    color: '#94A3B8',
+    letterSpacing: 0.6,
+    marginBottom: 4,
   },
   resultValueCm: {
     fontSize: 28,
     fontWeight: '900',
     color: '#FFFFFF',
-    marginTop: 2,
-  },
-  resultDivider: {
-    width: 1,
-    height: 40,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    marginHorizontal: 12,
   },
   resultFlightTime: {
     fontSize: 20,
-    fontWeight: '800',
+    fontWeight: '900',
     color: Colors.primary,
-    marginTop: 2,
   },
   resultFlightSec: {
     fontSize: 11,
@@ -880,26 +827,31 @@ const styles = StyleSheet.create({
   },
   reviewVideoBox: {
     position: 'relative',
+    borderRadius: 14,
+    overflow: 'hidden',
+    backgroundColor: '#000000',
   },
   videoTimeBadge: {
     position: 'absolute',
-    bottom: 10,
-    right: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    bottom: 8,
+    right: 8,
+    backgroundColor: 'rgba(0,0,0,0.75)',
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 6,
+    borderRadius: 8,
   },
   videoTimeText: {
-    fontSize: 11,
     color: '#FFFFFF',
+    fontSize: 11,
     fontWeight: '700',
   },
   scrubberToolbox: {
-    backgroundColor: '#12172A',
-    borderRadius: 14,
-    padding: 14,
-    gap: 12,
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderRadius: 16,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    gap: 8,
   },
   playbackRow: {
     flexDirection: 'row',
@@ -910,52 +862,48 @@ const styles = StyleSheet.create({
   playPauseBtn: {
     width: 38,
     height: 38,
-    borderRadius: 19,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 10,
+    backgroundColor: 'rgba(255,255,255,0.1)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   speedSelectorRow: {
     flexDirection: 'row',
     gap: 4,
-    backgroundColor: '#090D1A',
-    padding: 3,
-    borderRadius: 8,
   },
   speedBtn: {
     paddingHorizontal: 8,
-    paddingVertical: 5,
-    borderRadius: 6,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
   speedBtnActive: {
     backgroundColor: Colors.primary,
   },
   speedBtnText: {
+    color: '#94A3B8',
     fontSize: 11,
-    fontWeight: '700',
-    color: '#64748B',
+    fontWeight: '800',
   },
   speedBtnTextActive: {
     color: '#000000',
-    fontWeight: '900',
   },
   frameStepRow: {
     flexDirection: 'row',
-    gap: 6,
+    gap: 4,
   },
   frameStepBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     paddingHorizontal: 8,
     paddingVertical: 6,
     borderRadius: 8,
-    gap: 2,
+    backgroundColor: 'rgba(255,255,255,0.08)',
   },
   frameStepText: {
-    fontSize: 10,
-    fontWeight: '800',
     color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '800',
   },
   markButtonsRow: {
     flexDirection: 'row',
@@ -964,62 +912,63 @@ const styles = StyleSheet.create({
   markBtn: {
     flex: 1,
     padding: 10,
-    borderRadius: 10,
+    borderRadius: 12,
     borderWidth: 1,
+    alignItems: 'center',
   },
   markTakeoffBtn: {
-    backgroundColor: 'rgba(16, 185, 129, 0.12)',
-    borderColor: '#10B981',
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    borderColor: 'rgba(16, 185, 129, 0.35)',
   },
   markLandingBtn: {
-    backgroundColor: 'rgba(56, 189, 248, 0.12)',
-    borderColor: '#38BDF8',
+    backgroundColor: 'rgba(0, 229, 255, 0.1)',
+    borderColor: 'rgba(0, 229, 255, 0.35)',
   },
   markBtnTitle: {
-    fontSize: 10,
-    fontWeight: '900',
-    letterSpacing: 0.5,
     color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '800',
   },
   markBtnSub: {
-    fontSize: 11,
     color: '#CBD5E1',
-    marginTop: 3,
+    fontSize: 11,
+    marginTop: 2,
   },
   finalActionsRow: {
     flexDirection: 'row',
-    alignItems: 'center',
     gap: 10,
+    marginTop: 4,
   },
   retakeBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#12172A',
-    paddingHorizontal: 14,
-    height: 50,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-  },
-  retakeBtnText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#94A3B8',
-  },
-  confirmJumpBtn: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    backgroundColor: Colors.primary,
-    height: 50,
+    gap: 6,
+    paddingVertical: 14,
     borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  retakeBtnText: {
+    color: '#CBD5E1',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  confirmJumpBtn: {
+    flex: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 14,
+    borderRadius: 14,
+    backgroundColor: Colors.primary,
   },
   confirmJumpBtnText: {
-    fontSize: 14,
-    fontWeight: '900',
     color: '#000000',
+    fontSize: 13,
+    fontWeight: '900',
   },
 });
