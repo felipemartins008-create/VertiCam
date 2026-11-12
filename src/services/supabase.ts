@@ -88,6 +88,7 @@ export const JumpService = {
                   nextEvaluationDate: profile.nextEvaluationDate,
                   legLengthCm: profile.legLengthCm,
                   availableEquipment: profile.availableEquipment,
+                  calibratedOplKg: profile.calibratedOplKg,
                 })
               );
             } catch {}
@@ -156,6 +157,7 @@ export const JumpService = {
               nextEvaluationDate: meta.nextEvaluationDate,
               legLengthCm: meta.legLengthCm,
               availableEquipment: meta.availableEquipment,
+              calibratedOplKg: meta.calibratedOplKg,
             };
           }
 
@@ -175,6 +177,7 @@ export const JumpService = {
             nextEvaluationDate: meta.nextEvaluationDate,
             legLengthCm: meta.legLengthCm,
             availableEquipment: meta.availableEquipment,
+            calibratedOplKg: meta.calibratedOplKg,
           };
         }
       } catch (err) {

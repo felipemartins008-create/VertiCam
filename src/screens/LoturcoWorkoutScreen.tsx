@@ -27,10 +27,10 @@ import { BiomechanicalDemonstration } from '../components/BiomechanicalDemonstra
 import { RealJumpCamera } from '../components/RealJumpCamera';
 import { LiveWorkoutCamera } from '../components/LiveWorkoutCamera';
 
-type WorkoutStep = 'warmup' | 'readiness_check' | 'loaded_jumps' | 'summary';
+type WorkoutStep = 'warmup' | 'readiness_check' | 'opl_calibration' | 'loaded_jumps' | 'summary';
 
 export const LoturcoWorkoutScreen: React.FC = () => {
-  const { navigate, athleteBaseline, userProfile, language } = useApp();
+  const { navigate, athleteBaseline, userProfile, updateProfile, language } = useApp();
   const isPt = language === 'pt';
 
   const [step, setStep] = useState<WorkoutStep>('warmup');
@@ -44,13 +44,16 @@ export const LoturcoWorkoutScreen: React.FC = () => {
   const [readinessJumpCm, setReadinessJumpCm] = useState<number>(51.5);
   const [readinessZone, setReadinessZone] = useState<'GREEN' | 'YELLOW' | 'RED'>('GREEN');
 
-  // 3. Saltos com Carga (Loaded Jump)
+  // 3. Calibração da Carga OPL (Regra dos 20cm de Loturco)
+  const baseLoadKg = userProfile.calibratedOplKg || Math.round((userProfile.weightKg || athleteBaseline.user_weight || 78) * 0.20);
+  const [testedOplLoad, setTestedOplLoad] = useState<number>(baseLoadKg);
+  const [oplTestJumpHeight, setOplTestJumpHeight] = useState<number | null>(null);
+  const [oplTestingWithCamera, setOplTestingWithCamera] = useState<boolean>(false);
+
+  // 4. Saltos com Carga (Loaded Jump)
   const [currentSet, setCurrentSet] = useState<number>(1);
   const totalSets = 4;
   const [repsDoneInSet, setRepsDoneInSet] = useState<number>(0);
-
-  // Carga prescrita em kg
-  const baseLoadKg = Math.round((userProfile.weightKg || athleteBaseline.user_weight || 78) * 0.20);
   const [prescribedLoadKg, setPrescribedLoadKg] = useState<number>(baseLoadKg);
 
   // Monitoramento de velocidade e perda
@@ -314,15 +317,158 @@ export const LoturcoWorkoutScreen: React.FC = () => {
                   </Text>
                 </View>
 
+                <View style={{ gap: 10, marginTop: 4 }}>
+                  <TouchableOpacity
+                    style={styles.actionBtn}
+                    onPress={() => setStep('opl_calibration')}
+                    activeOpacity={0.88}
+                  >
+                    <Zap size={18} color="#000000" strokeWidth={2.5} />
+                    <Text style={styles.actionBtnText}>
+                      {isPt ? 'CALIBRAR CARGA OPL (REGRA DOS 20 CM)' : 'CALIBRA CARICO OPL (REGOLA DEI 20 CM)'}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.nextSetBtn}
+                    onPress={() => setStep('loaded_jumps')}
+                    activeOpacity={0.88}
+                  >
+                    <Text style={styles.nextSetBtnText}>
+                      {isPt ? `PULAR E TREINAR COM ${prescribedLoadKg} KG` : `SALTA E ALLENATI CON ${prescribedLoadKg} KG`}
+                    </Text>
+                    <ArrowRight size={16} color={Colors.primary} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+          </View>
+        </ScrollView>
+      )}
+
+      {/* ── PASSO 2.5: CALIBRAÇÃO DE OPL DE IRINEU LOTURCO (REGRA DOS 20 CM) ── */}
+      {step === 'opl_calibration' && (
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          <View style={styles.cardBox}>
+            <View style={styles.cardHeaderRow}>
+              <Zap size={18} color={Colors.primary} />
+              <Text style={styles.cardHeaderTitle}>
+                {isPt ? 'Calibração de OPL (Regra dos ~20 cm)' : 'Calibrazione OPL (Regola dei ~20 cm)'}
+              </Text>
+            </View>
+
+            <Text style={styles.cardBodyText}>
+              {isPt
+                ? 'Segundo as pesquisas do Prof. Dr. Irineu Loturco, a Potência Máxima (Watts) ocorre na carga em que o salto atinge aproximadamente 20 cm. Faça 1 salto com a carga abaixo para confirmar ou ajustar.'
+                : 'Secondo le ricerche del Prof. Dott. Irineu Loturco, la Potenza Massima avviene con il carico in cui il salto raggiunge circa 20 cm. Fai 1 salto per confermare o regolare.'}
+            </Text>
+
+            {/* Seletor da Carga Testada */}
+            <View style={styles.warmupCounterBox}>
+              <Text style={styles.warmupCounterLabel}>
+                {isPt ? 'CARGA DO TESTE' : 'CARICO DEL TEST'}
+              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 16, marginTop: 4 }}>
                 <TouchableOpacity
-                  style={styles.actionBtn}
-                  onPress={() => setStep('loaded_jumps')}
+                  onPress={() => setTestedOplLoad((prev) => Math.max(4, prev - 2))}
+                  style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <Text style={{ color: '#FFFFFF', fontSize: 20, fontWeight: '900' }}>-</Text>
+                </TouchableOpacity>
+
+                <Text style={{ fontSize: 32, fontWeight: '900', color: Colors.primary }}>
+                  {testedOplLoad} <Text style={{ fontSize: 16, color: '#94A3B8' }}>kg</Text>
+                </Text>
+
+                <TouchableOpacity
+                  onPress={() => setTestedOplLoad((prev) => prev + 2)}
+                  style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <Text style={{ color: '#FFFFFF', fontSize: 20, fontWeight: '900' }}>+</Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.warmupCounterSub}>
+                {isPt ? 'Peso total somado de halteres ou barra' : 'Peso totale sommato di manubri o bilanciere'}
+              </Text>
+            </View>
+
+            {/* Teste na Câmera */}
+            {oplTestingWithCamera ? (
+              <RealJumpCamera
+                jumpType="CMJ"
+                attemptNumber={1}
+                totalAttempts={1}
+                onJumpConfirmed={(heightCm) => {
+                  setOplTestJumpHeight(heightCm);
+                  setOplTestingWithCamera(false);
+                }}
+              />
+            ) : (
+              <TouchableOpacity
+                style={styles.actionBtn}
+                onPress={() => setOplTestingWithCamera(true)}
+                activeOpacity={0.88}
+              >
+                <Camera size={18} color="#000000" strokeWidth={2.5} />
+                <Text style={styles.actionBtnText}>
+                  {oplTestJumpHeight !== null
+                    ? (isPt ? 'REFAZER TESTE DO SALTO' : 'RIPETI TEST DEL SALTO')
+                    : (isPt ? `TESTAR COM ${testedOplLoad} KG NA CÂMERA` : `TESTA CON ${testedOplLoad} KG`)}
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Diagnóstico da Carga dos ~20cm */}
+            {oplTestJumpHeight !== null && (
+              <View style={styles.readinessResultBox}>
+                <View style={[
+                  styles.semaphoreBadge,
+                  oplTestJumpHeight >= 18.5 && oplTestJumpHeight <= 21.5 && styles.semaphoreGreen,
+                  (oplTestJumpHeight > 21.5 || oplTestJumpHeight < 18.5) && styles.semaphoreYellow
+                ]}>
+                  <Text style={styles.semaphoreText}>
+                    {oplTestJumpHeight >= 18.5 && oplTestJumpHeight <= 21.5 && (isPt ? '🎯 POTÊNCIA MÁXIMA ENCONTRADA (OPL PERFEITA)' : '🎯 POTENZA MASSIMA TROVATA')}
+                    {oplTestJumpHeight > 21.5 && (isPt ? '⚡ CARGA LEVE (> 21.5 CM)' : '⚡ CARICO LEGGERO (> 21.5 CM)')}
+                    {oplTestJumpHeight < 18.5 && (isPt ? '⚠️ CARGA PESADA (< 18.5 CM)' : '⚠️ CARICO PESANTE (< 18.5 CM)')}
+                  </Text>
+                </View>
+
+                <Text style={styles.readinessResultJump}>
+                  {isPt ? 'Salto com carga:' : 'Salto con carico:'}{' '}
+                  <Text style={{ color: '#FFFFFF', fontWeight: '900' }}>{oplTestJumpHeight} cm</Text>
+                </Text>
+
+                <Text style={{ fontSize: 13, color: '#CBD5E1', lineHeight: 18, textAlign: 'center' }}>
+                  {oplTestJumpHeight >= 18.5 && oplTestJumpHeight <= 21.5 && (
+                    isPt
+                      ? `Perfeito! Com ${testedOplLoad} kg seu salto atingiu ${oplTestJumpHeight} cm (faixa dos 20 cm de Loturco). Esta é a carga que gera mais Watts nas suas pernas!`
+                      : `Perfetto! Con ${testedOplLoad} kg hai raggiunto ${oplTestJumpHeight} cm. Questo è il punto di massima potenza!`
+                  )}
+                  {oplTestJumpHeight > 21.5 && (
+                    isPt
+                      ? `Seu salto deu ${oplTestJumpHeight} cm (muito alto para pico de potência). Aumente ~2 kg no seletor para aproximar dos 20 cm.`
+                      : `Salto a ${oplTestJumpHeight} cm (troppo alto). Aumenta ~2 kg per avvicinarti a 20 cm.`
+                  )}
+                  {oplTestJumpHeight < 18.5 && (
+                    isPt
+                      ? `Seu salto deu ${oplTestJumpHeight} cm (perdeu velocidade). Reduza ~2 kg para acelerar o movimento e aproximar dos 20 cm.`
+                      : `Salto a ${oplTestJumpHeight} cm. Riduci ~2 kg per accelerare.`
+                  )}
+                </Text>
+
+                <TouchableOpacity
+                  style={[styles.actionBtn, { marginTop: 6 }]}
+                  onPress={async () => {
+                    setPrescribedLoadKg(testedOplLoad);
+                    await updateProfile({ calibratedOplKg: testedOplLoad });
+                    setStep('loaded_jumps');
+                  }}
                   activeOpacity={0.88}
                 >
+                  <Check size={18} color="#000000" strokeWidth={3} />
                   <Text style={styles.actionBtnText}>
-                    {isPt ? 'INICIAR SALTOS COM SOBRECARGA' : 'INIZIA I SALTI CON SOVRACCARICO'}
+                    {isPt ? `CONFIRMAR ${testedOplLoad} KG E INICIAR SÉRIES` : `CONFERMA ${testedOplLoad} KG E AVVIA SERIE`}
                   </Text>
-                  <ArrowRight size={18} color="#000000" strokeWidth={3} />
                 </TouchableOpacity>
               </View>
             )}

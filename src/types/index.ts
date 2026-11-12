@@ -28,6 +28,7 @@ export interface UserProfile {
   standingReachCm: number;
   gender?: 'female' | 'male';
   squat1rmKg?: number; // Carga de 1RM no agachamento
+  calibratedOplKg?: number; // Carga OPL calibrada no teste dos ~20cm de Loturco
   initialJumpCm?: number;
   currentJumpCm?: number;
   isSubscribed?: boolean;
