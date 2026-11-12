@@ -7,19 +7,19 @@ import {
   ScrollView,
   SafeAreaView,
   Dimensions,
-  Alert,
+  TextInput,
 } from 'react-native';
 import {
   Activity,
   Calendar,
   Camera,
   ArrowRight,
+  ArrowLeft,
   Check,
   Zap,
   ShieldCheck,
   Sparkles,
   AlertTriangle,
-  Info,
 } from 'lucide-react-native';
 import { useApp } from '../context/AppContext';
 import { Colors } from '../theme/colors';
@@ -37,11 +37,25 @@ const areDaysConsecutive = (dayA: number, dayB: number): boolean => {
 };
 
 export const OnboardingTutorialScreen: React.FC = () => {
-  const { navigate, updateProfile, language, setLanguage } = useApp();
+  const { navigate, userProfile, updateProfile, updateBaseline, language, setLanguage } = useApp();
   const isPt = language === 'pt';
 
-  // Dias de treino selecionados (Padrão: Segunda 1, Quarta 3, Sexta 5)
-  const [selectedDays, setSelectedDays] = useState<number[]>([1, 3, 5]);
+  // Wizard passo a passo: 1 = Dados/Boas-vindas, 2 = Dias de Treino, 3 = Protocolo de Avaliação
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  // Dados físicos caso o atleta tenha entrado sem preenchê-los
+  const [weightInput, setWeightInput] = useState<string>(
+    userProfile.weightKg > 0 ? String(userProfile.weightKg) : ''
+  );
+  const [heightInput, setHeightInput] = useState<string>(
+    userProfile.heightCm > 0 ? String(userProfile.heightCm) : ''
+  );
+  const [bioError, setBioError] = useState<string | null>(null);
+
+  // Dias de treino selecionados (o usuário escolhe nesta etapa)
+  const [selectedDays, setSelectedDays] = useState<number[]>(
+    userProfile.workoutDays && userProfile.workoutDays.length > 0 ? userProfile.workoutDays : [1, 3, 5]
+  );
   const [consecutiveWarning, setConsecutiveWarning] = useState<string | null>(null);
 
   const daysOfWeek = isPt ? [
@@ -95,6 +109,28 @@ export const OnboardingTutorialScreen: React.FC = () => {
     setConsecutiveWarning(null);
   };
 
+  const handleStep1Continue = async () => {
+    setBioError(null);
+    const w = parseFloat(weightInput);
+    const h = parseFloat(heightInput);
+    if (isNaN(w) || w < 40 || w > 180) {
+      setBioError(isPt ? 'Informe um peso válido entre 40 e 180 kg.' : 'Inserisci un peso valido tra 40 e 180 kg.');
+      return;
+    }
+    if (isNaN(h) || h < 130 || h > 235) {
+      setBioError(isPt ? 'Informe uma altura válida entre 130 e 235 cm.' : 'Inserisci un\'altezza valida tra 130 e 235 cm.');
+      return;
+    }
+    await updateProfile({ weightKg: w, heightCm: h });
+    updateBaseline({ user_weight: w, user_height: h });
+    setStep(2);
+  };
+
+  const handleStep2Continue = async () => {
+    await updateProfile({ workoutDays: selectedDays });
+    setStep(3);
+  };
+
   const handleStartInitialEvaluation = async () => {
     await updateProfile({
       workoutDays: selectedDays,
@@ -111,10 +147,23 @@ export const OnboardingTutorialScreen: React.FC = () => {
         contentContainerStyle={[styles.scrollContent, isDesktop && styles.scrollContentDesktop]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header Logo & Titulo */}
+        {/* Header Logo, Voltar & Idioma */}
         <View style={styles.topHeader}>
           <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <View style={{ width: 64 }} />
+            {step > 1 ? (
+              <TouchableOpacity
+                onPress={() => setStep((step - 1) as 1 | 2)}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 6, paddingHorizontal: 8 }}
+                activeOpacity={0.8}
+              >
+                <ArrowLeft size={16} color="#94A3B8" />
+                <Text style={{ color: '#94A3B8', fontSize: 13, fontWeight: '700' }}>
+                  {isPt ? 'Voltar' : 'Indietro'}
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <View style={{ width: 64 }} />
+            )}
             <VertiCamLogo size="medium" />
             <TouchableOpacity
               onPress={() => setLanguage(isPt ? 'it' : 'pt')}
@@ -124,234 +173,346 @@ export const OnboardingTutorialScreen: React.FC = () => {
               <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '700' }}>{isPt ? '🇧🇷 PT' : '🇮🇹 IT'}</Text>
             </TouchableOpacity>
           </View>
-          <View style={styles.welcomePill}>
-            <Sparkles size={12} color={Colors.primary} />
-            <Text style={styles.welcomePillText}>
-              {isPt ? 'COMO FUNCIONA O VERTICAM' : 'COME FUNZIONA VERTICAM'}
-            </Text>
-          </View>
-          <Text style={styles.mainTitle}>
-            {isPt ? '3 Passos para Maximizar Sua Impulsão' : '3 Passaggi per Massimizzare la Tua Elevazione'}
-          </Text>
-          <Text style={styles.mainSubtitle}>
-            {isPt
-              ? 'Um método científico baseado nas pesquisas do Prof. Dr. Irineu Loturco. Sem exercícios aleatórios, apenas pura potência neuromuscular.'
-              : 'Un metodo scientifico basato sulle ricerche del Prof. Dott. Irineu Loturco. Nessun esercizio casuale, solo pura potenza neuromuscolare.'}
-          </Text>
-        </View>
 
-        {/* ── CARD 1: AVALIAÇÃO INICIAL ── */}
-        <View style={styles.tutorialCard}>
-          <View style={styles.cardHeaderRow}>
-            <View style={styles.stepBadge}>
-              <Text style={styles.stepBadgeText}>1</Text>
-            </View>
-            <View style={styles.cardHeaderTexts}>
-              <Text style={styles.cardCategory}>{isPt ? 'PRIMEIRO PASSO' : 'PRIMO PASSO'}</Text>
-              <Text style={styles.cardTitle}>{isPt ? 'Avaliação Inicial (Baseline)' : 'Valutazione Iniziale (Baseline)'}</Text>
-            </View>
-            <View style={styles.iconCircle}>
-              <Activity size={20} color={Colors.primary} strokeWidth={2.5} />
-            </View>
-          </View>
-
-          <Text style={styles.cardDescription}>
-            {isPt
-              ? 'Antes de calcular qualquer carga, a câmera de alta precisão mede seu tempo de voo com dois testes fundamentais:'
-              : 'Prima di calcolare qualsiasi carico, la fotocamera ad alta precisione misura il tuo tempo di volo con due test fondamentali:'}
-          </Text>
-
-          <View style={styles.subItemsBox}>
-            <View style={styles.subItem}>
-              <View style={styles.bulletDot} />
-              <Text style={styles.subItemText}>
-                <Text style={styles.boldText}>{isPt ? 'CMJ (Salto com Contramovimento):' : 'CMJ (Salto con contromovimento):'}</Text>{' '}
-                {isPt ? 'mede a força elástica e a reatividade dos seus tendões.' : 'misura la forza elastica e la reattività dei tuoi tendini.'}
+          {/* Barra de Progresso Didática */}
+          <View style={{ width: '100%', marginTop: 14, gap: 8 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Text style={{ fontSize: 12, fontWeight: '800', color: Colors.primary, letterSpacing: 0.6 }}>
+                {isPt ? `PASSO ${step} DE 4` : `PASSO ${step} DI 4`}
+              </Text>
+              <Text style={{ fontSize: 11, color: '#94A3B8', fontWeight: '600' }}>
+                {step === 1 && (isPt ? 'Seus Dados' : 'I Tuoi Dati')}
+                {step === 2 && (isPt ? 'Dias de Treino' : 'Giorni di Allenamento')}
+                {step === 3 && (isPt ? 'Preparar Avaliação' : 'Prepara Valutazione')}
               </Text>
             </View>
-
-            <View style={styles.subItem}>
-              <View style={styles.bulletDot} />
-              <Text style={styles.subItemText}>
-                <Text style={styles.boldText}>{isPt ? 'SJ (Salto sem Contramovimento / Squat Jump):' : 'SJ (Salto senza contromovimento / Squat Jump):'}</Text>{' '}
-                {isPt ? 'mede a força concêntrica pura partindo parado a 90°.' : 'misura la forza concentrica pura partendo da fermo a 90°.'}
-              </Text>
+            <View style={{ height: 6, width: '100%', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden' }}>
+              <View style={{ height: '100%', width: `${(step / 4) * 100}%`, backgroundColor: Colors.primary, borderRadius: 3 }} />
             </View>
-          </View>
-
-          <View style={styles.formulaPill}>
-            <Text style={styles.formulaPillText}>
-              {isPt
-                ? '💡 O índice EUR (CMJ ÷ SJ) identificará com precisão o seu déficit neuromuscular de salto.'
-                : '💡 L\'indice EUR (CMJ ÷ SJ) evidenzierà con precisione il tuo deficit neuromuscolare di salto.'}
-            </Text>
           </View>
         </View>
 
-        {/* ── CARD 2: DIAS DE TREINO ── */}
-        <View style={styles.tutorialCard}>
-          <View style={styles.cardHeaderRow}>
-            <View style={styles.stepBadge}>
-              <Text style={styles.stepBadgeText}>2</Text>
+        {/* ══════════════════════════════════════════════════════════════
+            PASSO 1: DADOS BÁSICOS + BOAS-VINDAS DIDÁTICAS
+        ══════════════════════════════════════════════════════════════ */}
+        {step === 1 && (
+          <View style={{ width: '100%', gap: 16 }}>
+            <View style={{ alignItems: 'center', marginBottom: 4 }}>
+              <Text style={styles.mainTitle}>
+                {isPt ? 'Bem-vindo ao seu Treino Personalizado' : 'Benvenuto nel Tuo Allenamento'}
+              </Text>
+              <Text style={styles.mainSubtitle}>
+                {isPt
+                  ? 'Antes de montar sua rotina de treinos, vamos fazer 3 passos rápidos para calibrar o app exatamente para o seu corpo.'
+                  : 'Prima di creare la tua routine, faremo 3 rapidi passaggi per calibrare l\'app sul tuo corpo.'}
+              </Text>
             </View>
-            <View style={styles.cardHeaderTexts}>
-              <Text style={styles.cardCategory}>{isPt ? 'PLANEJAMENTO SEMANAL' : 'PIANIFICAZIONE SETTIMANALE'}</Text>
-              <Text style={styles.cardTitle}>{isPt ? 'Seus Dias de Treino' : 'I Tuoi Giorni di Allenamento'}</Text>
-            </View>
-            <View style={styles.iconCircle}>
-              <Calendar size={20} color={Colors.primary} strokeWidth={2.5} />
-            </View>
-          </View>
 
-          <Text style={styles.cardDescription}>
-            {isPt ? (
-              <>Selecione os dias da semana em que deseja treinar. Para o sistema nervoso central, <Text style={styles.boldText}>2 ou 3 sessões balísticas</Text> com recuperação completa são a fórmula ideal para ganhar centímetros reais:</>
-            ) : (
-              <>Seleziona i giorni della settimana in cui allenarti. Per il sistema nervoso centrale, <Text style={styles.boldText}>2 o 3 sessioni balistiche</Text> con recupero completo rappresentano la formula ideale per guadagnare centimetri reali:</>
-            )}
-          </Text>
+            <View style={styles.tutorialCard}>
+              <View style={styles.cardHeaderRow}>
+                <View style={styles.stepBadge}>
+                  <Text style={styles.stepBadgeText}>1</Text>
+                </View>
+                <View style={styles.cardHeaderTexts}>
+                  <Text style={styles.cardCategory}>{isPt ? 'SEUS PARÂMETROS' : 'I TUOI PARAMETRI'}</Text>
+                  <Text style={styles.cardTitle}>{isPt ? 'Confirme seu Peso e Altura' : 'Conferma Peso e Altezza'}</Text>
+                </View>
+              </View>
 
-          {/* Seletor Dias da Semana */}
-          <View style={styles.daysSelectorRow}>
-            {daysOfWeek.map((day) => {
-              const isSelected = selectedDays.includes(day.id);
-              return (
-                <TouchableOpacity
-                  key={day.id}
-                  style={[styles.dayButton, isSelected && styles.dayButtonSelected]}
-                  onPress={() => toggleDay(day.id)}
-                  activeOpacity={0.75}
-                >
-                  <Text style={[styles.dayButtonText, isSelected && styles.dayButtonTextSelected]}>
-                    {day.label}
+              <Text style={styles.cardDescription}>
+                {isPt
+                  ? 'Esses dois dados são usados para calcular sua carga ideal de salto (OPL) com segurança.'
+                  : 'Questi due dati servono per calcolare con precisione il tuo carico ottimale (OPL).'}
+              </Text>
+
+              <View style={{ flexDirection: 'row', gap: 12 }}>
+                <View style={{ flex: 1, gap: 6 }}>
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: '#94A3B8' }}>
+                    {isPt ? 'Peso (kg)' : 'Peso (kg)'}
                   </Text>
-                  {isSelected && (
-                    <View style={styles.daySelectedDot}>
-                      <Check size={8} color="#000000" strokeWidth={3.5} />
-                    </View>
-                  )}
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+                  <TextInput
+                    value={weightInput}
+                    onChangeText={setWeightInput}
+                    keyboardType="numeric"
+                    placeholder="78"
+                    placeholderTextColor="#475569"
+                    style={{
+                      backgroundColor: 'rgba(255,255,255,0.06)',
+                      borderWidth: 1,
+                      borderColor: 'rgba(255,255,255,0.14)',
+                      borderRadius: 12,
+                      paddingHorizontal: 14,
+                      paddingVertical: 12,
+                      color: '#FFFFFF',
+                      fontSize: 16,
+                      fontWeight: '700',
+                    }}
+                  />
+                </View>
 
-          {/* Alerta de Dias Consecutivos Bloqueados */}
-          {consecutiveWarning && (
-            <View style={styles.consecutiveWarningBox}>
-              <AlertTriangle size={18} color="#F59E0B" style={{ marginTop: 2 }} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.consecutiveWarningTitle}>
-                  {isPt ? 'Descanso Obrigatório de 1 Dia' : 'Riposo Obbligatorio di 1 Giorno'}
+                <View style={{ flex: 1, gap: 6 }}>
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: '#94A3B8' }}>
+                    {isPt ? 'Altura (cm)' : 'Altezza (cm)'}
+                  </Text>
+                  <TextInput
+                    value={heightInput}
+                    onChangeText={setHeightInput}
+                    keyboardType="numeric"
+                    placeholder="185"
+                    placeholderTextColor="#475569"
+                    style={{
+                      backgroundColor: 'rgba(255,255,255,0.06)',
+                      borderWidth: 1,
+                      borderColor: 'rgba(255,255,255,0.14)',
+                      borderRadius: 12,
+                      paddingHorizontal: 14,
+                      paddingVertical: 12,
+                      color: '#FFFFFF',
+                      fontSize: 16,
+                      fontWeight: '700',
+                    }}
+                  />
+                </View>
+              </View>
+
+              {bioError && (
+                <Text style={{ color: '#EF4444', fontSize: 12, fontWeight: '700' }}>{bioError}</Text>
+              )}
+            </View>
+
+            <View style={styles.ctaBottomContainer}>
+              <TouchableOpacity
+                style={styles.singleActionButton}
+                onPress={handleStep1Continue}
+                activeOpacity={0.88}
+              >
+                <Text style={styles.singleActionButtonText}>
+                  {isPt ? 'CONTINUAR' : 'CONTINUA'}
                 </Text>
-                <Text style={styles.consecutiveWarningText}>{consecutiveWarning}</Text>
+                <ArrowRight size={20} color="#000000" strokeWidth={3} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════
+            PASSO 2: ESCOLHA DOS DIAS DE TREINO
+        ══════════════════════════════════════════════════════════════ */}
+        {step === 2 && (
+          <View style={{ width: '100%', gap: 16 }}>
+            <View style={{ alignItems: 'center', marginBottom: 4 }}>
+              <Text style={styles.mainTitle}>
+                {isPt ? 'Quando Você Quer Treinar?' : 'Quando Vuoi Allenarti?'}
+              </Text>
+              <Text style={styles.mainSubtitle}>
+                {isPt
+                  ? 'Escolha os dias da sua semana. Recomendamos 2 ou 3 dias alternados para o sistema nervoso recuperar 100%.'
+                  : 'Scegli i tuoi giorni settimanali. Consigliamo 2 o 3 giorni alternati per il recupero completo del SNC.'}
+              </Text>
+            </View>
+
+            <View style={styles.tutorialCard}>
+              <View style={styles.cardHeaderRow}>
+                <View style={styles.stepBadge}>
+                  <Text style={styles.stepBadgeText}>2</Text>
+                </View>
+                <View style={styles.cardHeaderTexts}>
+                  <Text style={styles.cardCategory}>{isPt ? 'PLANEJAMENTO SEMANAL' : 'PIANIFICAZIONE SETTIMANALE'}</Text>
+                  <Text style={styles.cardTitle}>{isPt ? 'Seus Dias de Treino' : 'I Tuoi Giorni di Allenamento'}</Text>
+                </View>
+                <View style={styles.iconCircle}>
+                  <Calendar size={20} color={Colors.primary} strokeWidth={2.5} />
+                </View>
+              </View>
+
+              {/* Seletor Dias da Semana */}
+              <View style={styles.daysSelectorRow}>
+                {daysOfWeek.map((day) => {
+                  const isSelected = selectedDays.includes(day.id);
+                  return (
+                    <TouchableOpacity
+                      key={day.id}
+                      style={[styles.dayButton, isSelected && styles.dayButtonSelected]}
+                      onPress={() => toggleDay(day.id)}
+                      activeOpacity={0.75}
+                    >
+                      <Text style={[styles.dayButtonText, isSelected && styles.dayButtonTextSelected]}>
+                        {day.label}
+                      </Text>
+                      {isSelected && (
+                        <View style={styles.daySelectedDot}>
+                          <Check size={8} color="#000000" strokeWidth={3.5} />
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              {/* Alerta de Dias Consecutivos Bloqueados */}
+              {consecutiveWarning && (
+                <View style={styles.consecutiveWarningBox}>
+                  <AlertTriangle size={18} color="#F59E0B" style={{ marginTop: 2 }} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.consecutiveWarningTitle}>
+                      {isPt ? 'Descanso Obrigatório de 1 Dia' : 'Riposo Obbligatorio di 1 Giorno'}
+                    </Text>
+                    <Text style={styles.consecutiveWarningText}>{consecutiveWarning}</Text>
+                  </View>
+                </View>
+              )}
+
+              {/* Sugestões Rápidas Seguras */}
+              <View style={styles.presetsContainer}>
+                <Text style={styles.presetsLabel}>
+                  {isPt ? 'SUGESTÕES RÁPIDAS:' : 'SUGGERIMENTI RAPIDI:'}
+                </Text>
+                <View style={styles.presetButtonsRow}>
+                  <TouchableOpacity
+                    style={[
+                      styles.presetBtn,
+                      selectedDays.length === 3 && selectedDays.includes(1) && selectedDays.includes(3) && selectedDays.includes(5) && styles.presetBtnActive,
+                    ]}
+                    onPress={() => applyPreset([1, 3, 5])}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.presetBtnText}>
+                      {isPt ? 'Seg / Qua / Sex (Recomendado)' : 'Lun / Mer / Ven (Consigliato)'}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.presetBtn,
+                      selectedDays.length === 3 && selectedDays.includes(2) && selectedDays.includes(4) && selectedDays.includes(6) && styles.presetBtnActive,
+                    ]}
+                    onPress={() => applyPreset([2, 4, 6])}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.presetBtnText}>
+                      {isPt ? 'Ter / Qui / Sáb' : 'Mar / Gio / Sab'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <View style={styles.daysSummaryRow}>
+                <Zap size={13} color="#10B981" />
+                <Text style={styles.daysSummaryText}>
+                  {isPt ? (
+                    <>Selecionado: <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>{selectedDays.length} dias por semana</Text></>
+                  ) : (
+                    <>Selezionato: <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>{selectedDays.length} giorni a settimana</Text></>
+                  )}
+                </Text>
               </View>
             </View>
-          )}
 
-          {/* Sugestões Rápidas Seguras */}
-          <View style={styles.presetsContainer}>
-            <Text style={styles.presetsLabel}>
-              {isPt ? 'PERIODIZAÇÕES SUGERIDAS (LOTURCO):' : 'PERIODIZZAZIONI SUGGERITE LOTURCO:'}
-            </Text>
-            <View style={styles.presetButtonsRow}>
+            <View style={styles.ctaBottomContainer}>
               <TouchableOpacity
-                style={[
-                  styles.presetBtn,
-                  selectedDays.length === 3 && selectedDays.includes(1) && selectedDays.includes(3) && selectedDays.includes(5) && styles.presetBtnActive,
-                ]}
-                onPress={() => applyPreset([1, 3, 5])}
-                activeOpacity={0.8}
+                style={styles.singleActionButton}
+                onPress={handleStep2Continue}
+                activeOpacity={0.88}
               >
-                <Text style={styles.presetBtnText}>
-                  {isPt ? 'Seg / Qua / Sex (Recomendado)' : 'Lun / Mer / Ven (Consigliato)'}
+                <Text style={styles.singleActionButtonText}>
+                  {isPt ? 'CONFIRMAR DIAS E CONTINUAR' : 'CONFERMA GIORNI E CONTINUA'}
                 </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.presetBtn,
-                  selectedDays.length === 3 && selectedDays.includes(2) && selectedDays.includes(4) && selectedDays.includes(6) && styles.presetBtnActive,
-                ]}
-                onPress={() => applyPreset([2, 4, 6])}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.presetBtnText}>
-                  {isPt ? 'Ter / Qui / Sáb' : 'Mar / Gio / Sab'}
-                </Text>
+                <ArrowRight size={20} color="#000000" strokeWidth={3} />
               </TouchableOpacity>
             </View>
           </View>
+        )}
 
-          <View style={styles.daysSummaryRow}>
-            <Zap size={13} color="#10B981" />
-            <Text style={styles.daysSummaryText}>
-              {isPt ? (
-                <>Frequência: <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>{selectedDays.length} dias por semana</Text> (com recuperação total do SNC entre sessões)</>
-              ) : (
-                <>Frequenza: <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>{selectedDays.length} giorni a settimana</Text> (con recupero completo del SNC tra le sessioni)</>
-              )}
-            </Text>
-          </View>
-        </View>
-
-        {/* ── CARD 3: MONITORAMENTO SIMULTÂNEO COM CÂMERA ── */}
-        <View style={styles.tutorialCard}>
-          <View style={styles.cardHeaderRow}>
-            <View style={styles.stepBadge}>
-              <Text style={styles.stepBadgeText}>3</Text>
-            </View>
-            <View style={styles.cardHeaderTexts}>
-              <Text style={styles.cardCategory}>{isPt ? 'TECNOLOGIA DE VISÃO IA' : 'TECNOLOGIA VIDEO IA'}</Text>
-              <Text style={styles.cardTitle}>{isPt ? 'Monitoramento de Carga e Volume' : 'Monitoraggio Simultaneo di Carico e Volume'}</Text>
-            </View>
-            <View style={styles.iconCircle}>
-              <Camera size={20} color={Colors.primary} strokeWidth={2.5} />
-            </View>
-          </View>
-
-          <Text style={styles.cardDescription}>
-            {isPt ? (
-              <>Durante todo o treino, a câmera analisa cada repetição do seu <Text style={styles.boldText}>Salto com Sobrecarga (Loaded Jump)</Text>:</>
-            ) : (
-              <>Durante l'intero allenamento, la fotocamera analizza ogni singola ripetizione del tuo <Text style={styles.boldText}>Salto con Sovraccarico (Loaded Jump)</Text>:</>
-            )}
-          </Text>
-
-          <View style={styles.loturcoHighlightBox}>
-            <View style={styles.loturcoHeader}>
-              <ShieldCheck size={14} color={Colors.primary} />
-              <Text style={styles.loturcoTitle}>
-                {isPt ? 'Princípio de Irineu Loturco (Perda de Velocidade):' : 'Principio di Irineu Loturco (Loss of Velocity):'}
+        {/* ══════════════════════════════════════════════════════════════
+            PASSO 3: EXPLICAÇÃO DIDÁTICA DA AVALIAÇÃO INICIAL
+        ══════════════════════════════════════════════════════════════ */}
+        {step === 3 && (
+          <View style={{ width: '100%', gap: 16 }}>
+            <View style={{ alignItems: 'center', marginBottom: 4 }}>
+              <Text style={styles.mainTitle}>
+                {isPt ? 'Agora: Sua Avaliação Inicial' : 'Ora: La Tua Valutazione Iniziale'}
+              </Text>
+              <Text style={styles.mainSubtitle}>
+                {isPt
+                  ? 'Para liberar sua rotina de treinos personalizada, vamos medir sua altura de salto real pela câmera.'
+                  : 'Per sbloccare la tua routine personalizzata, misureremo il tuo salto reale con la fotocamera.'}
               </Text>
             </View>
-            <Text style={styles.loturcoBody}>
-              {isPt ? (
-                <>Se a altura ou velocidade do salto cair mais de <Text style={{ color: '#FBBF24', fontWeight: '800' }}>10%</Text>, o app reduz a carga ou encerra a série imediatamente para estimular apenas as fibras rápidas sem fadiga crônica.</>
-              ) : (
-                <>Se l'altezza o la velocità del tuo salto cala di oltre il <Text style={{ color: '#FBBF24', fontWeight: '800' }}>10%</Text>, l'app riduce il carico o interrompe immediatamente la serie. Questo garantisce di stimolare solo le fibre rapide con massima esplosività, senza accumulare fatica cronica.</>
-              )}
-            </Text>
-          </View>
-        </View>
 
-        {/* ── BOTÃO ÚNICO DE AÇÃO ── */}
-        <View style={styles.ctaBottomContainer}>
-          <TouchableOpacity
-            style={styles.singleActionButton}
-            onPress={handleStartInitialEvaluation}
-            activeOpacity={0.88}
-          >
-            <Text style={styles.singleActionButtonText}>
-              {isPt ? 'REALIZAR AVALIAÇÃO INICIAL' : 'ESEGUI VALUTAZIONE INIZIALE'}
-            </Text>
-            <ArrowRight size={20} color="#000000" strokeWidth={3} />
-          </TouchableOpacity>
-          <Text style={styles.ctaSubtext}>
-            {isPt
-              ? 'Duração estimada: ~4 minutos • Garanta espaço livre para saltar'
-              : 'Durata stimata: ~4 minuti • Assicurati di avere spazio libero per saltare'}
-          </Text>
-        </View>
+            <View style={styles.tutorialCard}>
+              <View style={styles.cardHeaderRow}>
+                <View style={styles.stepBadge}>
+                  <Text style={styles.stepBadgeText}>3</Text>
+                </View>
+                <View style={styles.cardHeaderTexts}>
+                  <Text style={styles.cardCategory}>{isPt ? 'O QUE VAI ACONTECER' : 'COSA FAREMO ORA'}</Text>
+                  <Text style={styles.cardTitle}>{isPt ? 'Protocolo Rápido em 2 Fases' : 'Protocollo Rapido in 2 Fasi'}</Text>
+                </View>
+                <View style={styles.iconCircle}>
+                  <Camera size={20} color={Colors.primary} strokeWidth={2.5} />
+                </View>
+              </View>
+
+              <View style={styles.subItemsBox}>
+                <View style={styles.subItem}>
+                  <View style={styles.bulletDot} />
+                  <Text style={styles.subItemText}>
+                    <Text style={styles.boldText}>{isPt ? '1. Aquecimento Guiado:' : '1. Riscaldamento Guidato:'}</Text>{' '}
+                    {isPt ? '3 séries rápidas de 10 agachamentos para preparar os tendões.' : '3 rapide serie da 10 squat per preparare i tendini.'}
+                  </Text>
+                </View>
+
+                <View style={styles.subItem}>
+                  <View style={styles.bulletDot} />
+                  <Text style={styles.subItemText}>
+                    <Text style={styles.boldText}>{isPt ? '2. 3x Saltos CMJ + 3x Saltos SJ:' : '2. 3x Salti CMJ + 3x Salti SJ:'}</Text>{' '}
+                    {isPt ? 'mãos na cintura, com a câmera medindo seu tempo de voo real.' : 'mani sui fianchi, con la fotocamera che misura il tempo di volo reale.'}
+                  </Text>
+                </View>
+
+                <View style={styles.subItem}>
+                  <View style={styles.bulletDot} />
+                  <Text style={styles.subItemText}>
+                    <Text style={styles.boldText}>{isPt ? '3. Liberação da Rotina:' : '3. Sblocco della Routine:'}</Text>{' '}
+                    {isPt ? 'calculamos seu Índice EUR e carga OPL exata e liberamos seus treinos!' : 'calcoliamo il tuo Indice EUR e carico OPL esatto e sblocchiamo i tuoi allenamenti!'}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.loturcoHighlightBox}>
+                <View style={styles.loturcoHeader}>
+                  <ShieldCheck size={14} color={Colors.primary} />
+                  <Text style={styles.loturcoTitle}>
+                    {isPt ? 'Dica Importante:' : 'Consiglio Importante:'}
+                  </Text>
+                </View>
+                <Text style={styles.loturcoBody}>
+                  {isPt
+                    ? 'Apoie o celular a cerca de 2 metros de distância de forma que seu corpo inteiro apareça na tela.'
+                    : 'Appoggia il telefono a circa 2 metri di distanza in modo che tutto il tuo corpo sia visibile.'}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.ctaBottomContainer}>
+              <TouchableOpacity
+                style={styles.singleActionButton}
+                onPress={handleStartInitialEvaluation}
+                activeOpacity={0.88}
+              >
+                <Text style={styles.singleActionButtonText}>
+                  {isPt ? 'IR PARA AVALIAÇÃO NA CÂMERA' : 'VAI ALLA VALUTAZIONE CON FOTOCAMERA'}
+                </Text>
+                <ArrowRight size={20} color="#000000" strokeWidth={3} />
+              </TouchableOpacity>
+              <Text style={styles.ctaSubtext}>
+                {isPt
+                  ? 'Duração estimada: ~4 minutos • Depois disso sua rotina será liberada'
+                  : 'Durata stimata: ~4 minuti • Dopodiché la tua routine sarà sbloccata'}
+              </Text>
+            </View>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

@@ -28,9 +28,10 @@ const SIDEBAR_SCREENS = [
 ];
 
 const RootNavigator: React.FC = () => {
-  const { currentScreen } = useApp();
+  const { currentScreen, userProfile, jumpHistory } = useApp();
   const { width } = useWindowDimensions();
   const isDesktop = isWeb && width >= 768;
+  const isCalibrated = Boolean(userProfile.hasCompletedInitialEvaluation || jumpHistory.length > 0);
 
   const renderScreen = () => {
     switch (currentScreen) {
@@ -54,7 +55,7 @@ const RootNavigator: React.FC = () => {
 
   // 1. Layout Desktop (Largo: largura >= 768px no Web)
   if (isDesktop) {
-    const showSidebar = SIDEBAR_SCREENS.includes(currentScreen);
+    const showSidebar = SIDEBAR_SCREENS.includes(currentScreen) && !(currentScreen === 'Dashboard' && !isCalibrated);
 
     if (showSidebar) {
       return (
