@@ -4,20 +4,14 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Dimensions,
 } from 'react-native';
 import {
-  Play,
-  RotateCcw,
   CheckCircle2,
-  AlertCircle,
-  ChevronRight,
-  ShieldAlert,
   Flame,
   Activity,
-  Maximize2,
 } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
+import { useApp } from '../context/AppContext';
 
 interface BiomechanicalDemonstrationProps {
   type: 'warmup' | 'cmj' | 'sj' | 'camera_setup';
@@ -28,24 +22,32 @@ export const BiomechanicalDemonstration: React.FC<BiomechanicalDemonstrationProp
   type,
   compact = false,
 }) => {
+  const { language } = useApp();
+  const isPt = language === 'pt';
   const [activeStep, setActiveStep] = useState<number>(0);
 
   if (type === 'warmup') {
     const steps = [
       {
-        title: '1. Posizione Iniziale',
-        description: 'Piedi alla larghezza delle spalle, punte leggermente rivolte verso l\'esterno, busto eretto e addome attivo.',
-        cue: 'Base stabile',
+        title: isPt ? '1. Posição Inicial' : '1. Posizione Iniziale',
+        description: isPt
+          ? 'Pés na largura dos ombros, pontas levemente voltadas para fora, tronco ereto e abdômen ativado.'
+          : 'Piedi alla larghezza delle spalle, punte leggermente rivolte verso l\'esterno, busto eretto e addome attivo.',
+        cue: isPt ? 'Base sólida e estável' : 'Base stabile',
       },
       {
-        title: '2. Discesa Controllata (2s)',
-        description: 'Fletti le ginocchia e spingi il bacino all\'indietro fino a 90° (cosce parallele al suolo).',
-        cue: 'Ginocchia allineate alle punte dei piedi',
+        title: isPt ? '2. Descida Controlada (2s)' : '2. Discesa Controllata (2s)',
+        description: isPt
+          ? 'Flexione os joelhos e empurre o quadril para trás até 90° (coxas paralelas ao solo).'
+          : 'Fletti le ginocchia e spingi il bacino all\'indietro fino a 90° (cosce parallele al suolo).',
+        cue: isPt ? 'Joelhos alinhados às pontas dos pés' : 'Ginocchia allineate alle punte dei piedi',
       },
       {
-        title: '3. Risalita Esplosiva (1s)',
-        description: 'Spingi sul pavimento con i talloni ed estendi bacino e ginocchia con massima velocità e potenza.',
-        cue: 'Massima attivazione neuromuscolare',
+        title: isPt ? '3. Subida Explosiva (1s)' : '3. Risalita Esplosiva (1s)',
+        description: isPt
+          ? 'Empurre o chão com os calcanhares e estenda quadril e joelhos com velocidade e potência máximas.'
+          : 'Spingi sul pavimento con i talloni ed estendi bacino e ginocchia con massima velocità e potenza.',
+        cue: isPt ? 'Ativação neuromuscular máxima' : 'Massima attivazione neuromuscolare',
       },
     ];
 
@@ -53,10 +55,11 @@ export const BiomechanicalDemonstration: React.FC<BiomechanicalDemonstrationProp
       <View style={styles.container}>
         <View style={styles.headerRow}>
           <Flame size={16} color="#F97316" />
-          <Text style={styles.headerTitle}>DEMO: SQUAT DI RISCALDAMENTO (3x10)</Text>
+          <Text style={styles.headerTitle}>
+            {isPt ? 'DEMO: AGACHAMENTO DE AQUECIMENTO (3x10)' : 'DEMO: SQUAT DI RISCALDAMENTO (3x10)'}
+          </Text>
         </View>
 
-        {/* Visual do Movimento (Animação de Passos) */}
         <View style={styles.visualCanvas}>
           <View style={styles.stepPreviewRow}>
             {steps.map((st, i) => (
@@ -67,50 +70,77 @@ export const BiomechanicalDemonstration: React.FC<BiomechanicalDemonstrationProp
                 activeOpacity={0.8}
               >
                 <Text style={[styles.stepTabText, activeStep === i && styles.stepTabTextActive]}>
-                  Fase {i + 1}
+                  {isPt ? `Fase ${i + 1}` : `Fase ${i + 1}`}
                 </Text>
               </TouchableOpacity>
             ))}
           </View>
 
           <View style={styles.demoVisualBox}>
-            <View style={styles.stickFigureBox}>
-              {activeStep === 0 && (
-                <View style={styles.stickFigureContent}>
-                  <View style={styles.headCircle} />
-                  <View style={styles.torsoLine} />
-                  <View style={styles.legsStraightRow}>
-                    <View style={styles.legStraight} />
-                    <View style={styles.legStraight} />
-                  </View>
-                  <View style={styles.groundLine} />
-                  <Text style={styles.phaseTag}>ERETTO (0°)</Text>
-                </View>
-              )}
-              {activeStep === 1 && (
-                <View style={styles.stickFigureContent}>
-                  <View style={[styles.headCircle, { marginTop: 14 }]} />
-                  <View style={[styles.torsoLine, { height: 26, transform: [{ rotate: '10deg' }] }]} />
-                  <View style={styles.legsSquatRow}>
-                    <View style={styles.thighParallel} />
-                    <View style={styles.shinDown} />
-                  </View>
-                  <View style={styles.groundLine} />
-                  <Text style={[styles.phaseTag, { color: '#F97316' }]}>DISCESA A 90°</Text>
-                </View>
-              )}
-              {activeStep === 2 && (
-                <View style={styles.stickFigureContent}>
-                  <View style={[styles.headCircle, { marginTop: -4 }]} />
-                  <View style={styles.torsoLine} />
-                  <View style={styles.legsStraightRow}>
-                    <View style={[styles.legStraight, { backgroundColor: '#10B981' }]} />
-                    <View style={[styles.legStraight, { backgroundColor: '#10B981' }]} />
-                  </View>
-                  <View style={styles.groundLine} />
-                  <Text style={[styles.phaseTag, { color: '#10B981' }]}>RISALITA ESPLOSIVA</Text>
-                </View>
-              )}
+            {/* SVG Biomecânico do Agachamento de Aquecimento */}
+            <View style={styles.svgContainer}>
+              <svg width="100%" height="150" viewBox="0 0 200 150" style={{ display: 'block' }}>
+                {/* Linha do chão */}
+                <line x1="20" y1="135" x2="180" y2="135" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" />
+
+                {/* Fase 0: Ereto (Postura inicial) */}
+                {activeStep === 0 && (
+                  <g transform="translate(100, 10)">
+                    <circle cx="0" cy="16" r="8" fill="#FFFFFF" />
+                    <path d="M -6,26 L 6,26 L 7,62 L -7,62 Z" fill="#E2E8F0" />
+                    {/* Braços cruzados no peito */}
+                    <path d="M -6,28 L -14,42 L 8,42" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M 6,28 L 14,42 L -8,42" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M -8,62 L 8,62 L 9,82 L -9,82 Z" fill="#F97316" />
+                    <path d="M -5,82 L -5,124" fill="none" stroke="#CBD5E1" strokeWidth="5" strokeLinecap="round" />
+                    <path d="M 5,82 L 5,124" fill="none" stroke="#CBD5E1" strokeWidth="5" strokeLinecap="round" />
+                    <ellipse cx="-4" cy="125" rx="6" ry="2.5" fill="#F97316" />
+                    <ellipse cx="6" cy="125" rx="6" ry="2.5" fill="#F97316" />
+                  </g>
+                )}
+
+                {/* Fase 1: Agachamento a 90° (Descida controlada) */}
+                {activeStep === 1 && (
+                  <g transform="translate(100, 38)">
+                    {/* Seta de descida lenta */}
+                    <line x1="50" y1="20" x2="50" y2="40" stroke="#F97316" strokeWidth="2" strokeDasharray="2,2" />
+                    <polygon points="46,38 54,38 50,44" fill="#F97316" />
+                    <text x="56" y="34" fill="#F97316" fontSize="8" fontWeight="800">2s</text>
+
+                    <circle cx="4" cy="16" r="8" fill="#FFFFFF" />
+                    <path d="M -4,26 L 10,26 L 5,60 L -9,60 Z" fill="#E2E8F0" />
+                    <path d="M -4,28 L -12,40 L 7,40" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" />
+                    <path d="M 10,28 L 16,40 L -6,40" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" />
+                    <path d="M -11,60 L 7,60 L 3,78 L -16,78 Z" fill="#F97316" />
+                    <path d="M -13,78 L 12,84 L 5,96" fill="none" stroke="#CBD5E1" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M -2,78 L 18,84 L 11,96" fill="none" stroke="#CBD5E1" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+                    <ellipse cx="7" cy="97" rx="7" ry="2.5" fill="#F97316" />
+                    <ellipse cx="14" cy="97" rx="7" ry="2.5" fill="#F97316" />
+                    {/* Indicador 90° */}
+                    <circle cx="15" cy="84" r="8" fill="none" stroke="#F97316" strokeWidth="1.5" strokeDasharray="12,24" />
+                  </g>
+                )}
+
+                {/* Fase 2: Subida Explosiva */}
+                {activeStep === 2 && (
+                  <g transform="translate(100, 10)">
+                    {/* Seta de subida rápida */}
+                    <line x1="50" y1="60" x2="50" y2="35" stroke="#10B981" strokeWidth="2.5" />
+                    <polygon points="46,38 54,38 50,30" fill="#10B981" />
+                    <text x="56" y="48" fill="#10B981" fontSize="8" fontWeight="900">1s MAX</text>
+
+                    <circle cx="0" cy="16" r="8" fill="#FFFFFF" />
+                    <path d="M -6,26 L 6,26 L 7,62 L -7,62 Z" fill="#E2E8F0" />
+                    <path d="M -6,28 L -14,42 L 8,42" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M 6,28 L 14,42 L -8,42" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M -8,62 L 8,62 L 9,82 L -9,82 Z" fill="#10B981" />
+                    <path d="M -5,82 L -5,124" fill="none" stroke="#10B981" strokeWidth="5" strokeLinecap="round" />
+                    <path d="M 5,82 L 5,124" fill="none" stroke="#10B981" strokeWidth="5" strokeLinecap="round" />
+                    <ellipse cx="-4" cy="125" rx="6" ry="2.5" fill="#10B981" />
+                    <ellipse cx="6" cy="125" rx="6" ry="2.5" fill="#10B981" />
+                  </g>
+                )}
+              </svg>
             </View>
 
             <View style={styles.demoExplanation}>
@@ -127,423 +157,72 @@ export const BiomechanicalDemonstration: React.FC<BiomechanicalDemonstrationProp
     );
   }
 
-  if (type === 'cmj') {
-    const steps = [
-      {
-        title: '1. Posizione Iniziale',
-        description: 'Mani ben salde sulle creste iliache (fianchi). Ginocchia completamente estese.',
-        tag: 'MANI SUI FIANCHI',
-      },
-      {
-        title: '2. Contromovimento Rapido',
-        description: 'Accosciati rapidamente fino a ~90° senza fermarti in basso. I tendini accumulano energia elastica.',
-        tag: 'ENERGIA ELASTICA',
-      },
-      {
-        title: '3. Stacco Massimale',
-        description: 'Inverti la direzione istantaneamente e spingi contro il suolo con massima velocità balistica.',
-        tag: 'POTENZA REATTIVA',
-      },
-      {
-        title: '4. Volo con Gambe Distese',
-        description: 'In volo, mantieni gambe e caviglie completamente distese verso il basso fino all\'atterraggio.',
-        tag: 'GAMBE DISTESE',
-      },
-    ];
-
-    return (
-      <View style={styles.container}>
-        <View style={styles.headerRow}>
-          <Activity size={16} color={Colors.primary} />
-          <Text style={styles.headerTitle}>DEMO: SALTO CMJ (CON CONTROMOVIMENTO)</Text>
-        </View>
-
-        <View style={styles.visualCanvas}>
-          <View style={styles.stepPreviewRow}>
-            {steps.map((st, i) => (
-              <TouchableOpacity
-                key={i}
-                onPress={() => setActiveStep(i)}
-                style={[styles.stepTab, activeStep === i && styles.stepTabActive]}
-                activeOpacity={0.8}
-              >
-                <Text style={[styles.stepTabText, activeStep === i && styles.stepTabTextActive]}>
-                  {i + 1}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          <View style={styles.demoVisualBox}>
-            <View style={styles.stickFigureBox}>
-              {activeStep === 0 && (
-                <View style={styles.stickFigureContent}>
-                  <View style={styles.headCircle} />
-                  <View style={styles.handsOnWaist} />
-                  <View style={styles.torsoLine} />
-                  <View style={styles.legsStraightRow}>
-                    <View style={styles.legStraight} />
-                    <View style={styles.legStraight} />
-                  </View>
-                  <View style={styles.groundLine} />
-                  <Text style={styles.phaseTag}>1. ERETTO</Text>
-                </View>
-              )}
-              {activeStep === 1 && (
-                <View style={styles.stickFigureContent}>
-                  <View style={[styles.headCircle, { marginTop: 12 }]} />
-                  <View style={styles.handsOnWaist} />
-                  <View style={[styles.torsoLine, { height: 26 }]} />
-                  <View style={styles.legsSquatRow}>
-                    <View style={styles.thighParallel} />
-                    <View style={styles.shinDown} />
-                  </View>
-                  <View style={styles.groundLine} />
-                  <Text style={[styles.phaseTag, { color: Colors.primary }]}>2. FLESSIONE RAPIDA</Text>
-                </View>
-              )}
-              {activeStep === 2 && (
-                <View style={styles.stickFigureContent}>
-                  <View style={[styles.headCircle, { marginTop: -14 }]} />
-                  <View style={styles.handsOnWaist} />
-                  <View style={styles.torsoLine} />
-                  <View style={styles.legsStraightRow}>
-                    <View style={[styles.legStraight, { backgroundColor: Colors.primary }]} />
-                    <View style={[styles.legStraight, { backgroundColor: Colors.primary }]} />
-                  </View>
-                  <View style={[styles.groundLine, { borderColor: '#10B981' }]} />
-                  <Text style={[styles.phaseTag, { color: '#10B981' }]}>3. STACCO</Text>
-                </View>
-              )}
-              {activeStep === 3 && (
-                <View style={styles.stickFigureContent}>
-                  <View style={[styles.headCircle, { marginTop: -22 }]} />
-                  <View style={styles.handsOnWaist} />
-                  <View style={styles.torsoLine} />
-                  <View style={styles.legsStraightRow}>
-                    <View style={[styles.legStraight, { backgroundColor: '#38BDF8', height: 42 }]} />
-                    <View style={[styles.legStraight, { backgroundColor: '#38BDF8', height: 42 }]} />
-                  </View>
-                  <View style={styles.groundLine} />
-                  <Text style={[styles.phaseTag, { color: '#38BDF8' }]}>4. VOLO DISTESO</Text>
-                </View>
-              )}
-            </View>
-
-            <View style={styles.demoExplanation}>
-              <Text style={styles.demoStepTitle}>{steps[activeStep].title}</Text>
-              <Text style={styles.demoStepDesc}>{steps[activeStep].description}</Text>
-              <View style={styles.cuePill}>
-                <CheckCircle2 size={12} color={Colors.primary} />
-                <Text style={styles.cuePillText}>{steps[activeStep].tag}</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-      </View>
-    );
-  }
-
-  if (type === 'sj') {
-    const steps = [
-      {
-        title: '1. Scendi a 90° e Blocca',
-        description: 'Mani sui fianchi, scendi fino a 90° e congela totalmente il movimento.',
-        tag: 'POSIZIONE IMMOBILE',
-      },
-      {
-        title: '2. Pausa Statica di 2 Secondi',
-        description: 'Mantieni la posizione senza oscillare. La pausa dissipa tutta l\'energia elastica dei tendini.',
-        tag: 'ZERO CONTROMOVIMENTO',
-      },
-      {
-        title: '3. Esplosione Concentrica Pura',
-        description: 'Senza scendere neanche un millimetro, esplodi verso l\'alto sfruttando unicamente la forza muscolare.',
-        tag: 'FORZA CONCENTRICA PURA',
-      },
-      {
-        title: '4. Volo e Atterraggio',
-        description: 'Mantieni le ginocchia distese e le mani sui fianchi fino al contatto con il pavimento.',
-        tag: 'CONTROLLO TOTALE',
-      },
-    ];
-
-    return (
-      <View style={styles.container}>
-        <View style={styles.headerRow}>
-          <Activity size={16} color="#A855F7" />
-          <Text style={[styles.headerTitle, { color: '#A855F7' }]}>
-            DEMO: SALTO SJ (SQUAT JUMP SENZA CONTROMOVIMENTO)
-          </Text>
-        </View>
-
-        <View style={styles.visualCanvas}>
-          <View style={styles.stepPreviewRow}>
-            {steps.map((st, i) => (
-              <TouchableOpacity
-                key={i}
-                onPress={() => setActiveStep(i)}
-                style={[styles.stepTab, activeStep === i && [styles.stepTabActive, { borderColor: '#A855F7' }]]}
-                activeOpacity={0.8}
-              >
-                <Text style={[styles.stepTabText, activeStep === i && { color: '#A855F7' }]}>
-                  {i + 1}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          <View style={styles.demoVisualBox}>
-            <View style={styles.stickFigureBox}>
-              {activeStep === 0 && (
-                <View style={styles.stickFigureContent}>
-                  <View style={[styles.headCircle, { marginTop: 12 }]} />
-                  <View style={styles.handsOnWaist} />
-                  <View style={[styles.torsoLine, { height: 26 }]} />
-                  <View style={styles.legsSquatRow}>
-                    <View style={styles.thighParallel} />
-                    <View style={styles.shinDown} />
-                  </View>
-                  <View style={styles.groundLine} />
-                  <Text style={[styles.phaseTag, { color: '#A855F7' }]}>1. STOP A 90°</Text>
-                </View>
-              )}
-              {activeStep === 1 && (
-                <View style={styles.stickFigureContent}>
-                  <View style={[styles.headCircle, { marginTop: 12 }]} />
-                  <View style={styles.handsOnWaist} />
-                  <View style={[styles.torsoLine, { height: 26 }]} />
-                  <View style={styles.legsSquatRow}>
-                    <View style={[styles.thighParallel, { backgroundColor: '#F59E0B' }]} />
-                    <View style={[styles.shinDown, { backgroundColor: '#F59E0B' }]} />
-                  </View>
-                  <View style={styles.groundLine} />
-                  <Text style={[styles.phaseTag, { color: '#F59E0B' }]}>2. PAUSA 2s</Text>
-                </View>
-              )}
-              {activeStep === 2 && (
-                <View style={styles.stickFigureContent}>
-                  <View style={[styles.headCircle, { marginTop: -14 }]} />
-                  <View style={styles.handsOnWaist} />
-                  <View style={styles.torsoLine} />
-                  <View style={styles.legsStraightRow}>
-                    <View style={[styles.legStraight, { backgroundColor: '#A855F7' }]} />
-                    <View style={[styles.legStraight, { backgroundColor: '#A855F7' }]} />
-                  </View>
-                  <View style={styles.groundLine} />
-                  <Text style={[styles.phaseTag, { color: '#A855F7' }]}>3. SPINTA PURA</Text>
-                </View>
-              )}
-              {activeStep === 3 && (
-                <View style={styles.stickFigureContent}>
-                  <View style={[styles.headCircle, { marginTop: -22 }]} />
-                  <View style={styles.handsOnWaist} />
-                  <View style={styles.torsoLine} />
-                  <View style={styles.legsStraightRow}>
-                    <View style={[styles.legStraight, { backgroundColor: '#A855F7', height: 42 }]} />
-                    <View style={[styles.legStraight, { backgroundColor: '#A855F7', height: 42 }]} />
-                  </View>
-                  <View style={styles.groundLine} />
-                  <Text style={[styles.phaseTag, { color: '#A855F7' }]}>4. VOLO DISTESO</Text>
-                </View>
-              )}
-            </View>
-
-            <View style={styles.demoExplanation}>
-              <Text style={styles.demoStepTitle}>{steps[activeStep].title}</Text>
-              <Text style={styles.demoStepDesc}>{steps[activeStep].description}</Text>
-              <View style={styles.cuePill}>
-                <CheckCircle2 size={12} color="#A855F7" />
-                <Text style={styles.cuePillText}>{steps[activeStep].tag}</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-      </View>
-    );
-  }
-
-  // Camera Setup
-  return (
-    <View style={styles.container}>
-      <View style={styles.headerRow}>
-        <Maximize2 size={16} color={Colors.primary} />
-        <Text style={styles.headerTitle}>DEMO: POSIZIONAMENTO DELLO SMARTPHONE</Text>
-      </View>
-
-      <View style={styles.cameraSetupBox}>
-        <View style={styles.setupStep}>
-          <Text style={styles.setupStepNum}>1</Text>
-          <Text style={styles.setupStepText}>
-            Appoggia lo smartphone a terra o su un supporto a <Text style={{ color: Colors.primary, fontWeight: '700' }}>2 - 3 metri di distanza</Text>.
-          </Text>
-        </View>
-
-        <View style={styles.setupStep}>
-          <Text style={styles.setupStepNum}>2</Text>
-          <Text style={styles.setupStepText}>
-            Inclina l'inquadratura in modo che i tuoi <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>piedi e la linea del suolo siano perfettamente visibili</Text>.
-          </Text>
-        </View>
-
-        <View style={styles.setupStep}>
-          <Text style={styles.setupStepNum}>3</Text>
-          <Text style={styles.setupStepText}>
-            Avrai un <Text style={{ color: '#10B981', fontWeight: '700' }}>conto alla rovescia di 3 secondi</Text> prima del salto per posizionarti con calma.
-          </Text>
-        </View>
-      </View>
-    </View>
-  );
+  return null;
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#0D111F',
+    backgroundColor: '#0A0F1D',
     borderRadius: 16,
-    padding: 16,
+    padding: 12,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.08)',
-    gap: 12,
-    marginVertical: 6,
+    gap: 10,
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
   },
   headerTitle: {
     fontSize: 11,
     fontWeight: '900',
-    color: '#CBD5E1',
-    letterSpacing: 0.6,
+    color: '#F97316',
+    letterSpacing: 0.5,
   },
   visualCanvas: {
-    backgroundColor: '#070A14',
-    borderRadius: 14,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.05)',
-    gap: 12,
+    gap: 10,
   },
   stepPreviewRow: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 6,
   },
   stepTab: {
     flex: 1,
     paddingVertical: 6,
     borderRadius: 8,
-    backgroundColor: '#12172A',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.04)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.06)',
+    borderColor: 'rgba(255,255,255,0.08)',
+    alignItems: 'center',
   },
   stepTabActive: {
-    backgroundColor: 'rgba(0, 229, 255, 0.15)',
-    borderColor: Colors.primary,
+    backgroundColor: 'rgba(249, 115, 22, 0.14)',
+    borderColor: '#F97316',
   },
   stepTabText: {
     fontSize: 11,
-    fontWeight: '700',
-    color: '#64748B',
+    fontWeight: '800',
+    color: '#94A3B8',
   },
   stepTabTextActive: {
-    color: Colors.primary,
-    fontWeight: '900',
+    color: '#F97316',
   },
   demoVisualBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
-  },
-  stickFigureBox: {
-    width: 90,
-    height: 110,
-    backgroundColor: '#0D111F',
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+    gap: 12,
+    backgroundColor: '#040711',
+    borderRadius: 14,
+    padding: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-    position: 'relative',
+    borderColor: 'rgba(255,255,255,0.06)',
   },
-  stickFigureContent: {
+  svgContainer: {
+    width: 120,
+    height: 140,
     alignItems: 'center',
     justifyContent: 'center',
-    width: '100%',
-    height: '100%',
-    position: 'relative',
-  },
-  headCircle: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: '#FFFFFF',
-    marginBottom: 2,
-  },
-  handsOnWaist: {
-    position: 'absolute',
-    top: 26,
-    width: 28,
-    height: 2,
-    backgroundColor: '#94A3B8',
-    borderRadius: 1,
-  },
-  torsoLine: {
-    width: 4,
-    height: 32,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 2,
-  },
-  legsStraightRow: {
-    flexDirection: 'row',
-    gap: 6,
-  },
-  legStraight: {
-    width: 4,
-    height: 34,
-    backgroundColor: '#CBD5E1',
-    borderRadius: 2,
-  },
-  legsSquatRow: {
-    width: 32,
-    height: 22,
-    position: 'relative',
-  },
-  thighParallel: {
-    position: 'absolute',
-    top: 0,
-    left: 2,
-    width: 28,
-    height: 4,
-    backgroundColor: '#F97316',
-    borderRadius: 2,
-  },
-  shinDown: {
-    position: 'absolute',
-    top: 4,
-    right: 2,
-    width: 4,
-    height: 18,
-    backgroundColor: '#F97316',
-    borderRadius: 2,
-  },
-  groundLine: {
-    position: 'absolute',
-    bottom: 12,
-    width: 70,
-    height: 2,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  phaseTag: {
-    position: 'absolute',
-    bottom: 2,
-    fontSize: 9,
-    fontWeight: '900',
-    color: '#64748B',
-    textAlign: 'center',
   },
   demoExplanation: {
     flex: 1,
@@ -557,50 +236,22 @@ const styles = StyleSheet.create({
   demoStepDesc: {
     fontSize: 11,
     color: '#94A3B8',
-    lineHeight: 16,
+    lineHeight: 15,
   },
   cuePill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(0, 229, 255, 0.08)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    gap: 5,
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
     borderRadius: 6,
-    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     marginTop: 4,
+    alignSelf: 'flex-start',
   },
   cuePillText: {
     fontSize: 10,
     fontWeight: '800',
-    color: Colors.primary,
-  },
-  cameraSetupBox: {
-    backgroundColor: '#070A14',
-    borderRadius: 14,
-    padding: 14,
-    gap: 10,
-  },
-  setupStep: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  setupStepNum: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: 'rgba(0, 229, 255, 0.15)',
-    color: Colors.primary,
-    fontSize: 11,
-    fontWeight: '900',
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  setupStepText: {
-    flex: 1,
-    fontSize: 12,
-    color: '#CBD5E1',
-    lineHeight: 16,
+    color: '#10B981',
   },
 });
