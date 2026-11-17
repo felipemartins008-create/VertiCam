@@ -13,44 +13,37 @@ import {
   Zap,
   Activity,
   ShieldCheck,
-  Flame,
   Check,
   Camera,
-  RotateCcw,
   AlertTriangle,
   ArrowRight,
   Dumbbell,
 } from 'lucide-react-native';
 import { useApp } from '../context/AppContext';
 import { Colors } from '../theme/colors';
-import { BiomechanicalDemonstration } from '../components/BiomechanicalDemonstration';
 import { RealJumpCamera } from '../components/RealJumpCamera';
 import { LiveWorkoutCamera } from '../components/LiveWorkoutCamera';
 
-type WorkoutStep = 'warmup' | 'readiness_check' | 'opl_calibration' | 'loaded_jumps' | 'summary';
+type WorkoutStep = 'readiness_check' | 'opl_calibration' | 'loaded_jumps' | 'summary';
 
 export const LoturcoWorkoutScreen: React.FC = () => {
   const { navigate, athleteBaseline, userProfile, updateProfile, language } = useApp();
   const isPt = language === 'pt';
 
-  const [step, setStep] = useState<WorkoutStep>('warmup');
+  const [step, setStep] = useState<WorkoutStep>('readiness_check');
 
-  // 1. Aquecimento (Squat 3x10)
-  const [warmupSet, setWarmupSet] = useState<number>(1);
-  const [warmupRest, setWarmupRest] = useState<number>(0);
-
-  // 2. Readiness Check (Salto CMJ)
+  // 1. Readiness Check (Salto CMJ)
   const [readinessState, setReadinessState] = useState<'idle' | 'testing' | 'done'>('idle');
   const [readinessJumpCm, setReadinessJumpCm] = useState<number>(51.5);
   const [readinessZone, setReadinessZone] = useState<'GREEN' | 'YELLOW' | 'RED'>('GREEN');
 
-  // 3. Calibração da Carga OPL (Regra dos 20cm de Loturco)
+  // 2. Calibração da Carga OPL (Regra dos 20cm de Loturco)
   const baseLoadKg = userProfile.calibratedOplKg || Math.round((userProfile.weightKg || athleteBaseline.user_weight || 78) * 0.20);
   const [testedOplLoad, setTestedOplLoad] = useState<number>(baseLoadKg);
   const [oplTestJumpHeight, setOplTestJumpHeight] = useState<number | null>(null);
   const [oplTestingWithCamera, setOplTestingWithCamera] = useState<boolean>(false);
 
-  // 4. Saltos com Carga (Loaded Jump)
+  // 3. Saltos com Carga (Loaded Jump)
   const [currentSet, setCurrentSet] = useState<number>(1);
   const totalSets = 4;
   const [repsDoneInSet, setRepsDoneInSet] = useState<number>(0);
@@ -65,31 +58,6 @@ export const LoturcoWorkoutScreen: React.FC = () => {
 
   // Resultados finais
   const [totalJumpsCompleted, setTotalJumpsCompleted] = useState<number>(0);
-
-  // Timer Aquecimento
-  useEffect(() => {
-    let t: any;
-    if (warmupRest > 0) {
-      t = setInterval(() => {
-        setWarmupRest((prev) => {
-          if (prev <= 1) {
-            setWarmupSet((s) => s + 1);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(t);
-  }, [warmupRest]);
-
-  const handleWarmupNext = () => {
-    if (warmupSet < 3) {
-      setWarmupRest(40);
-    } else {
-      setStep('readiness_check');
-    }
-  };
 
   // Executa o Teste de Prontidão (Readiness Check) com Câmera Real
   const runReadinessTest = () => {
@@ -180,68 +148,14 @@ export const LoturcoWorkoutScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      {/* ── PASSO 1: AQUECIMENTO (3x10 SQUAT) ── */}
-      {step === 'warmup' && (
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          <View style={styles.cardBox}>
-            <View style={styles.cardHeaderRow}>
-              <Flame size={18} color="#F97316" />
-              <Text style={styles.cardHeaderTitle}>
-                {isPt ? 'Fase 1: Aquecimento Específico' : 'Fase 1: Riscaldamento Specifico'}
-              </Text>
-            </View>
-            <Text style={styles.cardBodyText}>
-              {isPt
-                ? 'Faça 10 repetições de agachamento com o peso do corpo para ativar os fusos neuromusculares.'
-                : 'Esegui 10 ripetizioni di squat a corpo libero per attivare i fusi neuromuscolari.'}
-            </Text>
-
-            {/* Demonstração Biomecânica do Agachamento */}
-            <BiomechanicalDemonstration type="warmup" />
-
-            <View style={styles.warmupCounterBox}>
-              <Text style={styles.warmupCounterLabel}>
-                {isPt ? 'SÉRIE ATUAL' : 'SERIE ATTUALE'}
-              </Text>
-              <Text style={styles.warmupCounterValue}>{warmupSet} / 3</Text>
-              <Text style={styles.warmupCounterSub}>
-                {isPt ? '10 Repetições de Agachamento' : '10 Ripetizioni di Squat'}
-              </Text>
-            </View>
-
-            {warmupRest > 0 ? (
-              <View style={styles.restAlert}>
-                <RotateCcw size={16} color={Colors.primary} />
-                <Text style={styles.restAlertText}>
-                  {isPt ? `Pausa de recuperação: ${warmupRest}s` : `Pausa di recupero: ${warmupRest}s`}
-                </Text>
-              </View>
-            ) : (
-              <TouchableOpacity
-                style={styles.actionBtn}
-                onPress={handleWarmupNext}
-                activeOpacity={0.88}
-              >
-                <Check size={18} color="#000000" strokeWidth={3} />
-                <Text style={styles.actionBtnText}>
-                  {warmupSet === 3
-                    ? (isPt ? 'IR PARA O CHECK NEURAL' : 'PASSA AL CHECK NEURALE')
-                    : (isPt ? `SÉRIE ${warmupSet} CONCLUÍDA` : `SERIE ${warmupSet} COMPLETATA`)}
-                </Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        </ScrollView>
-      )}
-
-      {/* ── PASSO 2: TESTE DE PRONTIDÃO NEURAL (READINESS JUMP) ── */}
+      {/* ── PASSO 1: TESTE DE PRONTIDÃO NEURAL (READINESS JUMP) ── */}
       {step === 'readiness_check' && (
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <View style={styles.cardBox}>
             <View style={styles.cardHeaderRow}>
               <Activity size={18} color={Colors.primary} />
               <Text style={styles.cardHeaderTitle}>
-                {isPt ? 'Fase 2: Check de Prontidão SNC' : 'Fase 2: Check di Prontezza SNC'}
+                {isPt ? 'Check de Prontidão SNC' : 'Check di Prontezza SNC'}
               </Text>
             </View>
             <Text style={styles.cardBodyText}>

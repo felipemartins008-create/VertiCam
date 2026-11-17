@@ -52,7 +52,7 @@ export const JumpService = {
             .order('created_at', { ascending: true });
 
           if (!error && data && data.length > 0) {
-            return data.map((row) => ({
+            return data.map((row: any) => ({
               id: row.id,
               flightTimeSeconds: Number(row.flight_time_seconds),
               jumpHeightCm: Number(row.jump_height_cm),

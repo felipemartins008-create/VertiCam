@@ -15,12 +15,8 @@ import { PrescriptionOutput } from '../types';
 export const DailyCheckinScreen: React.FC = () => {
   const { athleteBaseline, runDailyCheckin, navigate } = useApp();
 
-  // Etapas: 'warmup' | 'test' | 'result'
-  const [step, setStep] = useState<'warmup' | 'test' | 'result'>('warmup');
-
-  // Cronômetro do descanso pós-PAP (150 segundos)
-  const [timerSeconds, setTimerSeconds] = useState(150);
-  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  // Etapas: 'test' | 'result'
+  const [step, setStep] = useState<'test' | 'result'>('test');
 
   // CMJ medido no dia (padrão baseado na baseline para teste rápido)
   const [dailyCMJ, setDailyCMJ] = useState<string>(
@@ -28,33 +24,12 @@ export const DailyCheckinScreen: React.FC = () => {
   );
   const [prescriptionResult, setPrescriptionResult] = useState<PrescriptionOutput | null>(null);
 
-  useEffect(() => {
-    let interval: any = null;
-    if (isTimerRunning && timerSeconds > 0) {
-      interval = setInterval(() => {
-        setTimerSeconds(prev => prev - 1);
-      }, 1000);
-    } else if (timerSeconds === 0) {
-      setIsTimerRunning(false);
-    }
-    return () => clearInterval(interval);
-  }, [isTimerRunning, timerSeconds]);
-
-  const formatTimer = (sec: number) => {
-    const m = Math.floor(sec / 60);
-    const s = sec % 60;
-    return `${m}:${s < 10 ? '0' : ''}${s}`;
-  };
-
   const handleCalculateReadiness = (jumpCm?: number) => {
     const height = jumpCm || parseFloat(dailyCMJ) || athleteBaseline.baseline_cmj_height;
     const result = runDailyCheckin(height);
     setPrescriptionResult(result);
     setStep('result');
   };
-
-  const warmupLoad35 = Math.round((athleteBaseline.user_squat_1rm * 0.35) * 2) / 2;
-  const warmupLoad40 = Math.round((athleteBaseline.user_squat_1rm * 0.40) * 2) / 2;
 
   return (
     <View style={styles.container}>
@@ -64,7 +39,6 @@ export const DailyCheckinScreen: React.FC = () => {
           style={styles.backBtn}
           onPress={() => {
             if (step === 'result') setStep('test');
-            else if (step === 'test') setStep('warmup');
             else navigate('Dashboard');
           }}
         >
@@ -80,117 +54,17 @@ export const DailyCheckinScreen: React.FC = () => {
       >
         {/* Barra de Progresso das Etapas */}
         <View style={styles.stepperContainer}>
-          <View style={[styles.stepDot, step === 'warmup' && styles.stepDotActive, (step === 'test' || step === 'result') && styles.stepDotDone]}>
-            <Text style={styles.stepNum}>1</Text>
-          </View>
-          <View style={[styles.stepLine, (step === 'test' || step === 'result') && styles.stepLineActive]} />
           <View style={[styles.stepDot, step === 'test' && styles.stepDotActive, step === 'result' && styles.stepDotDone]}>
-            <Text style={styles.stepNum}>2</Text>
+            <Text style={styles.stepNum}>1</Text>
           </View>
           <View style={[styles.stepLine, step === 'result' && styles.stepLineActive]} />
           <View style={[styles.stepDot, step === 'result' && styles.stepDotActive]}>
-            <Text style={styles.stepNum}>3</Text>
+            <Text style={styles.stepNum}>2</Text>
           </View>
         </View>
 
         {/* ═══════════════════════════════════════════════
-            FASE 1: RISCALDAMENTO & POTENZIAMENTO (PAP)
-           ═══════════════════════════════════════════════ */}
-        {step === 'warmup' && (
-          <View style={styles.cardSection}>
-            <View style={styles.badgeRow}>
-              <View style={styles.phaseBadge}>
-                <Flame size={12} color={Colors.primary} />
-                <Text style={styles.phaseBadgeText}>FASE 1: PREPARAZIONE BIOMECCANICA</Text>
-              </View>
-            </View>
-
-            <Text style={styles.mainTitle}>Riscaldamento & Potenziamento (PAP)</Text>
-            <Text style={styles.description}>
-              Ottimizza il reclutamento neuromuscolare del Sistema Nervoso Centrale prima di testare la prontezza.
-            </Text>
-
-            {/* Item 1: Mobilidade */}
-            <View style={styles.protocolItem}>
-              <View style={styles.protocolIconBox}>
-                <Activity size={20} color="#38BDF8" />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.protocolName}>1. Mobilità Articolare Attiva</Text>
-                <Text style={styles.protocolDetail}>
-                  2 min di caviglie (dorsiflessione), ginocchia e anche.
-                </Text>
-              </View>
-            </View>
-
-            {/* Item 2: Saltos Livres */}
-            <View style={styles.protocolItem}>
-              <View style={styles.protocolIconBox}>
-                <Zap size={20} color={Colors.primary} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.protocolName}>2. Salti Liberi Progressivi</Text>
-                <Text style={styles.protocolDetail}>
-                  3 a 5 salti verticali sub-massimali aumentando l'intenzione elastica.
-                </Text>
-              </View>
-            </View>
-
-            {/* Item 3: Sobrecarga PAP */}
-            <View style={styles.protocolItem}>
-              <View style={styles.protocolIconBox}>
-                <Dumbbell size={20} color="#10B981" />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.protocolName}>3. Attivazione PAP con Bilanciere</Text>
-                <Text style={styles.protocolDetail}>
-                  • Serie 1: 5 rip a 35% 1RM ({warmupLoad35} kg){'\n'}
-                  • Serie 2: 3 rip esplosive a 40% 1RM ({warmupLoad40} kg)
-                </Text>
-              </View>
-            </View>
-
-            {/* Cronômetro de Repouso Obrigatório */}
-            <View style={styles.timerCard}>
-              <Text style={styles.timerTitle}>Recupero Obbligatorio Pre-Test (PAP)</Text>
-              <Text style={styles.timerCountdown}>{formatTimer(timerSeconds)}</Text>
-              <Text style={styles.timerAdvice}>
-                Attendi la dissipazione della fatica per la piena espressione del potenziamento.
-              </Text>
-
-              <View style={styles.timerControlsRow}>
-                <TouchableOpacity
-                  style={[styles.timerBtn, isTimerRunning ? styles.timerBtnPause : styles.timerBtnPlay]}
-                  onPress={() => setIsTimerRunning(!isTimerRunning)}
-                >
-                  {isTimerRunning ? <Pause size={18} color="#FFFFFF" /> : <Play size={18} color="#0F172A" fill="#0F172A" />}
-                  <Text style={[styles.timerBtnText, isTimerRunning && { color: '#FFFFFF' }]}>
-                    {isTimerRunning ? 'Pausa' : 'Avvia Timer (2:30)'}
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.timerResetBtn}
-                  onPress={() => { setIsTimerRunning(false); setTimerSeconds(150); }}
-                >
-                  <RotateCcw size={16} color="#94A3B8" />
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Botão de Avançar */}
-            <TouchableOpacity
-              style={styles.primaryCta}
-              onPress={() => setStep('test')}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.primaryCtaText}>Pronto per il Test CMJ →</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {/* ═══════════════════════════════════════════════
-            FASE 2: TEST DI PRONTEZZA NEUROMUSCOLARE (CMJ)
+            FASE 1: TEST DI PRONTEZZA NEUROMUSCOLARE (CMJ)
            ═══════════════════════════════════════════════ */}
         {step === 'test' && (
           <View style={styles.cardSection}>

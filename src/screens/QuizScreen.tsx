@@ -3993,7 +3993,6 @@ const styles = StyleSheet.create({
   proofOverlayTextGreen: {
     color: '#00E676',
     fontSize: 9.5,
-    fontWeight: '800',
     fontWeight: '900',
   },
 

@@ -221,61 +221,21 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
       </View>
 
       {/* ══════════════════════════════════════════════════════════════
-          FASE 1: TUTORIAL DE GRAVAÇÃO EM CÂMERA LENTA + ENVIO DE VÍDEO
+          FASE 1: TELA BÁSICA (BOTÃO TUTORIAL + BOTÃO IMPORTAR VÍDEO)
       ══════════════════════════════════════════════════════════════ */}
       {cameraMode === 'tutorial' && (
-        <View style={styles.tutorialContainer}>
-          <View style={styles.tutorialStepsCard}>
-            <View style={styles.tutorialBadgeRow}>
-              <Sparkles size={13} color={Colors.primary} />
-              <Text style={styles.tutorialBadgeText}>
-                {isPt ? 'PRECISÃO CIENTÍFICA (240 FPS)' : 'PRECISIONE SCIENTIFICA (240 FPS)'}
-              </Text>
-            </View>
-
-            <Text style={styles.tutorialHeading}>
-              {isPt ? 'Grave na Câmera Lenta do Celular' : 'Registra in Slow Motion sul Telefono'}
-            </Text>
-
-            <View style={styles.stepItem}>
-              <View style={styles.stepNum}><Text style={styles.stepNumText}>1</Text></View>
-              <Text style={styles.stepText}>
-                {isPt
-                  ? 'Abra a câmera normal do seu celular no modo Câmera Lenta (120 ou 240 fps).'
-                  : 'Apri la fotocamera del telefono in modalità Slow Motion (120 o 240 fps).'}
-              </Text>
-            </View>
-
-            <View style={styles.stepItem}>
-              <View style={styles.stepNum}><Text style={styles.stepNumText}>2</Text></View>
-              <Text style={styles.stepText}>
-                {isPt
-                  ? 'Apoie o aparelho a ~2 metros pegando corpo inteiro (principalmente os pés).'
-                  : 'Appoggia il telefono a ~2 metri inquadrando tutto il corpo (soprattutto i piedi).'}
-              </Text>
-            </View>
-
-            <View style={styles.stepItem}>
-              <View style={styles.stepNum}><Text style={styles.stepNumText}>3</Text></View>
-              <Text style={styles.stepText}>
-                {isPt
-                  ? `Dê REC, faça os ${totalAttempts} saltos ${jumpType} (com 2s parado entre eles) e envie o vídeo abaixo.`
-                  : `Premi REC, esegui i ${totalAttempts} salti ${jumpType} (2s fermo tra ognuno) e carica il video qui sotto.`}
-              </Text>
-            </View>
-          </View>
-
-          {/* Botão de Vídeo Tutorial Passo a Passo */}
+        <View style={styles.cleanTutorialContainer}>
+          {/* Botão de Tutorial (abre o GIF/Vídeo do salto) */}
           <TouchableOpacity
-            style={styles.tutorialToggleBtn}
+            style={[styles.cleanTutorialBtn, showTutorialPlayer && styles.cleanTutorialBtnOpen]}
             onPress={() => setShowTutorialPlayer(!showTutorialPlayer)}
             activeOpacity={0.85}
           >
-            <Video size={16} color={Colors.primary} />
-            <Text style={styles.tutorialToggleBtnText}>
+            <Video size={18} color={showTutorialPlayer ? '#FFFFFF' : Colors.primary} />
+            <Text style={[styles.cleanTutorialBtnText, showTutorialPlayer && { color: '#FFFFFF' }]}>
               {showTutorialPlayer
-                ? (isPt ? 'OCULTAR VÍDEO TUTORIAL' : 'NASCONDI VIDEO TUTORIAL')
-                : (isPt ? '▶ VER VÍDEO TUTORIAL (SETUP & SALTO)' : '▶ VEDI VIDEO TUTORIAL (SETUP & SALTO)')}
+                ? (isPt ? 'FECHAR VÍDEO TUTORIAL' : 'CHIUDI VIDEO TUTORIAL')
+                : (isPt ? '▶ ASSISTIR VÍDEO TUTORIAL' : '▶ GUARDA VIDEO TUTORIAL')}
             </Text>
           </TouchableOpacity>
 
@@ -285,48 +245,7 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
             </View>
           )}
 
-          {/* Seletor de FPS gravado */}
-          <View style={styles.fpsSelectorCard}>
-            <Text style={styles.fpsLabel}>
-              {isPt ? 'Em qual modo você gravou o vídeo?' : 'In che modalità hai registrato il video?'}
-            </Text>
-            <View style={styles.fpsRow}>
-              <TouchableOpacity
-                style={[styles.fpsBtn, speedMode === 'slow240' && styles.fpsBtnActive]}
-                onPress={() => setSpeedMode('slow240')}
-                activeOpacity={0.85}
-              >
-                <Text style={[styles.fpsBtnTitle, speedMode === 'slow240' && styles.fpsBtnTitleActive]}>
-                  240 fps
-                </Text>
-                <Text style={styles.fpsBtnSub}>{isPt ? 'Câmera Lenta' : 'Slow Motion'}</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.fpsBtn, speedMode === 'slow120' && styles.fpsBtnActive]}
-                onPress={() => setSpeedMode('slow120')}
-                activeOpacity={0.85}
-              >
-                <Text style={[styles.fpsBtnTitle, speedMode === 'slow120' && styles.fpsBtnTitleActive]}>
-                  120 fps
-                </Text>
-                <Text style={styles.fpsBtnSub}>{isPt ? 'Câmera Lenta' : 'Slow Motion'}</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.fpsBtn, speedMode === 'normal' && styles.fpsBtnActive]}
-                onPress={() => setSpeedMode('normal')}
-                activeOpacity={0.85}
-              >
-                <Text style={[styles.fpsBtnTitle, speedMode === 'normal' && styles.fpsBtnTitleActive]}>
-                  {isPt ? 'Normal' : 'Normale'}
-                </Text>
-                <Text style={styles.fpsBtnSub}>30 / 60 fps</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Input oculto para selecionar vídeo */}
+          {/* Input oculto para selecionar vídeo do salto */}
           <input
             ref={fileInputRef as any}
             type="file"
@@ -335,16 +254,46 @@ export const RealJumpCamera: React.FC<RealJumpCameraProps> = ({
             style={{ display: 'none' }}
           />
 
+          {/* Botão Principal: IMPORTAR VÍDEO */}
           <TouchableOpacity
-            style={styles.uploadActionBtn}
+            style={styles.cleanUploadBtn}
             onPress={() => fileInputRef.current?.click()}
             activeOpacity={0.88}
           >
-            <Upload size={20} color="#000000" strokeWidth={2.5} />
-            <Text style={styles.uploadActionBtnText}>
-              {isPt ? 'ENVIAR VÍDEO DA GALERIA' : 'CARICA VIDEO DALLA GALLERIA'}
+            <Upload size={22} color="#000000" strokeWidth={2.5} />
+            <Text style={styles.cleanUploadBtnText}>
+              {isPt ? 'IMPORTAR VÍDEO DO SALTO' : 'IMPORTA VIDEO DEL SALTO'}
             </Text>
           </TouchableOpacity>
+
+          {/* Seletor Discreto de 1 Linha (Modo Câmera Lenta) */}
+          <View style={styles.cleanFpsRow}>
+            <Text style={styles.cleanFpsLabel}>{isPt ? 'Taxa de quadros:' : 'Framerate:'}</Text>
+            <TouchableOpacity
+              onPress={() => setSpeedMode('slow240')}
+              style={[styles.cleanFpsPill, speedMode === 'slow240' && styles.cleanFpsPillActive]}
+            >
+              <Text style={[styles.cleanFpsPillText, speedMode === 'slow240' && styles.cleanFpsPillTextActive]}>
+                240 fps (Slow-mo)
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setSpeedMode('slow120')}
+              style={[styles.cleanFpsPill, speedMode === 'slow120' && styles.cleanFpsPillActive]}
+            >
+              <Text style={[styles.cleanFpsPillText, speedMode === 'slow120' && styles.cleanFpsPillTextActive]}>
+                120 fps
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setSpeedMode('normal')}
+              style={[styles.cleanFpsPill, speedMode === 'normal' && styles.cleanFpsPillActive]}
+            >
+              <Text style={[styles.cleanFpsPillText, speedMode === 'normal' && styles.cleanFpsPillTextActive]}>
+                30 / 60 fps
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       )}
 
@@ -626,71 +575,29 @@ const styles = StyleSheet.create({
   tutorialContainer: {
     gap: 14,
   },
-  tutorialStepsCard: {
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    borderRadius: 18,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-    gap: 12,
+  cleanTutorialContainer: {
+    gap: 16,
+    paddingTop: 8,
   },
-  tutorialBadgeRow: {
+  cleanTutorialBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-  },
-  tutorialBadgeText: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: Colors.primary,
-    letterSpacing: 0.7,
-  },
-  tutorialHeading: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: '#FFFFFF',
-  },
-  stepItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    justifyContent: 'center',
     gap: 10,
-  },
-  stepNum: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: 'rgba(0, 229, 255, 0.14)',
-    borderWidth: 1,
-    borderColor: 'rgba(0, 229, 255, 0.35)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  stepNumText: {
-    fontSize: 12,
-    fontWeight: '900',
-    color: Colors.primary,
-  },
-  stepText: {
-    flex: 1,
-    fontSize: 13,
-    color: '#CBD5E1',
-    lineHeight: 19,
-  },
-  tutorialToggleBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 16,
     backgroundColor: 'rgba(0, 229, 255, 0.08)',
     borderWidth: 1,
     borderColor: 'rgba(0, 229, 255, 0.25)',
   },
-  tutorialToggleBtnText: {
+  cleanTutorialBtnOpen: {
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  cleanTutorialBtnText: {
     color: Colors.primary,
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '800',
     letterSpacing: 0.5,
   },
@@ -698,64 +605,53 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
   },
-  fpsSelectorCard: {
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    borderRadius: 16,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-    gap: 10,
-  },
-  fpsLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#94A3B8',
-  },
-  fpsRow: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  fpsBtn: {
-    flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.04)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    alignItems: 'center',
-  },
-  fpsBtnActive: {
-    backgroundColor: 'rgba(0, 229, 255, 0.14)',
-    borderColor: Colors.primary,
-  },
-  fpsBtnTitle: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#FFFFFF',
-  },
-  fpsBtnTitleActive: {
-    color: Colors.primary,
-  },
-  fpsBtnSub: {
-    fontSize: 10,
-    color: '#94A3B8',
-    marginTop: 2,
-  },
-  uploadActionBtn: {
+  cleanUploadBtn: {
     backgroundColor: Colors.primary,
-    borderRadius: 16,
-    paddingVertical: 16,
+    borderRadius: 18,
+    paddingVertical: 18,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 10,
+    gap: 12,
   },
-  uploadActionBtnText: {
-    fontSize: 14,
+  cleanUploadBtnText: {
+    fontSize: 15,
     fontWeight: '900',
     color: '#000000',
-    letterSpacing: 0.4,
+    letterSpacing: 0.6,
+  },
+  cleanFpsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 4,
+  },
+  cleanFpsLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#64748B',
+  },
+  cleanFpsPill: {
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+  },
+  cleanFpsPillActive: {
+    backgroundColor: 'rgba(0, 229, 255, 0.12)',
+    borderColor: Colors.primary,
+  },
+  cleanFpsPillText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#94A3B8',
+  },
+  cleanFpsPillTextActive: {
+    color: Colors.primary,
+    fontWeight: '800',
   },
   analyzingBox: {
     paddingVertical: 40,

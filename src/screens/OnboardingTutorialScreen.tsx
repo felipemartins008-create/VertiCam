@@ -467,16 +467,16 @@ export const OnboardingTutorialScreen: React.FC = () => {
                 <View style={styles.subItem}>
                   <View style={styles.bulletDot} />
                   <Text style={styles.subItemText}>
-                    <Text style={styles.boldText}>{isPt ? '1. Aquecimento Guiado:' : '1. Riscaldamento Guidato:'}</Text>{' '}
-                    {isPt ? '3 séries rápidas de 10 agachamentos para preparar os tendões.' : '3 rapide serie da 10 squat per preparare i tendini.'}
+                    <Text style={styles.boldText}>{isPt ? '1. 3x Saltos CMJ:' : '1. 3x Salti CMJ:'}</Text>{' '}
+                    {isPt ? 'com contramovimento rápido e mãos na cintura, medindo sua elasticidade.' : 'con contromovimento rapido e mani sui fianchi, misurando l\'elasticità.'}
                   </Text>
                 </View>
 
                 <View style={styles.subItem}>
                   <View style={styles.bulletDot} />
                   <Text style={styles.subItemText}>
-                    <Text style={styles.boldText}>{isPt ? '2. 3x Saltos CMJ + 3x Saltos SJ:' : '2. 3x Salti CMJ + 3x Salti SJ:'}</Text>{' '}
-                    {isPt ? 'mãos na cintura, com a câmera medindo seu tempo de voo real.' : 'mani sui fianchi, con la fotocamera che misura il tempo di volo reale.'}
+                    <Text style={styles.boldText}>{isPt ? '2. 3x Saltos SJ:' : '2. 3x Salti SJ:'}</Text>{' '}
+                    {isPt ? 'parado a 90° por 2s antes de saltar, medindo sua força concêntrica pura.' : 'fermo a 90° per 2s prima di saltare, misurando la forza concentrica pura.'}
                   </Text>
                 </View>
 

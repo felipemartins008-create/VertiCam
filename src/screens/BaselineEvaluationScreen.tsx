@@ -9,11 +9,7 @@ import {
   Dimensions,
 } from 'react-native';
 import {
-  RotateCcw,
   ArrowRight,
-  ShieldCheck,
-  Flame,
-  Check,
   Activity,
   Calendar,
   Sparkles,
@@ -21,26 +17,20 @@ import {
 import { useApp } from '../context/AppContext';
 import { Colors } from '../theme/colors';
 import { PrescriptionEngine } from '../services/prescriptionEngine';
-import { BiomechanicalDemonstration } from '../components/BiomechanicalDemonstration';
 import { RealJumpCamera } from '../components/RealJumpCamera';
 import { JumpTutorialPlayer } from '../components/JumpTutorialPlayer';
 
 const { width } = Dimensions.get('window');
 const isDesktop = width >= 768;
 
-type EvalPhase = 'tutorial' | 'warmup' | 'camera_test' | 'results';
+type EvalPhase = 'tutorial' | 'camera_test' | 'results';
 type JumpType = 'CMJ' | 'SJ';
 
 export const BaselineEvaluationScreen: React.FC = () => {
   const { navigate, updateProfile, updateBaseline, language } = useApp();
   const isPt = language === 'pt';
 
-  const [phase, setPhase] = useState<EvalPhase>('tutorial');
-
-  // Aquecimento: 3 séries x 10 repetições de agachamento
-  const [warmupSet, setWarmupSet] = useState<number>(1);
-  const [warmupRestSeconds, setWarmupRestSeconds] = useState<number>(0);
-  const [isResting, setIsResting] = useState<boolean>(false);
+  const [phase, setPhase] = useState<EvalPhase>('camera_test');
 
   // Avaliação: 3 CMJ + 3 SJ
   const [currentJumpType, setCurrentJumpType] = useState<JumpType>('CMJ');
@@ -49,24 +39,6 @@ export const BaselineEvaluationScreen: React.FC = () => {
   // Resultados registrados (salvos diretamente da câmera real)
   const [cmjScores, setCmjScores] = useState<number[]>([]);
   const [sjScores, setSjScores] = useState<number[]>([]);
-
-  // Timer descanso aquecimento
-  useEffect(() => {
-    let timer: any;
-    if (isResting && warmupRestSeconds > 0) {
-      timer = setInterval(() => {
-        setWarmupRestSeconds((prev) => {
-          if (prev <= 1) {
-            setIsResting(false);
-            setWarmupSet((s) => s + 1);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [isResting, warmupRestSeconds]);
 
   // Lote de saltos detectados em um único vídeo (ex: 3 CMJ ou 3 SJ)
   const handleBatchJumpsRecorded = (heightsCm: number[]) => {
@@ -143,15 +115,6 @@ export const BaselineEvaluationScreen: React.FC = () => {
     setPhase('results');
   };
 
-  const completeWarmupSet = () => {
-    if (warmupSet < 3) {
-      setIsResting(true);
-      setWarmupRestSeconds(45);
-    } else {
-      setPhase('camera_test');
-    }
-  };
-
   const avgCmj = cmjScores.length > 0 ? Math.round((cmjScores.reduce((a, b) => a + b, 0) / cmjScores.length) * 10) / 10 : 0;
   const avgSj = sjScores.length > 0 ? Math.round((sjScores.reduce((a, b) => a + b, 0) / sjScores.length) * 10) / 10 : 0;
   const eurRatio = avgCmj > 0 && avgSj > 0 ? PrescriptionEngine.calculateEUR(avgCmj, avgSj) : 0;
@@ -214,8 +177,8 @@ export const BaselineEvaluationScreen: React.FC = () => {
             </View>
           </View>
 
-          {/* Demonstração em Vídeo Tutorial Animado (3 Abas) */}
-          <JumpTutorialPlayer />
+          {/* Demonstração em Vídeo Tutorial Real */}
+          <JumpTutorialPlayer onReadyToRecord={() => setPhase('camera_test')} />
 
           {/* Sequência do Teste */}
           <View style={styles.sequenceCard}>
@@ -241,106 +204,21 @@ export const BaselineEvaluationScreen: React.FC = () => {
             </View>
           </View>
 
-          {/* Botão para o Aquecimento */}
+          {/* Botão para Iniciar os Testes de Salto Diretamente */}
           <TouchableOpacity
             style={styles.mainActionBtn}
-            onPress={() => setPhase('warmup')}
+            onPress={() => setPhase('camera_test')}
             activeOpacity={0.88}
           >
             <Text style={styles.mainActionBtnText}>
-              {isPt ? 'INICIAR AQUECIMENTO (3x10 AGACHAMENTO)' : 'INIZIA RISCALDAMENTO (3x10 SQUAT)'}
+              {isPt ? 'INICIAR TESTES DE SALTO (CMJ & SJ)' : 'INIZIA TEST DI SALTO (CMJ & SJ)'}
             </Text>
             <ArrowRight size={18} color="#000000" strokeWidth={3} />
           </TouchableOpacity>
         </ScrollView>
       )}
 
-      {/* ── FASE 2: AQUECIMENTO GUIADO (3 SÉRIES DE 10 AGACHAMENTOS) ── */}
-      {phase === 'warmup' && (
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          <View style={styles.topBadge}>
-            <Flame size={12} color="#F97316" />
-            <Text style={[styles.topBadgeText, { color: '#F97316' }]}>
-              {isPt ? 'ATIVAÇÃO NEUROMUSCULAR' : 'ATTIVAZIONE NEUROMUSCOLARE'}
-            </Text>
-          </View>
-
-          <Text style={styles.screenHeading}>
-            {isPt ? 'Aquecimento Específico' : 'Riscaldamento Specifico'}
-          </Text>
-          <Text style={styles.screenSubheading}>
-            {isPt
-              ? '3 séries de 10 repetições de agachamento com peso corporal para ativar os fusos neuromusculares e preparar o tendão patelar.'
-              : '3 serie da 10 ripetizioni di squat a corpo libero per attivare i fusi neuromuscolari e preparare il tendine rotuleo.'}
-          </Text>
-
-          {/* Demonstração Biomecânica do Agachamento */}
-          <BiomechanicalDemonstration type="warmup" />
-
-          {/* Card Série */}
-          <View style={styles.warmupProgressCard}>
-            <Text style={styles.warmupCardTitle}>
-              {isPt ? `SÉRIE ${warmupSet} DE 3` : `SERIE ${warmupSet} DI 3`}
-            </Text>
-            <Text style={styles.warmupCardReps}>
-              {isPt ? '10 Repetições de Agachamento' : '10 Ripetizioni di Squat'}
-            </Text>
-            <Text style={styles.warmupCardSub}>
-              {isPt ? 'Descida controlada (2s), subida rápida e explosiva (1s)' : 'Discesa controllata (2s), risalita rapida ed esplosiva (1s)'}
-            </Text>
-
-            {isResting ? (
-              <View style={styles.restTimerBox}>
-                <RotateCcw size={18} color={Colors.primary} />
-                <Text style={styles.restTimerText}>
-                  {isPt ? `Recuperação Neural: ${warmupRestSeconds}s` : `Recupero Neurale: ${warmupRestSeconds}s`}
-                </Text>
-                <Text style={styles.restTimerSub}>
-                  {isPt ? 'Descanse completamente antes da próxima série' : 'Riposati completamente prima della prossima serie'}
-                </Text>
-              </View>
-            ) : (
-              <TouchableOpacity
-                style={styles.warmupCompleteBtn}
-                onPress={completeWarmupSet}
-                activeOpacity={0.88}
-              >
-                <Check size={18} color="#000000" strokeWidth={3} />
-                <Text style={styles.warmupCompleteBtnText}>
-                  {warmupSet === 3
-                    ? (isPt ? 'CONCLUIR AQUECIMENTO & ABRIR CÂMERA' : 'COMPLETA RISCALDAMENTO & APRI FOTOCAMERA')
-                    : (isPt ? `SÉRIE ${warmupSet} CONCLUÍDA` : `SERIE ${warmupSet} COMPLETATA`)}
-                </Text>
-              </TouchableOpacity>
-            )}
-
-            {/* Pontos de Progresso */}
-            <View style={styles.warmupDotsRow}>
-              {[1, 2, 3].map((s) => (
-                <View
-                  key={s}
-                  style={[
-                    styles.warmupDot,
-                    warmupSet >= s && styles.warmupDotDone,
-                    warmupSet === s && styles.warmupDotActive,
-                  ]}
-                />
-              ))}
-            </View>
-          </View>
-
-          <View style={styles.warmupTipBox}>
-            <ShieldCheck size={14} color="#10B981" />
-            <Text style={styles.warmupTipText}>
-              {isPt
-                ? 'O aquecimento reduz a rigidez passiva e prepara o SNC para expressar a máxima taxa de desenvolvimento de força durante os saltos.'
-                : 'Il riscaldamento riduce la rigidità passiva e prepara il SNC a esprimere il massimo tasso di sviluppo della forza durante i salti di test.'}
-            </Text>
-          </View>
-        </ScrollView>
-      )}
-
-      {/* ── FASE 3: TESTE COM CÂMERA REAL EM 240FPS & SCRUBBER REAL ── */}
+      {/* ── FASE 2: TESTE COM CÂMERA REAL EM 240FPS & SCRUBBER REAL ── */}
       {phase === 'camera_test' && (
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <RealJumpCamera
